@@ -1,13 +1,9 @@
 
 package ALU
 
-import ALU.operation._
+import config.AluOperation._
 import chisel3._
 import chisel3.util._
-
-object operation {
-  val add :: sll :: srl :: sra :: or :: and :: xor :: slt :: sltu :: sub :: beq :: bne :: blt :: bge :: bltu :: bgeu :: Nil = Enum(16)
-}
 
 class add_subtractor extends Module
 {

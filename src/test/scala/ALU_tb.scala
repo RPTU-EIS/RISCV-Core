@@ -169,6 +169,15 @@ class ALU_tb extends AnyFlatSpec with ChiselScalatestTester
       dut.io.ALUop.poke(3.U(4.W))                   // SRA
       dut.io.aluRes.expect("hffffffff".U(32.W))
 
+      dut.clock.step()
+
+      dut.io.src1.poke("h7fffffff".U(32.W))
+      dut.io.src2.poke(0.U(32.W))
+
+      dut.clock.step()
+      dut.io.ALUop.poke(3.U(4.W))                   // SRA
+      dut.io.aluRes.expect("h7fffffff".U(32.W))
+
     }
   }
 }

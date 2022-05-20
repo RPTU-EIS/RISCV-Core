@@ -22,17 +22,6 @@ class add_subtractor extends Module
   io.res   := io.src1 + op2
   io.c_out := (io.src1(31) & op2(31)) | (Cn_1 & (io.src1(31) ^ op2(31)))
   io.ovf   := io.c_out ^ Cn_1
-
-//  val op1       = io.src1
-//  val op2       = Mux(io.sub, 1.U(32.W) + (~(io.src2)), io.src2)
-//  val sum_diff  = op1 + op2
-//  val Cn_1      = op1(31) ^ op2(31) ^ sum_diff(31)
-//  val Cn        = (op1(31) & op2(31)) | (Cn_1 & (op1(31) ^ op2(31)))
-//  val ovf       = Cn ^ Cn_1
-//
-//  io.res   := sum_diff
-//  io.c_out := Cn
-//  io.ovf   := ovf
 }
 
 
@@ -57,15 +46,15 @@ class ALU extends Module {
   val LTU = ~adder_sub.io.c_out
   val GEU = ~LTU
 
-  val shamt = io.src2(18,0)
+  val shamt = io.src2(4,0)
 
   io.aluRes := 0.U(32.W)
   switch(io.ALUop){
     is(0.U(4.W), 9.U(4.W)){ io.aluRes := SD}                  // Additon, Subtraction
 
-    is(1.U(4.W)){ io.aluRes := io.src1 << shamt}  // SLL, SLLI
+    is(1.U(4.W)){ io.aluRes := (io.src1 << shamt)}  // SLL, SLLI
     is(2.U(4.W)){ io.aluRes := io.src1 >> shamt}  // SRL, SRLI
-    is(3.U(4.W)){ io.aluRes := (Fill(32, io.src1(31)) << (32.U(19.W) - shamt)) | (io.src1 >> shamt)}  // SRA, SRAI
+    is(3.U(4.W)){ io.aluRes := (Fill(32,io.src1(31)) << (31.U(5.W) - (shamt - 1.U(5.W)))) | (io.src1 >> shamt)}  // SRA, SRAI
 
     is(4.U(4.W)){ io.aluRes := io.src1 | io.src2}  // OR
     is(5.U(4.W)){ io.aluRes := io.src1 & io.src2}  // AND

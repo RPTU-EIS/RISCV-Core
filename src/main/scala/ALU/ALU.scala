@@ -1,9 +1,13 @@
 
 package ALU
 
+import ALU.operation._
 import chisel3._
 import chisel3.util._
 
+object operation {
+  val add :: sll :: srl :: sra :: or :: and :: xor :: slt :: sltu :: sub :: beq :: bne :: blt :: bge :: bltu :: bgeu :: Nil = Enum(16)
+}
 
 class add_subtractor extends Module
 {
@@ -49,30 +53,27 @@ class ALU extends Module {
   val shamt = io.src2(4,0)
 
   io.aluRes := 0.U(32.W)
+
+//  val add :: sll :: srl :: sra :: or :: and :: xor :: slt :: sltu :: sub :: beq :: bne :: blt :: bge :: bltu :: bgeu :: Nil = Enum(16)
+
   switch(io.ALUop){
-    is(0.U(4.W), 9.U(4.W)){ io.aluRes := SD}                  // Additon, Subtraction
+    is(add, sub){ io.aluRes := SD}                  // Additon, Subtraction
 
-    is(1.U(4.W)){ io.aluRes := (io.src1 << shamt)}  // SLL, SLLI
-    is(2.U(4.W)){ io.aluRes := io.src1 >> shamt}  // SRL, SRLI
-    is(3.U(4.W)){ io.aluRes := (Fill(32,io.src1(31)) << (31.U(5.W) - (shamt - 1.U(5.W)))) | (io.src1 >> shamt)}  // SRA, SRAI
+    is(sll){ io.aluRes := (io.src1 << shamt)}  // SLL, SLLI
+    is(srl){ io.aluRes := io.src1 >> shamt}  // SRL, SRLI
+    is(sra){ io.aluRes := (Fill(32,io.src1(31)) << (31.U(5.W) - (shamt - 1.U(5.W)))) | (io.src1 >> shamt)}  // SRA, SRAI
 
-    is(4.U(4.W)){ io.aluRes := io.src1 | io.src2}  // OR
-    is(5.U(4.W)){ io.aluRes := io.src1 & io.src2}  // AND
-    is(6.U(4.W)){ io.aluRes := io.src1 ^ io.src2}  // XOR
+    is(or){ io.aluRes := io.src1 | io.src2}  // OR
+    is(and){ io.aluRes := io.src1 & io.src2}  // AND
+    is(xor){ io.aluRes := io.src1 ^ io.src2}  // XOR
 
-    is(7.U(4.W), 12.U(4.W)){ io.aluRes := LT}   // SLT,  SLTI, BLT,
-    is(8.U(4.W), 14.U(4.W)){ io.aluRes := LTU}  // SLTU, SLTIU,BLTU
+    is(slt, blt){ io.aluRes := LT}   // SLT,  SLTI, BLT,
+    is(sltu, bltu){ io.aluRes := LTU}  // SLTU, SLTIU,BLTU
 
-    is(10.U(4.W)){ io.aluRes := EQ}   // BEQ
-    is(11.U(4.W)){ io.aluRes := ~EQ}  // BNE
+    is(beq){ io.aluRes := EQ}   // BEQ
+    is(bne){ io.aluRes := ~EQ}  // BNE
 
-    is(13.U(4.W)){ io.aluRes := GE}   // BGE
-    is(15.U(4.W)){ io.aluRes := GEU}   // BGEU
+    is(bge){ io.aluRes := GE}   // BGE
+    is(bgeu){ io.aluRes := GEU}   // BGEU
   }
-}
-
-object Verilogs extends App
-{
-  (new chisel3.stage.ChiselStage).emitVerilog(new add_subtractor())
-  (new chisel3.stage.ChiselStage).emitVerilog(new ALU())
 }

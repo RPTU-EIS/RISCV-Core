@@ -2,17 +2,41 @@
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import ExtenionUnit._
-import config.ExtensionCases._
 import chisel3._
+import config.ExtensionCases._
 
 class ExtensionUnit_tb extends AnyFlatSpec with ChiselScalatestTester {
   "ExtenionUnit" should "pass" in {
     test(new ExtenionUnit).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      dut.io.instr.poke(0.U(32.W))            // check ID
-      dut.io.ext_type(id)
-      dut.io.ext_imm.expect(0.U(32.W))
+      dut.io.instr.poke("hf5000ac0".U(32.W))            // check ID
+      dut.io.ext_type.poke(id)
+      dut.io.ext_imm.expect("hfffffea8".U(32.W))
 
       dut.clock.step()
+
+      dut.io.ext_type.poke(jal)
+      dut.io.ext_imm.expect("hffe00ea0".U(32.W))
+
+      dut.clock.step()
+
+      dut.io.ext_type.poke(jalr)
+      dut.io.ext_imm.expect("hfffffd40".U(32.W))
+
+      dut.clock.step()
+
+      dut.io.ext_type.poke(auipc)
+      dut.io.ext_imm.expect("hf5000000".U(32.W))
+
+      dut.clock.step()
+
+      dut.io.ext_type.poke(store)
+      dut.io.ext_imm.expect("hffffff40".U(32.W))
+
+      dut.clock.step()
+
+      dut.io.ext_type.poke(i_type)
+      dut.io.ext_imm.expect("hffffff50".U(32.W))
+
     }
   }
 }

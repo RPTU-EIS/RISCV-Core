@@ -3,12 +3,6 @@ package GPR
 
 import chisel3._
 
-//class R_PORT() extends Bundle
-//{
-//  val rs = UInt(4.W)
-//
-//}
-
 class registerFile extends Module
 {
   val io = IO(new Bundle {

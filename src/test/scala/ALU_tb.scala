@@ -3,6 +3,7 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import ALU._
 import chisel3._
+import config.AluOperation._
 
 class ALU_tb extends AnyFlatSpec with ChiselScalatestTester
 {
@@ -43,7 +44,7 @@ class ALU_tb extends AnyFlatSpec with ChiselScalatestTester
   "ALU" should "pass" in {
     test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
-      dut.io.ALUop.poke(0.U(4.W))     // Addition
+      dut.io.ALUop.poke(add)     // Addition
       dut.io.src1.poke(15.U(32.W))
       dut.io.src2.poke(5.U(32.W))
       dut.io.aluRes.expect(20.U(32.W))

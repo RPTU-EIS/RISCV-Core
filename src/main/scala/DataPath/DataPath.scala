@@ -76,7 +76,7 @@ class DataPath extends Module
   bool.io.is_IF := is_if
   val brCond_true = Wire(Bool())  // = is_br & alures(0)
   bool.io.brCond_true := brCond_true
-  bool.io.PC_WE := pc_we
+  pc_we := bool.io.PC_WE
 
     // Extension Unit
   extUnit.io.instr := ir_reg
@@ -91,7 +91,6 @@ class DataPath extends Module
   pc_in := Mux(pc_mux, alu_T_reg, alu_res)
 
     // gpr_data_in_MUX gpr_din_mux
-  gpr_data_in
   when(gpr_din_mux === 0.U(2.W)){
     gpr_data_in := alu_T_reg
   } .elsewhen(gpr_din_mux === 1.U(2.W)){

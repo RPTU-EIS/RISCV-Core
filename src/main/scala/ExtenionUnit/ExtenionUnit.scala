@@ -25,6 +25,6 @@ class ExtenionUnit extends Module
     is(jalr)  { io.ext_imm := Cat(Fill(18, instr(31)), instr(31,20), 0.U(2.W))}
     is(auipc) { io.ext_imm := Cat(instr(31,12), 0.U(12.W))}
     is(store) { io.ext_imm := Cat(Fill(20, instr(31)), instr(31,25), instr(4,0))}
-    is(i_type){ io.ext_imm := Cat(Fill(20, instr(31)), instr(31,20))}
+    is(i_type){ io.ext_imm := Cat(Fill(20, instr(31)), instr(31,20))} // in case of ldr too
   }
 }

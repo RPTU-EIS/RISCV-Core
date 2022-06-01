@@ -46,7 +46,7 @@ class ALU extends Module {
   val LTU = ~adder_sub.io.c_out
   val GEU = ~LTU
 
-  val shamt = io.src2(4,0)
+  val shamt = Mux(io.src2 > 31.U(32.W),31.U(5.W),io.src2(4,0))
 
   io.aluRes := 0.U(32.W)
 

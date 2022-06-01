@@ -15,7 +15,7 @@ class DataPath extends Module
     val opcode = Output(UInt(7.W))
     val funct3 = Output(UInt(3.W))
     val funct7 = Output(UInt(7.W))
-    val controls = Input(UInt(15.W))
+    val controls = Input(UInt(13.W))
     val aluOP = Input(UInt(4.W))
 
     val PC_out = Output(UInt(32.W))
@@ -27,7 +27,7 @@ class DataPath extends Module
   })
 
   // Control signals
-  val dm_din_mux   = io.controls(14,13)
+//  val dm_din_mux   = io.controls(14,13)
   val pc_mux       = io.controls(12)
   val is_if        = io.controls(11)
   val is_br        = io.controls(10)
@@ -122,16 +122,17 @@ class DataPath extends Module
   }.otherwise{
     alu_src2 := gpr_B_reg
   }
-    // dm_din_mux
-  when(dm_din_mux === 0.U(2.W)){
-    dm_data := gpr_B_reg & "h000000ff".U(32.W)
-  } .elsewhen(dm_din_mux === 1.U(2.W)){
-    dm_data := gpr_B_reg & "h0000ffff".U(32.W)
-  }.elsewhen(dm_din_mux === 2.U(2.W)){
-    dm_data := gpr_B_reg
-  }.otherwise{
-    dm_data := gpr_B_reg
-  }
+    // dm_din_mux      TODO depends memory impl., RESOLVED implemented in memory file
+//  when(dm_din_mux === 0.U(2.W)){
+//    dm_data := gpr_B_reg & "h000000ff".U(32.W)
+//  } .elsewhen(dm_din_mux === 1.U(2.W)){
+//    dm_data := gpr_B_reg & "h0000ffff".U(32.W)
+//  }.elsewhen(dm_din_mux === 2.U(2.W)){
+//    dm_data := gpr_B_reg
+//  }.otherwise{
+//    dm_data := gpr_B_reg
+//  }
+  dm_data := gpr_B_reg
 
   // for bool
   brCond_true := is_br & alu_res(0)

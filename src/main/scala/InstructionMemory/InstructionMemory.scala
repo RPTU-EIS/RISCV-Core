@@ -7,7 +7,7 @@ import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.{Annotation, MemorySynthInit}
 
 
-class InstructionMemory(I_memoryFile: String = "instructions.txt") extends Module
+class InstructionMemory(I_memoryFile: String = "src/main/scala/InstructionMemory/instructions") extends Module
 {
   val io = IO(new Bundle{
     val addr  = Input(UInt(32.W))

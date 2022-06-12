@@ -6,7 +6,7 @@ import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemorySynthInit
 
 
-class DataMemory(I_memoryFile: String = "dataMemVals.txt") extends Module
+class DataMemory(I_memoryFile: String = "src/main/scala/DataMemory/dataMemVals") extends Module
 {
   val io = IO(new Bundle{
     val lsMux = Input(UInt(3.W))
@@ -24,6 +24,7 @@ class DataMemory(I_memoryFile: String = "dataMemVals.txt") extends Module
   val d_memory = Mem(10, UInt(32.W))
   val read_data = Wire(UInt(32.W))
   val mask = Wire(UInt(32.W))
+  val data_out = Wire(UInt(32.W))
 
   loadMemoryFromFileInline(d_memory,I_memoryFile)
 
@@ -35,17 +36,17 @@ class DataMemory(I_memoryFile: String = "dataMemVals.txt") extends Module
   }
 
   when(io.lsMux(1,0) === 0.U(2.W)){ // lb
-    io.data_out  := Mux(io.lsMux(2) === 1.U(1.W),read_data & "h000000ff".U(32.W),
+    data_out  := Mux(io.lsMux(2) === 1.U(1.W),read_data & "h000000ff".U(32.W),
                                                   Mux(read_data(7) === 1.U(1.W),  read_data | "hffffff00".U(32.W), read_data & "h000000ff".U(32.W))
                         )
     mask := "h000000ff".U(32.W)
   } .elsewhen(io.lsMux(1,0) === 1.U(2.W)){ // lh
-    io.data_out  := Mux(io.lsMux(2) === 1.U(1.W),read_data & "h0000ffff".U(32.W),
+    data_out  := Mux(io.lsMux(2) === 1.U(1.W),read_data & "h0000ffff".U(32.W),
                                                   Mux(read_data(15) === 1.U(1.W),  read_data | "hffff0000".U(32.W), read_data & "h0000ffff".U(32.W))
                         )
     mask := "h0000ffff".U(32.W)
   }.otherwise{ // lw
-    io.data_out := read_data
+    data_out := read_data
     mask := "hffffffff".U(32.W)
   }
 
@@ -55,4 +56,8 @@ class DataMemory(I_memoryFile: String = "dataMemVals.txt") extends Module
     d_memory(io.addr) := (io.data_in & mask) | (read_data & (~mask))
   }
 
+//  when(io.DM_RE)
+//  {
+    io.data_out := Mux(io.DM_RE, data_out, 0.U(32.W))
+//  }
 }

@@ -122,7 +122,7 @@ class DataPath extends Module
   }.otherwise{
     alu_src2 := gpr_B_reg
   }
-    // dm_din_mux      TODO depends memory impl., RESOLVED implemented in memory file
+    // dm_din_mux      30,mtw-
 //  when(dm_din_mux === 0.U(2.W)){
 //    dm_data := gpr_B_reg & "h000000ff".U(32.W)
 //  } .elsewhen(dm_din_mux === 1.U(2.W)){

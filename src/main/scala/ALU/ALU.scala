@@ -37,7 +37,7 @@ class ALU extends Module {
 
   adder_sub.io.src1 := io.src1
   adder_sub.io.src2 := io.src2
-  adder_sub.io.sub  := io.ALUop >= 7.U(4.W)
+  adder_sub.io.sub  := io.ALUop > 0.U(4.W)
 
   val SD  = adder_sub.io.res  // Add/Subtractor result
   val EQ  = SD === 0.U(32.W)

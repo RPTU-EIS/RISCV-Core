@@ -51,89 +51,96 @@ class ALU_tb extends AnyFlatSpec with ChiselScalatestTester
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(9.U(4.W))     // Subtraction
+      dut.io.ALUop.poke(sub)     // Subtraction
       dut.io.aluRes.expect(10.U(32.W))
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(7.U(4.W))     // SLT, SLTI, BLT True
+      dut.io.ALUop.poke(slt)     // SLT, SLTI, BLT True
       dut.io.src1.poke("hffffffff".U(32.W))
       dut.io.src2.poke(15.U(32.W))
       dut.io.aluRes.expect(1.U(32.W))
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(7.U(4.W))     // SLT, SLTI, BLT False
+      dut.io.ALUop.poke(blt)     // SLT, SLTI, BLT True
+      dut.io.src1.poke("hffffffff".U(32.W))
+      dut.io.src2.poke(15.U(32.W))
+      dut.io.aluRes.expect(1.U(32.W))
+
+      dut.clock.step()
+
+      dut.io.ALUop.poke(slt)     // SLT, SLTI, BLT False
       dut.io.src1.poke(15.U(32.W))
       dut.io.src2.poke(5.U(32.W))
       dut.io.aluRes.expect(0.U(32.W))
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(8.U(4.W))     // SLTU, SLTIU, BLTU True
+      dut.io.ALUop.poke(sltu)     // SLTU, SLTIU, BLTU True
       dut.io.src1.poke(5.U(32.W))
       dut.io.src2.poke(15.U(32.W))
       dut.io.aluRes.expect(1.U(32.W))
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(8.U(4.W))     // SLTU, SLTIU, BLTU False
+      dut.io.ALUop.poke(sltu)     // SLTU, SLTIU, BLTU False
       dut.io.src1.poke(15.U(32.W))
       dut.io.src2.poke(5.U(32.W))
       dut.io.aluRes.expect(0.U(32.W))
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(10.U(4.W))     // BEQ true
+      dut.io.ALUop.poke(beq)     // BEQ true
       dut.io.src1.poke(5.U(32.W))
       dut.io.src2.poke(5.U(32.W))
       dut.io.aluRes.expect(1.U(32.W))
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(10.U(4.W))     // BEQ false
+      dut.io.ALUop.poke(beq)     // BEQ false
       dut.io.src1.poke(15.U(32.W))
       dut.io.src2.poke(5.U(32.W))
       dut.io.aluRes.expect(0.U(32.W))
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(11.U(4.W))     // BNEQ false
+      dut.io.ALUop.poke(bne)     // BNEQ false
       dut.io.src1.poke(5.U(32.W))
       dut.io.src2.poke(5.U(32.W))
       dut.io.aluRes.expect(0.U(32.W))
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(11.U(4.W))     // BNEQ true
+      dut.io.ALUop.poke(bne)     // BNEQ true
       dut.io.src1.poke(15.U(32.W))
       dut.io.src2.poke(5.U(32.W))
       dut.io.aluRes.expect(1.U(32.W))
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(13.U(4.W))     // BGE true
+      dut.io.ALUop.poke(bge)     // BGE true
       dut.io.src1.poke(15.U(32.W))
       dut.io.src2.poke(5.U(32.W))
       dut.io.aluRes.expect(1.U(32.W))
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(13.U(4.W))     // BGE false
+      dut.io.ALUop.poke(bge)     // BGE false
       dut.io.src1.poke(15.U(32.W))
       dut.io.src2.poke(50.U(32.W))
       dut.io.aluRes.expect(0.U(32.W))
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(13.U(4.W))     // BGEU true
+      dut.io.ALUop.poke(bgeu)     // BGEU true
       dut.io.src1.poke(15.U(32.W))
       dut.io.src2.poke(5.U(32.W))
       dut.io.aluRes.expect(1.U(32.W))
 
       dut.clock.step()
 
-      dut.io.ALUop.poke(13.U(4.W))     // BGEU false
+      dut.io.ALUop.poke(bgeu)     // BGEU false
       dut.io.src1.poke(15.U(32.W))
       dut.io.src2.poke(50.U(32.W))
       dut.io.aluRes.expect(0.U(32.W))
@@ -143,15 +150,15 @@ class ALU_tb extends AnyFlatSpec with ChiselScalatestTester
       dut.io.src1.poke(1.U(32.W))
       dut.io.src2.poke(2.U(32.W))
 
-      dut.io.ALUop.poke(4.U(4.W))     // or
+      dut.io.ALUop.poke(or)     // or
       dut.io.aluRes.expect(3.U(32.W))
 
       dut.clock.step()
-      dut.io.ALUop.poke(5.U(4.W))     // and
+      dut.io.ALUop.poke(and)     // and
       dut.io.aluRes.expect(0.U(32.W))
 
       dut.clock.step()
-      dut.io.ALUop.poke(6.U(4.W))     // xor
+      dut.io.ALUop.poke(xor)     // xor
       dut.io.aluRes.expect(3.U(32.W))
 
       dut.clock.step()
@@ -159,15 +166,15 @@ class ALU_tb extends AnyFlatSpec with ChiselScalatestTester
       dut.io.src1.poke("hffffffff".U(32.W))
       dut.io.src2.poke(4.U(32.W))
 
-      dut.io.ALUop.poke(1.U(4.W))                   // SLL
+      dut.io.ALUop.poke(sll)                   // SLL
       dut.io.aluRes.expect("hfffffff0".U(32.W))
 
       dut.clock.step()
-      dut.io.ALUop.poke(2.U(4.W))                   // SRL
+      dut.io.ALUop.poke(srl)                   // SRL
       dut.io.aluRes.expect("h0fffffff".U(32.W))
 
       dut.clock.step()
-      dut.io.ALUop.poke(3.U(4.W))                   // SRA
+      dut.io.ALUop.poke(sra)                   // SRA
       dut.io.aluRes.expect("hffffffff".U(32.W))
 
       dut.clock.step()
@@ -176,7 +183,7 @@ class ALU_tb extends AnyFlatSpec with ChiselScalatestTester
       dut.io.src2.poke(0.U(32.W))
 
       dut.clock.step()
-      dut.io.ALUop.poke(3.U(4.W))                   // SRA
+      dut.io.ALUop.poke(sra)                   // SRA
       dut.io.aluRes.expect("h7fffffff".U(32.W))
 
     }

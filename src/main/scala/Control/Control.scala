@@ -58,15 +58,46 @@ class Control extends Module
   DM_RE := false.B
 
   switch(stateReg){ // TODO complete output and next state evaluations
-    is(fetch) {}
-    is(dec)   {}
-    is(exec)  {}
-    is(mem)   {}
-    is(wb)    {}
+    is(fetch) { // TODO recheck
+      is_if        := 1.U(1.W)
+      is_br        := 0.U(1.W)
+      ir_we        := 1.U(1.W)
+      gpr_we       := 0.U(1.W)
+      gpr_din_mux  := 0.U(2.W)
+      src1_alu_mux := 0.U(1.W)
+      src2_alu_mux := 1.U(2.W)
+      DM_WE        := false.B
+      DM_RE        := false.B
+      exts_type    := 0.U(2.W)
+      pc_mux       := 0.U(1.W)
+      lsMux        := 0.U(3.W)
+      aluOP        := add
+      nextState    := dec
+    }
+    is(dec)   {} // TODO
+    is(exec)  {} // TODO
+    is(mem)   {} // TODO
+    is(wb)    {
+      is_if        := 0.U(1.W)
+      is_br        := 0.U(1.W)
+      ir_we        := 0.U(1.W)
+      gpr_we       := 1.U(1.W)
+      gpr_din_mux  := 1.U(2.W)
+      src1_alu_mux := 0.U(1.W)
+      src2_alu_mux := 0.U(2.W)
+      DM_WE        := false.B
+      DM_RE        := false.B
+      exts_type    := 0.U(2.W)
+      pc_mux       := 0.U(1.W)
+      lsMux        := 0.U(3.W)
+      aluOP        := add
+      nextState    := fetch
+    }
   }
 
-  stateReg := nextState
+  stateReg := nextState // state update
 
+  // outputs
   io.controls(12)  := pc_mux
   io.controls(11)  := is_if
   io.controls(10)  := is_br

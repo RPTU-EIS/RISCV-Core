@@ -102,173 +102,66 @@ class Control extends Module
       }
     }
     is(exec)  {
+      is_if        := 0.U(1.W)
+      is_br        := Mux(io.opcode === "b1100011".U(7.W), 1.U(1.W), 0.U(1.W)) // br ? 1 : 0
+      ir_we        := 0.U(1.W)
+      gpr_we       := 0.U(1.W)
+      gpr_din_mux  := 0.U(2.W)
+      DM_WE        := false.B
+      DM_RE        := false.B
+      pc_mux       := Mux(io.opcode === "b1100011".U(7.W), 1.U(1.W), 0.U(1.W)) //  br ? 1 : 0
+      lsMux        := 0.U(3.W)
+      nextState    := Mux(io.opcode === "b1100011".U(7.W), fetch, mem) //  br ? fetch : mem
       when(io.opcode === "b0110011".U(7.W)){ // R type
-        is_if        := 0.U(1.W)
-        is_br        := 0.U(1.W)
-        ir_we        := 0.U(1.W)
-        gpr_we       := 0.U(1.W)
-        gpr_din_mux  := 0.U(2.W)
         src1_alu_mux := 1.U(1.W)
         src2_alu_mux := 0.U(2.W)
-        DM_WE        := false.B
-        DM_RE        := false.B
         exts_type    := 0.U(2.W)
-        pc_mux       := 0.U(1.W)
-        lsMux        := 0.U(3.W)
         when(io.funct3 === 5.U(3.W)){
           aluOP := Mux(io.funct7(5) === 1.U(1.W), sra, srl)
-        } .otherwise{
+        }
+          .otherwise{
           aluOP := Cat(io.funct7(5), io.funct3)
         }
-        nextState    := mem
       }
         .elsewhen(io.opcode === "b0010011".U(7.W)){ // i type
-        is_if        := 0.U(1.W)
-        is_br        := 0.U(1.W)
-        ir_we        := 0.U(1.W)
-        gpr_we       := 0.U(1.W)
-        gpr_din_mux  := 0.U(2.W)
         src1_alu_mux := 1.U(1.W)
         src2_alu_mux := 2.U(2.W)
-        DM_WE        := false.B
-        DM_RE        := false.B
         exts_type    := i_type //0.U(2.W)
-        pc_mux       := 0.U(1.W)
-        lsMux        := 0.U(3.W)
         when(io.funct3 === 5.U(3.W)){
           aluOP := Mux(io.funct7(5) === 1.U(1.W), sra, srl)
         } .otherwise{
           aluOP := Cat(0.U(1.W), io.funct3)
         }
-        nextState    := mem
       }
-        .elsewhen(io.opcode === "b0000011".U(7.W)){ // load
-        is_if        := 0.U(1.W)
-        is_br        := 0.U(1.W)
-        ir_we        := 0.U(1.W)
-        gpr_we       := 0.U(1.W)
-        gpr_din_mux  := 0.U(2.W)
+        .elsewhen(io.opcode === "b0000011".U(7.W) | io.opcode === "b0100011".U(7.W)){ // load or store
         src1_alu_mux := 1.U(1.W)
         src2_alu_mux := 2.U(2.W)
-        DM_WE        := false.B
-        DM_RE        := false.B
-        exts_type    := i_type
-        pc_mux       := 0.U(1.W)
-        lsMux        := 0.U(3.W)//io.funct3
+        exts_type    := Mux(io.opcode === "b0000011".U(7.W), i_type, store) // load ? i_type : store
         aluOP        := add
-        nextState    := mem
-      }
-        .elsewhen(io.opcode === "b0100011".U(7.W)){ // store              TODO put store and load into one elsewhen
-        is_if        := 0.U(1.W)
-        is_br        := 0.U(1.W)
-        ir_we        := 0.U(1.W)
-        gpr_we       := 0.U(1.W)
-        gpr_din_mux  := 0.U(2.W)
-        src1_alu_mux := 1.U(1.W)
-        src2_alu_mux := 2.U(2.W)
-        DM_WE        := false.B
-        DM_RE        := false.B
-        exts_type    := store
-        pc_mux       := 0.U(1.W)
-        lsMux        := 0.U(3.W)
-        aluOP        := add
-        nextState    := mem
       }
         .elsewhen(io.opcode === "b0010111".U(7.W)){ // auipc
-        is_if        := 0.U(1.W)
-        is_br        := 0.U(1.W)
-        ir_we        := 0.U(1.W)
-        gpr_we       := 0.U(1.W)
-        gpr_din_mux  := 0.U(2.W)
         src1_alu_mux := 0.U(1.W)
         src2_alu_mux := 2.U(2.W)
-        DM_WE        := false.B
-        DM_RE        := false.B
         exts_type    := auipc
-        pc_mux       := 0.U(1.W)
-        lsMux        := 0.U(3.W)
         aluOP        := add
-        nextState    := mem
       }
         .elsewhen(io.opcode === "b1100011".U(7.W)){ // branch
-        is_if        := 0.U(1.W)
-        is_br        := 1.U(1.W)
-        ir_we        := 0.U(1.W)
-        gpr_we       := 0.U(1.W)
-        gpr_din_mux  := 0.U(2.W)
         src1_alu_mux := 1.U(1.W)
         src2_alu_mux := 0.U(2.W)
-        DM_WE        := false.B
-        DM_RE        := false.B
         exts_type    := id
-        pc_mux       := 1.U(1.W)
-        lsMux        := 0.U(3.W)
         aluOP        := Mux(io.funct3 === 0.U(3.W), beq, Cat(1.U(1.W), io.funct3))
-        nextState    := fetch
       }
-        .elsewhen(io.opcode === "b1101111".U(7.W)){ // jal
-          is_if        := 0.U(1.W)
-          is_br        := 0.U(1.W)
-          ir_we        := 0.U(1.W)
-          gpr_we       := 0.U(1.W)
-          gpr_din_mux  := 0.U(2.W)
-          src1_alu_mux := 0.U(1.W)
+        .elsewhen(io.opcode === "b1101111".U(7.W) | io.opcode === "b1100111".U(7.W)){ // jal or jalr
+          src1_alu_mux := Mux(io.opcode === "b1101111".U(7.W), 0.U(1.W), 1.U(1.W)) // jal ? PC : register (alu 1st operand)
           src2_alu_mux := 2.U(2.W)
-          DM_WE        := false.B
-          DM_RE        := false.B
-          exts_type    := jal
-          pc_mux       := 0.U(1.W)
-          lsMux        := 0.U(3.W)
+          exts_type    := Mux(io.opcode === "b1101111".U(7.W), jal, jalr) // jal ? jal : jalr (extension types)
           aluOP        := add
-          nextState    := mem
         }
-        .elsewhen(io.opcode === "b1100111".U(7.W)){ // jalr
-        is_if        := 0.U(1.W)
-        is_br        := 0.U(1.W)
-        ir_we        := 0.U(1.W)
-        gpr_we       := 0.U(1.W)
-        gpr_din_mux  := 0.U(2.W)
-        src1_alu_mux := 1.U(1.W)
-        src2_alu_mux := 2.U(2.W)
-        DM_WE        := false.B
-        DM_RE        := false.B
-        exts_type    := jalr
-        pc_mux       := 0.U(1.W)
-        lsMux        := 0.U(3.W)
-        aluOP        := add
-        nextState    := mem
-      }
-        .elsewhen(io.opcode === "b1100111".U(7.W)){ // jalr
-        is_if        := 0.U(1.W)
-        is_br        := 0.U(1.W)
-        ir_we        := 0.U(1.W)
-        gpr_we       := 0.U(1.W)
-        gpr_din_mux  := 0.U(2.W)
-        src1_alu_mux := 1.U(1.W)
-        src2_alu_mux := 2.U(2.W)
-        DM_WE        := false.B
-        DM_RE        := false.B
-        exts_type    := jalr
-        pc_mux       := 0.U(1.W)
-        lsMux        := 0.U(3.W)
-        aluOP        := add
-        nextState    := mem
-      }
         .otherwise{ // nop
-          is_if        := 0.U(1.W)
-          is_br        := 0.U(1.W)
-          ir_we        := 0.U(1.W)
-          gpr_we       := 0.U(1.W)
-          gpr_din_mux  := 0.U(2.W)
           src1_alu_mux := 1.U(1.W)
           src2_alu_mux := 2.U(2.W)
-          DM_WE        := false.B
-          DM_RE        := false.B
           exts_type    := jalr
-          pc_mux       := 0.U(1.W)
-          lsMux        := 0.U(3.W)
           aluOP        := add
-          nextState    := mem
         }
     }
     is(mem)   {

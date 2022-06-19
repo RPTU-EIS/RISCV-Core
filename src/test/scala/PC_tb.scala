@@ -6,7 +6,7 @@ import chisel3._
 
 
 class PC_tb extends AnyFlatSpec with ChiselScalatestTester {
-  "GPR" should "pass" in {
+  "PC" should "pass" in {
     test(new PC).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       dut.io.PC_next.poke(20.U(32.W)) // write 5 to reg 15
       dut.io.WE.poke(true.B)

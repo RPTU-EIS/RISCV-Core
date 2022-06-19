@@ -4,7 +4,7 @@ import DataMemory._
 import chisel3._
 
 class DataMemory_tb extends AnyFlatSpec with ChiselScalatestTester {
-  "InstructionMemory" should "pass" in {
+  "DM" should "pass" in {
     test(new DataMemory("src/main/scala/DataMemory/dataMemVals")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
       dut.io.lsMux.poke(2.U(3.W)) //////////// word

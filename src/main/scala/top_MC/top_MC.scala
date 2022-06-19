@@ -8,7 +8,9 @@ import Control._
 import DataPath._
 
 class top_MC extends Module {
-
+  val io = IO(new Bundle{
+    val out1 = Output(UInt(7.W))
+  })
   val contr = Module(new Control())
   val DM    = Module(new DataMemory())
   val IM    = Module(new InstructionMemory())
@@ -30,4 +32,6 @@ class top_MC extends Module {
   DM.io.data_in := DP.io.dm_data
 
   IM.io.addr := DP.io.PC_out
+
+  io.out1 := DP.io.opcode
 }

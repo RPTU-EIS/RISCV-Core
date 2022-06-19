@@ -62,7 +62,7 @@ class Control extends Module
   DM_RE := false.B
 
   switch(stateReg){
-    is(fetch) { // TODO recheck
+    is(fetch) { //
       is_if        := 1.U(1.W)
       is_br        := 0.U(1.W)
       ir_we        := 1.U(1.W)

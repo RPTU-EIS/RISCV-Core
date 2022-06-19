@@ -18,7 +18,7 @@ class InstructionMemory(I_memoryFile: String = "src/main/scala/InstructionMemory
     override def toFirrtl = MemorySynthInit
   })
 
-  val i_memory = Mem(10, UInt(32.W))
+  val i_memory = Mem(100, UInt(32.W))
 
 
   loadMemoryFromFileInline(i_memory,I_memoryFile)

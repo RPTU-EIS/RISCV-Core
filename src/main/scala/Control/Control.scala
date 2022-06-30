@@ -148,7 +148,7 @@ class Control extends Module
         .elsewhen(io.opcode === "b1100011".U(7.W)){ // branch
         src1_alu_mux := 1.U(1.W)
         src2_alu_mux := 0.U(2.W)
-        exts_type    := id
+        exts_type    := id// todo set to 0
         aluOP        := Mux(io.funct3 === 0.U(3.W), beq, Cat(1.U(1.W), io.funct3))
       }
         .elsewhen(io.opcode === "b1101111".U(7.W) | io.opcode === "b1100111".U(7.W)){ // jal or jalr
@@ -160,8 +160,8 @@ class Control extends Module
         .otherwise{ // nop
           src1_alu_mux := 1.U(1.W)
           src2_alu_mux := 2.U(2.W)
-          exts_type    := jalr
-          aluOP        := add
+          exts_type    := jalr // todo set to 0
+          aluOP        := add //
         }
     }
     is(mem)   {

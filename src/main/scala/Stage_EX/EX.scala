@@ -39,6 +39,7 @@ class EX extends Module
   ALUop := EX_cntr(5,2)
   io.j_br_mux_sel := EX_cntr(1)
   io.is_br_j := EX_cntr(0)
+  io.alu_res0 := aluRes(0)
 
   //src1 := io.id_ex_reg(187, 156)
   //src2 := io.id_ex_reg(155, 124)

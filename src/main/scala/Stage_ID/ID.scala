@@ -13,7 +13,7 @@ class ID extends Module
     val DE_pip_reg_WE = Input(UInt(1.W))
     val mem_wb_reg     = Input(UInt(136.W))  // last pipeline reg(mem/wb) = (LUI_Res, PC+4, ALU_T, MDR, WB)
     val if_id_reg     = Input(UInt(64.W))  // first pipeline reg(IF/id) = (instr, PC+4)
-    val id_ex_reg     = Output(UInt(156.W))  // second pipeline reg(Id/EX) = (A, B, LUI_res, EXT_Imm, rd, ex,mem,wb)
+    val id_ex_reg     = Output(UInt(188.W))  // second pipeline reg(Id/EX) = (A, B, LUI_res, EXT_Imm, PC_Plus_4, rd, ex,mem,wb)
   })
 
   val gpr     = Module(new registerFile())
@@ -80,11 +80,12 @@ class ID extends Module
   }
 
   val id_ex_reg = RegInit(0.U(156.W))
+  val WB_cntr = control.io.WB_cntr
 
   //  second pipeline reg(Id/EX) = (A, B, LUI_res, EXT_Imm, rd, ex,mem,wb)
   when(io.DE_pip_reg_WE === 1.U(1.W)){
-    id_ex_reg := Cat(data_A, data_B, LUI_res, ext_imm, instr(11,7),
-      control.io.EX_cntr, control.io.MEM_cntr, control.io.WB_cntr)
+    id_ex_reg := Cat(data_A, data_B, LUI_res, ext_imm, PC_Plus_4, instr(11,7),
+      control.io.EX_cntr, control.io.MEM_cntr, WB_cntr(7), instr(11,7), WB_cntr(1,0)) //// GPR_WE, GPR_RD, GPR_dataInMuxSel
   }
 
   io.id_ex_reg := id_ex_reg

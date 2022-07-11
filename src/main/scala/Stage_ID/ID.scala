@@ -11,7 +11,7 @@ class ID extends Module
 {
   val io = IO(new Bundle {
     val DE_pip_reg_WE = Input(UInt(1.W))
-    val mem_wb_reg     = Input(UInt(136.W))  // last pipeline reg(mem/wb) = (LUI_Res, PC+4, ALU_T, MDR, WB)
+    val mem_wb_reg    = Input(UInt(136.W))  // last pipeline reg(mem/wb) = (LUI_Res, PC+4, ALU_T, MDR, WB)
     val if_id_reg     = Input(UInt(64.W))  // first pipeline reg(IF/id) = (instr, PC+4)
     val id_ex_reg     = Output(UInt(188.W))  // second pipeline reg(Id/EX) = (A, B, LUI_res, EXT_Imm, PC_Plus_4, rd, ex,mem,wb)
   })

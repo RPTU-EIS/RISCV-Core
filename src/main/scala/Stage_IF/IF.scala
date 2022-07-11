@@ -9,7 +9,7 @@ import InstructionMemory._
 class IF extends Module
 {
   val io = IO(new Bundle {
-    val FD_pip_reg_WE = Input(UInt(32.W))
+    val FD_pip_reg_WE = Input(UInt(1.W))
     val br_target     = Input(UInt(32.W))  // forwarded jump target       (forwarded from exec stage)
     val jm_target     = Input(UInt(32.W))  // forwarded br target         (forwarded from exec stage)
     val j_br_mux_sel  = Input(UInt(1.W))   // forwarded j_or_br mux sel   (forwarded from exec stage)

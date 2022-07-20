@@ -62,6 +62,7 @@ class ID extends Module
   control.io.opcode := instr(6,0)
   control.io.funct3 := instr(14,12)
   control.io.funct7 := instr(31,25)
+  control.io.gpr_rd := instr(11,7)
 
   extUnit.io.ext_type := control.io.ext_type
   extUnit.io.instr := instr

@@ -49,17 +49,17 @@ class EX extends Module
   ALU.io.ALUop := ALUop
   aluRes := ALU.io.aluRes
 
-  when(alu_src1_mux_sel === 0.U(1.W)){
+  when(alu_src1_mux_sel === 0.U(2.W)){
     src1 := PC_Plus_4
-  } .elsewhen(alu_src1_mux_sel === 1.U(1.W)){
+  } .elsewhen(alu_src1_mux_sel === 1.U(2.W)){
     src1 := io.id_ex_reg(187, 156) //gpr_A_reg
   }.otherwise{
     src1 := io.id_ex_reg(187, 156) //gpr_A_reg
   }
 
-  when(alu_src2_mux_sel === 0.U(1.W)){
+  when(alu_src2_mux_sel === 0.U(2.W)){
     src2 := io.id_ex_reg(155, 124) // grp_B_REG
-  } .elsewhen(alu_src2_mux_sel === 1.U(1.W)){
+  } .elsewhen(alu_src2_mux_sel === 1.U(2.W)){
     src2 := Ext_imm
   }.otherwise{
     src2 := Ext_imm

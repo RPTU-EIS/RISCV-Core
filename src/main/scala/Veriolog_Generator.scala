@@ -1,14 +1,6 @@
+package main.scala
 
-import ALU._
-import bool._
 
-import Control._
-import DataMemory._
-import DataPath._
-import ExtenionUnit._
-import GPR._
-import InstructionMemory._
-import PC._
 import top_MC._
 
 object VerilogGen extends App

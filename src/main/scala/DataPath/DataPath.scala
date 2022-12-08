@@ -8,6 +8,7 @@ import bool._
 import ExtenionUnit._
 import GPR._
 import PC._
+import FW._
 
 class DataPath extends Module
 {
@@ -46,6 +47,7 @@ class DataPath extends Module
   val gpr     = Module(new registerFile())
   val bool    = Module(new bool())
   val extUnit = Module(new ExtenionUnit())
+  val FW      = Module(new FW())
 
   // datapath signals connecting to the IO ports of modules
     // PC

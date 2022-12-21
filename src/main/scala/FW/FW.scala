@@ -1,16 +1,8 @@
 package FW
+
+import config.ControlSignals._
 import chisel3._
 import chisel3.util._
-
-
-class ControlSignals extends Bundle(){
-  val memToReg   = Bool()
-  val regWrite   = Bool()
-  val memRead    = Bool()
-  val memWrite   = Bool()
-  val branch     = Bool()
-  val jump       = Bool()
-}
 
 class FW extends Module
 {

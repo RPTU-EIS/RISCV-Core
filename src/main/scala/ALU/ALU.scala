@@ -32,16 +32,8 @@ class ALU extends Module {
     ALU_SLTU:= 0.U
   }
 
-//  val SD  = adder_sub.io.res  // Add/Subtractor result
-//  val EQ  = SD === 0.U(32.W)
-//  val LT  = adder_sub.io.ovf ^ SD(31)
-//  val GE  = ~LT
-//  val LTU = ~adder_sub.io.c_out
-//  val GEU = ~LTU
-//
+
   val shamt = io.src2(4,0)
-//
-//  io.aluRes := 46.U(32.W)
 
 //  val add :: sll :: srl :: sra :: or :: and :: xor :: slt :: sltu :: sub :: beq :: bne :: blt :: bge :: bltu :: bgeu :: Nil = Enum(16)
 
@@ -59,8 +51,12 @@ class ALU extends Module {
     is(slt, blt){ io.aluRes := ALU_SLT}   // SLT,  SLTI, BLT,
     is(sltu, bltu){ io.aluRes := ALU_SLTU}  // SLTU, SLTIU,BLTU
 
-    is(beq){ io.aluRes := (0.U(32.W) === (io.src1 - io.src2))}   // BEQ
-    is(bne){ io.aluRes := ~(0.U(32.W) === (io.src1 - io.src2))}  // BNE
+//    is(beq){ io.aluRes := (0.U(32.W) === (io.src1 - io.src2))}   // BEQ
+//    is(bne){ io.aluRes := ~(0.U(32.W) === (io.src1 - io.src2))}  // BNE
+
+    is(inc4){ io.aluRes := io.src1 + 4.U}  // OR
+    is(copyb){ io.aluRes := io.src2}  // AND
+    is(dc){ io.aluRes := io.src1 - io.src2}  // XOR
 
 //    is(bge){ io.aluRes := GE}   // BGE
 //    is(bgeu){ io.aluRes := GEU}   // BGEU

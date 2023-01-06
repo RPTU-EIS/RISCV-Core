@@ -3,10 +3,7 @@ package Stage_EX
 import ALU.ALU
 import FW.FW
 import Branch_OP.Branch_OP
-
-import config.ControlSignals._
-import chisel3._
-import chisel3.util._
+import config.{ControlSignals, Instruction, branch_types, op1sel, op2sel}
 
 class Execute extends Module {
 
@@ -24,7 +21,8 @@ class Execute extends Module {
       val Rs2                = Input(UInt())
       val immData            = Input(UInt())
       val ALUop              = Input(UInt())
-      //Forwarder
+
+      //Forward unit
       val rdEXB              = Input(UInt())
       val ALUresultEXB       = Input(UInt())
       val rdMEMB             = Input(UInt())
@@ -42,9 +40,9 @@ class Execute extends Module {
   )
 
   val ALU          = Module(new ALU).io
-  val Branch       = Module(new BranchConditionCheck).io
-  val Rs1Forwarder = Module(new Forwarder).io
-  val Rs2Forwarder = Module(new Forwarder).io
+  val Branch       = Module(new Branch_OP).io
+  val Rs1FW        = Module(new FW).io
+  val Rs2FW        = Module(new FW).io
 
   val insertBubble            = Wire(Bool())
   val alu_operand1            = Wire(UInt())
@@ -61,42 +59,42 @@ class Execute extends Module {
   //////////////////////
 
   Branch.branchType := io.branchType
-  Branch.op1        := alu_operand_1_forwarded
-  Branch.op2        := alu_operand_2_forwarded
-  io.branch         := Branch.branchConditionMet
+  Branch.src1        := alu_operand_1_forwarded
+  Branch.src2        := alu_operand_2_forwarded
+  io.branch         := Branch.branchCondition
 
 
   ////////////////
   // Forwarders //
   ////////////////
-  Rs1Forwarder.regAddr            := io.instruction.registerRs1
-  Rs1Forwarder.controlSignalsEXB  := io.controlSignalsEXB
-  Rs1Forwarder.controlSignalsMEMB := io.controlSignalsMEMB
-  Rs1Forwarder.regData            := io.rs1
-  Rs1Forwarder.rdEXB              := io.rdEXB
-  Rs1Forwarder.ALUresultEXB       := io.ALUresultEXB
-  Rs1Forwarder.rdMEMB             := io.rdMEMB
-  Rs1Forwarder.ALUresultMEMB      := io.ALUresultMEMB
-  alu_operand_1_forwarded         := Rs1Forwarder.operandData
-  freeze_rs1                      := Rs1Forwarder.freeze
+  Rs1FW.regAddr            := io.instruction.registerRs1
+  Rs1FW.controlSignalsEXB  := io.controlSignalsEXB
+  Rs1FW.controlSignalsMEMB := io.controlSignalsMEMB
+  Rs1FW.regData            := io.rs1
+  Rs1FW.rdEXB              := io.rdEXB
+  Rs1FW.ALUresultEXB       := io.ALUresultEXB
+  Rs1FW.rdMEMB             := io.rdMEMB
+  Rs1FW.ALUresultMEMB      := io.ALUresultMEMB
+  alu_operand_1_forwarded         := Rs1FW.operandData
+  freeze_rs1                      := Rs1FW.freeze
 
-  Rs2Forwarder.regAddr            := io.instruction.registerRs2
-  Rs2Forwarder.controlSignalsEXB  := io.controlSignalsEXB
-  Rs2Forwarder.controlSignalsMEMB := io.controlSignalsMEMB
-  Rs2Forwarder.regData            := io.Rs2
-  Rs2Forwarder.rdEXB              := io.rdEXB
-  Rs2Forwarder.ALUresultEXB       := io.ALUresultEXB
-  Rs2Forwarder.rdMEMB             := io.rdMEMB
-  Rs2Forwarder.ALUresultMEMB      := io.ALUresultMEMB
-  alu_operand_2_forwarded         := Rs2Forwarder.operandData
-  freeze_rs2                      := Rs2Forwarder.freeze
+  Rs2FW.regAddr            := io.instruction.registerRs2
+  Rs2FW.controlSignalsEXB  := io.controlSignalsEXB
+  Rs2FW.controlSignalsMEMB := io.controlSignalsMEMB
+  Rs2FW.regData            := io.Rs2
+  Rs2FW.rdEXB              := io.rdEXB
+  Rs2FW.ALUresultEXB       := io.ALUresultEXB
+  Rs2FW.rdMEMB             := io.rdMEMB
+  Rs2FW.ALUresultMEMB      := io.ALUresultMEMB
+  alu_operand_2_forwarded         := Rs2FW.operandData
+  freeze_rs2                      := Rs2FW.freeze
 
   //stall signal to IDBarrier and EXBarrier
   io.freeze := freeze_rs1 | freeze_rs2
 
   //Do not insert a bubble when freezing
   when((freeze_rs1 | freeze_rs2) === false.B){
-    insertBubble  := io.controlSignals.jump | (io.controlSignals.branch & Branch.branchConditionMet  === 1.U)
+    insertBubble  := io.controlSignals.jump | (io.controlSignals.branch & Branch.branchCondition  === 1.U)
   }.otherwise{
     insertBubble  := false.B
   }
@@ -108,14 +106,14 @@ class Execute extends Module {
   /////////
 
   //Operand 1 Mux
-  when(io.op1Select === Op1Select.PC){
+  when(io.op1Select === op1sel.PC){
     alu_operand1    := io.PC
   }.otherwise{
     alu_operand1    := alu_operand_1_forwarded
   }
 
   //Operand 2 Mux
-  when(io.op2Select === Op2Select.rs2){
+  when(io.op2Select === op2sel.rs2){
     alu_operand2    := alu_operand_2_forwarded
   }.otherwise{
     alu_operand2    := io.immData
@@ -126,10 +124,10 @@ class Execute extends Module {
   io.Rs2Forwarded := alu_operand_2_forwarded
 
   //ALU
-  ALU.op1           :=alu_operand1
-  ALU.op2           :=alu_operand2
+  ALU.src1           :=alu_operand1
+  ALU.src2           :=alu_operand2
   ALU.ALUop         :=io.ALUop
-  alu_result        := ALU.result
+  alu_result        := ALU.aluRes
 
 
   /////////////////
@@ -141,7 +139,7 @@ class Execute extends Module {
   /////////////////////////////
   // ALU RESULT / PC + 4 MUX //
   /////////////////////////////
-  when(io.branchType === branchType.jump){
+  when(io.branchType === branch_types.jump){
     io.ALUResult := io.PC + 4.U
   }.otherwise{
     io.ALUResult := alu_result
@@ -219,7 +217,7 @@ class Execute extends Module {
 //  }.otherwise{
 //    src2 := Ext_imm
 //  }
-//
+///////////////////////////
 //  br_target := PC_Plus_4 + Ext_imm
 //
 //
@@ -234,3 +232,10 @@ class Execute extends Module {
 //  io.jm_target := aluRes
 //  io.br_target := br_target
 //}
+
+
+
+
+
+
+

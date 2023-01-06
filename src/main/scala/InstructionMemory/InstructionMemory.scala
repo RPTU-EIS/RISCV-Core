@@ -1,12 +1,8 @@
 package InstructionMemory
 import chisel3._
 import chisel3.util._
+import config.IMEMsetupSignals
 
-class IMEMsetupSignals extends Bundle {
-  val setup       = Bool()
-  val address     = UInt(32.W)
-  val instruction = UInt(32.W)
-}
 class InstructionMemory extends Module
 {
   val testHarness = IO(

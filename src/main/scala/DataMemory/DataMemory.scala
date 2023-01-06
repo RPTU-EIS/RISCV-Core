@@ -4,19 +4,8 @@ import chisel3._
 import chisel3.experimental.{ChiselAnnotation, annotate}
 import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemorySynthInit
-
-class DMEMsetupSignals extends Bundle {
-  val setup           = Bool()
-  val writeEnable = Bool()
-  val dataIn      = UInt(32.W)
-  val dataAddress = UInt(32.W)
-}
-
-class MemUpdates extends Bundle {
-  val writeEnable  = Bool()
-  val writeData    = UInt(32.W)
-  val writeAddress = UInt(32.W)
-}
+import config.DMEMsetupSignals
+import config.MemUpdates
 
 class DataMemory extends Module
 {

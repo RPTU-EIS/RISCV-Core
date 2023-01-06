@@ -1,9 +1,13 @@
 package FW
 
-import config.ControlSignals._
+import config._
 import chisel3._
 import chisel3.util._
 
+// TODO: use bundles for inputs instead of having lots of io port and to classify the ports
+
+
+// TODO: chech the importing of classes from outside packages using with trait
 class FW extends Module
 {
   val io = IO(

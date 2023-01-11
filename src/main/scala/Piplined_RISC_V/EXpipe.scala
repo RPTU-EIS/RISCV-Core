@@ -1,7 +1,9 @@
 package Piplined_RISC_V
 import chisel3._
 import chisel3.util._
-import config.{ControlSignals}
+import config.{ControlSignals, ControlSignalsOB}
+import config.ControlSignalsOB._
+
 class EXpipe extends Module
 {
   val io = IO(
@@ -47,7 +49,7 @@ class EXpipe extends Module
   // }
 
   when(io.freeze){
-    controlSignalsReg := ControlSignals.nop
+    controlSignalsReg := ControlSignalsOB.nop
   }
 
   io.outControlSignals := controlSignalsReg

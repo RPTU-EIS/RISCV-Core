@@ -65,7 +65,18 @@ object ALUOps {
   val DC     = 15.U(4.W)
 }
 
-
+object ControlSignalsOB {
+  def nop: ControlSignals = {
+    val b = Wire(new ControlSignals)
+    b.memToReg   := false.B
+    b.regWrite   := false.B
+    b.memRead    := false.B
+    b.memWrite   := false.B
+    b.branch     := false.B
+    b.jump       := false.B
+    b
+  }
+}
 
 
 object ExtensionCases{ // for extension unit

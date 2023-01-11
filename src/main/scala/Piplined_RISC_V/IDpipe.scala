@@ -1,6 +1,9 @@
 package Piplined_RISC_V
 import chisel3._
 import chisel3.util._
+import config.{ControlSignalsOB, Inst}
+import config.Inst._
+//import config.ControlSignals._
 import config.{Instruction, ControlSignals}
 class IDpipe extends Module
 {
@@ -59,12 +62,12 @@ class IDpipe extends Module
 
   //Bubble instruction for two cycles
   when(io.inInsertBubble === 1.U | insertBubbleReg === 1.U){
-    instructionReg    := Instruction.NOP
+    instructionReg    := Inst.NOP
   }
 
   //Bubble control signals for two cycles
   when(io.inInsertBubble === 1.U | insertBubbleReg === 1.U){
-    controlSignalsReg := ControlSignals.nop
+    controlSignalsReg := ControlSignalsOB.nop
   }
 
   io.outInstruction    := instructionReg

@@ -4,8 +4,9 @@ import chisel3.util._
 import ExtenionUnit.ExtenionUnit
 import GPR.registerFile
 import GPR.ByPassReg
-import cntrl_Pipl_CPU.control
-
+import Decoder.Decoder
+//import cntrl_Pipl_CPU.control
+import config.ImmFormat._
 
 import config.{RegisterSetupSignals, RegisterUpdates, Instruction, ControlSignals}
 class ID extends Module

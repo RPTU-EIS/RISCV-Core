@@ -1,10 +1,7 @@
 package Stage_IF
-
 import chisel3._
 import chisel3.util._
-import config.IMEMsetupSignals
-import config.ControlSignals
-import config.Instruction
+import config.{ControlSignals, IMEMsetupSignals, Inst, Instruction}
 import config.Inst._
 import InstructionMemory.InstructionMemory
 
@@ -105,7 +102,7 @@ class IF extends Module
 
   when(testHarness.InstructionMemorySetup.setup) {
     PC := 0.U
-    instruction := Instruction.NOP
+    instruction := Inst.NOP
   }
 }
 

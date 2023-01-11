@@ -1,8 +1,12 @@
 package Stage_EX
-
+import chisel3._
+import chisel3.util._
 import ALU.ALU
 import FW.FW
 import Branch_OP.Branch_OP
+import config.branch_types._
+import config.op1sel._
+import config.op2sel._
 import config.{ControlSignals, Instruction, branch_types, op1sel, op2sel}
 
 class Execute extends Module {

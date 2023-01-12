@@ -3,7 +3,7 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import ALU._
 import chisel3._
-import config.AluOperation._
+import config.ALUOps._
 
 class ALU_tb extends AnyFlatSpec with ChiselScalatestTester
 {

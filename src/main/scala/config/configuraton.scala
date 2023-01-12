@@ -5,13 +5,13 @@ import chisel3._
 import chisel3.util._
 import chisel3.util.{ BitPat, Cat }
 
-object AluOperation {  // Different Alu operations
-  val add :: sll :: slt :: sltu :: xor :: srl :: or :: and :: sub :: beq :: sra :: blt :: bltu :: inc4 :: copyb :: dc :: Nil = Enum(16)
-}
-
-object BranchOperation {  // Different Branch operations
-  val beq :: neq :: gte :: lt :: gteu :: ltu :: jump :: dc :: Nil = Enum(8)
-}
+//object AluOperation {  // Different Alu operations
+//  val add :: sll :: slt :: sltu :: xor :: srl :: or :: and :: sub :: beq :: sra :: blt :: bltu :: inc4 :: copyb :: dc :: Nil = Enum(16)
+//}
+//
+//object BranchOperation {  // Different Branch operations
+//  val beq :: neq :: gte :: lt :: gteu :: ltu :: jump :: dc :: Nil = Enum(8)
+//}
 
 object States {  // instruction execution stages
   val fetch :: dec :: exec :: mem :: wb :: Nil = Enum(5)
@@ -61,7 +61,6 @@ object ALUOps {
   val SRA    = 9.U(4.W)
   val INC_4  = 10.U(4.W)
   val COPY_B = 11.U(4.W)
-
   val DC     = 15.U(4.W)
 }
 
@@ -163,6 +162,17 @@ class RegisterUpdates extends Bundle {
   val writeEnable  = Bool()
   val writeData    = UInt(32.W)
   val writeAddress = UInt(5.W)
+}
+
+class SetupSignals extends Bundle {
+  val IMEMsignals     = new IMEMsetupSignals
+  val DMEMsignals     = new DMEMsetupSignals
+  val registerSignals = new RegisterSetupSignals
+}
+
+class TestReadouts extends Bundle {
+  val registerRead = UInt(32.W)
+  val DMEMread     = UInt(32.W)
 }
 
 

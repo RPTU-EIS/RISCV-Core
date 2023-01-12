@@ -4,7 +4,6 @@ import chisel3.util._
 import config.lookup._
 import config.op1sel._
 import config.op2sel._
-//import config.ALUOps._
 import config.branch_types._
 import config.ImmFormat._
 import config.{ALUOps, ControlSignals, ImmFormat, Instruction, branch_types}

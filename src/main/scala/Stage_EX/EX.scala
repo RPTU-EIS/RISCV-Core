@@ -9,7 +9,7 @@ import config.op1sel._
 import config.op2sel._
 import config.{ControlSignals, Instruction, branch_types, op1sel, op2sel}
 
-class Execute extends Module {
+class EX extends Module {
 
   val io = IO(
     new Bundle {

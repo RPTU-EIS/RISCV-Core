@@ -1,17 +1,17 @@
 
 package ALU
 
-
-import config.AluOperation._
 import chisel3._
 import chisel3.util._
+import config.ALUOps._
 
 
 class ALU extends Module {
+
   val io = IO(new Bundle {
-    val src1   = Input(UInt(32.W))
-    val src2   = Input(UInt(32.W))
-    val ALUop  = Input(UInt(4.W))
+    val src1   = Input(UInt())
+    val src2   = Input(UInt())
+    val ALUop  = Input(UInt())
     val aluRes = Output(UInt(32.W))
   })
 
@@ -34,33 +34,30 @@ class ALU extends Module {
 
 
   val shamt = io.src2(4,0)
-
-//  val add :: sll :: srl :: sra :: or :: and :: xor :: slt :: sltu :: sub :: beq :: bne :: blt :: bge :: bltu :: bgeu :: Nil = Enum(16)
+  io.aluRes := 0.U
+  //  val add :: sll :: srl :: sra :: or :: and :: xor :: slt :: sltu :: sub :: beq :: bne :: blt :: bge :: bltu :: bgeu :: Nil = Enum(16)
 
   switch(io.ALUop){
-    is(add){ io.aluRes := (io.src1 + io.src2)}                  // Additon, Subtraction
-    is(sub){ io.aluRes := (io.src1 - io.src2)}
-    is(sll){ io.aluRes := (io.src1 << shamt)}  // SLL, SLLI
-    is(srl){ io.aluRes := (io.src1 >> shamt)}  // SRL, SRLI
-    is(sra){ io.aluRes := (Fill(32,io.src1(31)) << (31.U(5.W) - (shamt - 1.U(5.W)))) | (io.src1 >> shamt)}  // SRA, SRAI
+    is(ADD){ io.aluRes := (io.src1 + io.src2)}                  // Additon, Subtraction
+    is(SUB){ io.aluRes := (io.src1 - io.src2)}
+    is(SLL){ io.aluRes := (io.src1 << shamt)}  // SLL, SLLI
+    is(SRL){ io.aluRes := (io.src1 >> shamt)}  // SRL, SRLI
+    is(SRA){ io.aluRes := (Fill(32,io.src1(31)) << (31.U(5.W) - (shamt - 1.U(5.W)))) | (io.src1 >> shamt)}  // SRA, SRAI
 
-    is(or){ io.aluRes := io.src1 | io.src2}  // OR
-    is(and){ io.aluRes := io.src1 & io.src2}  // AND
-    is(xor){ io.aluRes := io.src1 ^ io.src2}  // XOR
+    is(OR){ io.aluRes := io.src1 | io.src2}  // OR
+    is(AND){ io.aluRes := io.src1 & io.src2}  // AND
+    is(XOR){ io.aluRes := io.src1 ^ io.src2}  // XOR
 
-    is(slt, blt){ io.aluRes := ALU_SLT}   // SLT,  SLTI, BLT,
-    is(sltu, bltu){ io.aluRes := ALU_SLTU}  // SLTU, SLTIU,BLTU
+    is(SLT){ io.aluRes := ALU_SLT}   // SLT,  SLTI, BLT,
+    is(SLTU){ io.aluRes := ALU_SLTU}  // SLTU, SLTIU,BLTU
 
-//    is(beq){ io.aluRes := (0.U(32.W) === (io.src1 - io.src2))}   // BEQ
-//    is(bne){ io.aluRes := ~(0.U(32.W) === (io.src1 - io.src2))}  // BNE
 
-    is(inc4){ io.aluRes := io.src1 + 4.U}  // OR
-    is(copyb){ io.aluRes := io.src2}  // AND
-    is(dc){ io.aluRes := io.src1 - io.src2}  // XOR
+    is(INC_4){ io.aluRes := io.src1 + 4.U}  // OR
+    is(COPY_B){ io.aluRes := io.src2}  // AND
+    is(DC){ io.aluRes := io.src1 - io.src2}  // XOR
 
-//    is(bge){ io.aluRes := GE}   // BGE
-//    is(bgeu){ io.aluRes := GEU}   // BGEU
   }
+
 }
 
 

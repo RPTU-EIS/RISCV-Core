@@ -4,7 +4,6 @@ import chisel3.util._
 import GPR.registerFile
 import GPR.ByPassReg
 import Decoder.Decoder
-//import cntrl_Pipl_CPU.control
 import config.ImmFormat._
 
 import config.{RegisterSetupSignals, RegisterUpdates, Instruction, ControlSignals}
@@ -46,10 +45,6 @@ class ID extends Module
 
   val immData   = Wire(SInt())
 
-
-  /**
-   * Setup. You should not change this code
-   */
   registers.testHarness.setup := testHarness.registerSetup
   testHarness.registerPeek    := registers.io.readData1
   testHarness.testUpdates     := registers.testHarness.testUpdates

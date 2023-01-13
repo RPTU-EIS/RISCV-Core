@@ -13,9 +13,9 @@ class Branch_OP extends Module {
     }
   )
 
-  //Branch if expressions are true
   //Branch lookup
   io.branchCondition := 0.U
+
   switch(io.branchType) {
     is(beq) {
       io.branchCondition := (io.src1 === io.src2)

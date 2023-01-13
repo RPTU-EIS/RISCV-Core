@@ -5,14 +5,6 @@ import chisel3._
 import chisel3.util._
 import chisel3.util.{ BitPat, Cat }
 
-//object AluOperation {  // Different Alu operations
-//  val add :: sll :: slt :: sltu :: xor :: srl :: or :: and :: sub :: beq :: sra :: blt :: bltu :: inc4 :: copyb :: dc :: Nil = Enum(16)
-//}
-//
-//object BranchOperation {  // Different Branch operations
-//  val beq :: neq :: gte :: lt :: gteu :: ltu :: jump :: dc :: Nil = Enum(8)
-//}
-
 object States {  // instruction execution stages
   val fetch :: dec :: exec :: mem :: wb :: Nil = Enum(5)
 }

@@ -14,7 +14,6 @@ class registerFile extends Module
   )
 
 
-  // You shouldn't really touch these either
   val io = IO(
     new Bundle {
       val readAddress1 = Input(UInt(5.W))
@@ -27,11 +26,6 @@ class registerFile extends Module
       val readData2    = Output(UInt(32.W))
     })
 
-
-  /**
-   * Mem creates asynchronous read, synchronous write.
-   * In other words, reading is combinatory.
-   */
   val registerFile = RegInit(VecInit(List.fill(32)(0.U(32.W))))
   //val registerFile = Mem(32, UInt(32.W)) //change to vector of register to be able to see signal in waveform
 

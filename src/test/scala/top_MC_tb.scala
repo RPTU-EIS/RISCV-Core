@@ -3,9 +3,9 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import top_MC._
 import chisel3._
-import config.AluOperation._
-import config.ExtensionCases._
-import config.States._
+//import config.ALUOps._
+//import config.ExtensionCases._
+//import config.States._
 
 import java.sql.Driver
 

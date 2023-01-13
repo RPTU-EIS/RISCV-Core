@@ -26,10 +26,6 @@ class MEM extends Module {
 
   val DMEM = Module(new DataMemory)
 
-
-  /**
-   * Setup. You should not change this code
-   */
   DMEM.testHarness.setup  := testHarness.DMEMsetup
   testHarness.DMEMpeek    := DMEM.io.dataOut
   testHarness.testUpdates := DMEM.testHarness.testUpdates

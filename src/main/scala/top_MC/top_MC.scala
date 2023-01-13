@@ -19,9 +19,7 @@ class top_MC extends Module {
     }
   )
 
-  /**
-  You need to create the classes for these yourself
-   */
+
   val IFBarrier  = Module(new IFpipe).io
   val IDBarrier  = Module(new IDpipe).io
   val EXBarrier  = Module(new EXpipe).io
@@ -35,9 +33,7 @@ class top_MC extends Module {
 
   val writeBackData = Wire(UInt())
 
-  /**
-   * Setup. You should not change this code
-   */
+
   IF.testHarness.InstructionMemorySetup := testHarness.setupSignals.IMEMsignals
   ID.testHarness.registerSetup          := testHarness.setupSignals.registerSignals
   MEM.testHarness.DMEMsetup             := testHarness.setupSignals.DMEMsignals
@@ -45,9 +41,7 @@ class top_MC extends Module {
   testHarness.testReadouts.registerRead := ID.testHarness.registerPeek
   testHarness.testReadouts.DMEMread     := MEM.testHarness.DMEMpeek
 
-  /**
-  spying stuff
-   */
+
   testHarness.regUpdates                := ID.testHarness.testUpdates
   testHarness.memUpdates                := MEM.testHarness.testUpdates
   testHarness.currentPC                 := IF.testHarness.PC

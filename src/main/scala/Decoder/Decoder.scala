@@ -23,15 +23,6 @@ class Decoder extends Module {
   val N = 0.asUInt(1.W)
   val Y = 1.asUInt(1.W)
 
-  /**
-   * In scala we sometimes (ab)use the `->` operator to create tuples.
-   * The reason for this is that it serves as convenient sugar to make maps.
-   *
-   * This doesn't matter to you, just fill in the blanks in the style currently
-   * used, I just want to demystify some of the scala magic.
-   *
-   * `a -> b` == `(a, b)` == `Tuple2(a, b)`
-   */
   val opcodeMap: Array[(BitPat, List[UInt])] = Array(
 
     // signal      memToReg, regWrite, memRead, memWrite, branch,  jump, branchType,    Op1Select, Op2Select, ImmSelect,    ALUOp

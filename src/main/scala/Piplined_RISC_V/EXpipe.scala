@@ -42,11 +42,6 @@ class EXpipe extends Module
 
   io.outBranch           := branchReg
 
-  // when(freezeReg){
-  //   io.outControlSignals := ControlSignals.nop
-  // }.otherwise{
-  //   io.outControlSignals := controlSignalsReg
-  // }
 
   when(io.freeze){
     controlSignalsReg := ControlSignalsOB.nop

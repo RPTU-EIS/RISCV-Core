@@ -35,26 +35,26 @@ class ALU extends Module {
 
   val shamt = io.src2(4,0)
   io.aluRes := 0.U
-  //  val add :: sll :: srl :: sra :: or :: and :: xor :: slt :: sltu :: sub :: beq :: bne :: blt :: bge :: bltu :: bgeu :: Nil = Enum(16)
+
 
   switch(io.ALUop){
-    is(ADD){ io.aluRes := (io.src1 + io.src2)}                  // Additon, Subtraction
+    is(ADD){ io.aluRes := (io.src1 + io.src2)}  // Additon, Subtraction
     is(SUB){ io.aluRes := (io.src1 - io.src2)}
-    is(SLL){ io.aluRes := (io.src1 << shamt)}  // SLL, SLLI
-    is(SRL){ io.aluRes := (io.src1 >> shamt)}  // SRL, SRLI
+
+    is(SLL){ io.aluRes := (io.src1 << shamt)}   // SLL, SLLI
+    is(SRL){ io.aluRes := (io.src1 >> shamt)}   // SRL, SRLI
     is(SRA){ io.aluRes := (Fill(32,io.src1(31)) << (31.U(5.W) - (shamt - 1.U(5.W)))) | (io.src1 >> shamt)}  // SRA, SRAI
 
-    is(OR){ io.aluRes := io.src1 | io.src2}  // OR
-    is(AND){ io.aluRes := io.src1 & io.src2}  // AND
-    is(XOR){ io.aluRes := io.src1 ^ io.src2}  // XOR
+    is(OR){ io.aluRes := io.src1 | io.src2}     // OR
+    is(AND){ io.aluRes := io.src1 & io.src2}    // AND
+    is(XOR){ io.aluRes := io.src1 ^ io.src2}    // XOR
 
-    is(SLT){ io.aluRes := ALU_SLT}   // SLT,  SLTI, BLT,
-    is(SLTU){ io.aluRes := ALU_SLTU}  // SLTU, SLTIU,BLTU
+    is(SLT){ io.aluRes := ALU_SLT}              // SLT,  SLTI, BLT,
+    is(SLTU){ io.aluRes := ALU_SLTU}            // SLTU, SLTIU,BLTU
 
-
-    is(INC_4){ io.aluRes := io.src1 + 4.U}  // OR
-    is(COPY_B){ io.aluRes := io.src2}  // AND
-    is(DC){ io.aluRes := io.src1 - io.src2}  // XOR
+    is(INC_4){ io.aluRes := io.src1 + 4.U}      // OR
+    is(COPY_B){ io.aluRes := io.src2}           // AND
+    is(DC){ io.aluRes := io.src1 - io.src2}     // XOR
 
   }
 

@@ -1,7 +1,6 @@
 package Stage_ID
 import chisel3._
 import chisel3.util._
-import ExtenionUnit.ExtenionUnit
 import GPR.registerFile
 import GPR.ByPassReg
 import Decoder.Decoder

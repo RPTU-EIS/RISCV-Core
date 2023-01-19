@@ -19,13 +19,13 @@ class top_MC extends Module {
     }
   )
 
-
+//pipeline stages
   val IFBarrier  = Module(new IFpipe).io
   val IDBarrier  = Module(new IDpipe).io
   val EXBarrier  = Module(new EXpipe).io
   val MEMBarrier = Module(new MEMpipe).io
 
-
+ //pipeline registers
   val IF  = Module(new IF)
   val ID  = Module(new ID)
   val EX  = Module(new EX)
@@ -47,9 +47,8 @@ class top_MC extends Module {
   testHarness.currentPC                 := IF.testHarness.PC
 
 
-  ///////////////////////
-  // Branch addr to IF //
-  ///////////////////////
+  // Branch address to IF
+
   IF.io.branchAddr            := EXBarrier.outBranchAddr
   IF.io.controlSignals        := EXBarrier.outControlSignals
   IF.io.branch                := EXBarrier.outBranch
@@ -126,9 +125,7 @@ class top_MC extends Module {
   MEMBarrier.inRs2            := EXBarrier.outRs2
   MEMBarrier.inMEMData        := MEM.io.dataOut
 
-  ///////////////
-  // MEM stage //
-  ///////////////
+  // MEM stage
   //Mux for which data to write to register
   when(MEMBarrier.outControlSignals.memToReg){
     writeBackData := MEMBarrier.outMEMData

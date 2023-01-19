@@ -25,6 +25,7 @@ class DataMemory extends Module
       val dataOut     = Output(UInt(32.W))
     })
 
+  //SyncReadMem will output the value of the address signal set in the previous cycle.
   val data = SyncReadMem(4096, UInt(32.W))
 
   val addressSource = Wire(UInt(32.W))

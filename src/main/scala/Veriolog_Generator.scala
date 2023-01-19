@@ -1,7 +1,7 @@
 package main.scala
 
 
-import top_MC._
+import RISCV_TOP._
 
 object VerilogGen extends App
 {
@@ -17,6 +17,6 @@ object VerilogGen extends App
 //  (new chisel3.stage.ChiselStage).emitVerilog(new InstructionMemory())
 //  (new chisel3.stage.ChiselStage).emitVerilog(new PC())
 //  (new chisel3.stage.ChiselStage).emitVerilog(new DataMemory())
-  (new chisel3.stage.ChiselStage).emitVerilog(new top_MC())
+  (new chisel3.stage.ChiselStage).emitVerilog(new RISCV_TOP())
 
 }

@@ -1,4 +1,4 @@
-package main.scala.RISCV_TOP
+package RISCV_TOP
 import chisel3._
 import chisel3.util._
 import top_MC.top_MC

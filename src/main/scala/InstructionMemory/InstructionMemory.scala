@@ -20,6 +20,7 @@ class InstructionMemory extends Module
     })
 
 
+  //SyncReadMem will output the value of the address signal set in the previous cycle.
 
   val instructions = SyncReadMem(4096, UInt(32.W))
 

@@ -84,11 +84,10 @@ class Instruction extends Bundle(){
 
   def opcode      = instruction(6, 0)
   def registerRd  = instruction(11, 7)
-  def funct3      = instruction(14, 12)
+  def func0       = instruction(14, 12)
   def registerRs1 = instruction(19, 15)
   def registerRs2 = instruction(24, 20)
-  def funct7      = instruction(31, 25)
-  def funct6      = instruction(26, 31)
+  def func1       = instruction(31, 25)
 
   def immediateIType = instruction(31, 20).asSInt
   def immediateSType = Cat(instruction(31, 25), instruction(11,7)).asSInt

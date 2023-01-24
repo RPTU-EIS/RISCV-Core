@@ -78,7 +78,7 @@ object ExtensionCases{ // for extension unit
 //  val cs = new ControlSignals()
 //}
 
-//TODO: make no sense but change this???
+//TODO: make no sense change this???
 class Instruction extends Bundle(){
   val instruction = UInt(32.W)
 

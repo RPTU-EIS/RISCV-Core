@@ -75,10 +75,8 @@ class ID extends Module
   registers.io.writeData    := io.registerWriteData
 
   //To IDBarrier
-  /////////////////////////////////////////////////////////////////////////
-  // Bypass muxes, IF reading register which is currently being written    //
-  // send the write value to IDBarrier instead of current register value //
-  /////////////////////////////////////////////////////////////////////////
+  // Bypass muxes, IF reading register which is currently being written
+  // send the write value to IDBarrier instead of current register value
   bypassRs1.readAddr     := io.instruction.registerRs1
   bypassRs1.writeAddr    := io.registerWriteAddress
   bypassRs1.writeEnable  := io.registerWriteEnable

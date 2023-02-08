@@ -3,7 +3,10 @@ package Stage_MEM
 import DataMemory.DataMemory
 import chisel3._
 import chisel3.util._
-import DataMemory.DataMemory
+import chisel3.experimental.{ChiselAnnotation, annotate}
+import chisel3.util.experimental.loadMemoryFromFileInline
+import firrtl.annotations.MemorySynthInit
+
 import config.{DMEMsetupSignals, MemUpdates}
 class MEM extends Module {
   val testHarness = IO(
@@ -24,7 +27,7 @@ class MEM extends Module {
     })
 
 
-  val DMEM = Module(new DataMemory)
+  val DMEM = Module(new DataMemory())
 
   DMEM.testHarness.setup  := testHarness.DMEMsetup
   testHarness.DMEMpeek    := DMEM.io.dataOut

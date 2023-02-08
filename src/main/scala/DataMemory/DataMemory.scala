@@ -6,8 +6,11 @@ import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemorySynthInit
 import config.DMEMsetupSignals
 import config.MemUpdates
+import chisel3.experimental.{ChiselAnnotation, annotate}
+import chisel3.util.experimental.loadMemoryFromFileInline
+import firrtl.annotations.MemorySynthInit
 
-class DataMemory extends Module
+class DataMemory(I_memoryFile: String = "src/main/scala/DataMemory/dataMemVals") extends Module
 {
   val testHarness = IO(
     new Bundle {
@@ -25,8 +28,13 @@ class DataMemory extends Module
       val dataOut     = Output(UInt(32.W))
     })
 
+  annotate(new ChiselAnnotation {
+    override def toFirrtl = MemorySynthInit
+  })
   //SyncReadMem will output the value of the address signal set in the previous cycle.
-  val data = SyncReadMem(4096, UInt(32.W))
+  //val data = SyncReadMem(4096, UInt(32.W))
+  val d_memory = Mem(4096, UInt(32.W))
+  loadMemoryFromFileInline(d_memory,I_memoryFile)
 
   val addressSource = Wire(UInt(32.W))
   val dataSource = Wire(UInt(32.W))
@@ -48,9 +56,13 @@ class DataMemory extends Module
   testHarness.testUpdates.writeAddress := addressSource
 
 
-  io.dataOut := data(addressSource)
+//  io.dataOut := data(addressSource)
+//  when(writeEnableSource){
+//    data(addressSource) := dataSource
+//  }
+  io.dataOut := d_memory(addressSource)
   when(writeEnableSource){
-    data(addressSource) := dataSource
+    d_memory(addressSource) := dataSource
   }
 }
 

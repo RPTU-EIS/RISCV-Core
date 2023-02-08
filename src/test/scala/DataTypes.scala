@@ -1,5 +1,8 @@
 package DataTypes
-
+import chisel3.util.Enum
+import chisel3._
+import chisel3.util._
+import chisel3.util.{ BitPat, Cat }
   object Data{
     def lookupReg(s: String): Option[Int] = {
       val regMap = Map(
@@ -101,6 +104,46 @@ package DataTypes
       def apply(setting: TestSetting): Regs = setting match {
         case setting: REGSET => Regs(repr + (setting.rd -> setting.word))
         case _ => this
+      }
+    }
+
+    case class MemWrite(addr: Addr, word: Int) extends ExecutionEvent
+    case class MemRead(addr: Addr, word: Int)  extends ExecutionEvent
+    case class MEMSET(addr: Addr, word: Int) extends TestSetting
+
+    case class DMem(repr: Map[Addr, Int]) {
+      def read(addr: Addr): Either[String, (MemRead, Int)] =
+        if(addr.value >= 4096)
+          Left(s"attempted to read from illegal address")
+        else {
+          val readResult = repr.lift(addr).getOrElse(0)
+          Right((MemRead(addr, readResult), readResult))
+        }
+
+      def write(addr: Addr, word: Int): Either[String, (MemWrite, DMem)] =
+        if(addr.value >= 4096)
+          Left(s"attempted to write to illegal address")
+        else {
+          Right((MemWrite(addr, word)), DMem(repr + (addr -> word)))
+        }
+
+      def apply(setting: TestSetting): DMem = setting match {
+        case setting: MEMSET => {
+          DMem(repr + (setting.addr -> setting.word))
+        }
+        case _ => this
+      }
+    }
+    object Regs{
+      def empty: Regs = Regs((0 to 31).map(x => (Reg(x) -> 0)).toMap)
+      def apply(settings: List[TestSetting]): Regs = settings.foldLeft(empty){
+        case(acc, setting) => acc(setting)
+      }
+    }
+    object DMem{
+      def empty: DMem = DMem(Map[Addr, Int]())
+      def apply(settings: List[TestSetting]): DMem = settings.foldLeft(empty){
+        case(acc, setting) => acc(setting)
       }
     }
   }

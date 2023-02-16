@@ -33,7 +33,7 @@ class DataMemory(I_memoryFile: String = "src/main/scala/DataMemory/dataMemVals")
   })
   //SyncReadMem will output the value of the address signal set in the previous cycle.
   //val data = SyncReadMem(4096, UInt(32.W))
-  val d_memory = Mem(4096, UInt(32.W))
+  val d_memory = SyncReadMem(4096, UInt(32.W))
   loadMemoryFromFileInline(d_memory,I_memoryFile)
 
   val addressSource = Wire(UInt(32.W))

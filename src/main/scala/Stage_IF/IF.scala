@@ -40,6 +40,7 @@ class IF extends Module
 
   InstructionMemory.testHarness.setupSignals := testHarness.InstructionMemorySetup
   testHarness.PC := InstructionMemory.testHarness.requestedAddress
+  //testHarness.PC := InstructionMemory.io.instructionAddress
 
 
 

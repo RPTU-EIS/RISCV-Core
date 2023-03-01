@@ -38,7 +38,7 @@ class ALU extends Module {
 
 
   switch(io.ALUop){
-    is(ADD){ io.aluRes := (io.src1 + io.src2)}  // Additon, Subtraction
+    is(ADD){ io.aluRes := (io.src1 + io.src2)}  // Add, Sub
     is(SUB){ io.aluRes := (io.src1 - io.src2)}
 
     is(SLL){ io.aluRes := (io.src1 << shamt)}   // SLL, SLLI

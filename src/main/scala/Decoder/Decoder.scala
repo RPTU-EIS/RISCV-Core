@@ -25,8 +25,6 @@ class Decoder extends Module {
 
   val opcodeMap: Array[(BitPat, List[UInt])] = Array(
 
-    // signal      memToReg, regWrite, memRead, memWrite, branch,  jump, branchType,    Op1Select, Op2Select, ImmSelect,    ALUOp
-    //memory inistructions
     LW     -> List(Y,        Y,        Y,       N,        N,       N,    branch_types.DC, rs1,       imm,       ITYPE,        ALUOps.ADD),
     SW     -> List(N,        N,        N,       Y,        N,       N,    branch_types.DC, rs1,       imm,       STYPE,        ALUOps.ADD),
 

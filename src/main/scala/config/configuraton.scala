@@ -8,7 +8,7 @@ import chisel3.util.{ BitPat, Cat }
 object States {  // instruction execution stages
   val fetch :: dec :: exec :: mem :: wb :: Nil = Enum(5)
 }
-/////
+
 object branch_types {
   val beq  = 0.asUInt(3.W)
   val neq  = 1.asUInt(3.W)
@@ -73,12 +73,7 @@ object ControlSignalsOB {
 object ExtensionCases{ // for extension unit
   val id :: jal :: jalr :: auipc :: store :: i_type :: Nil = Enum(6)
 }
-// abstract trait hascontrolsignals extends Bundle
-//{
-//  val cs = new ControlSignals()
-//}
 
-//TODO: make no sense change this???
 class Instruction extends Bundle(){
   val instruction = UInt(32.W)
 
@@ -110,7 +105,6 @@ object Inst{
     w
   }
 }
-////////////
 
 class ControlSignals extends Bundle(){
   val memToReg   = Bool()
@@ -121,7 +115,7 @@ class ControlSignals extends Bundle(){
   val jump       = Bool()
 }
 
-//////////
+
 class DMEMsetupSignals extends Bundle {
   val setup           = Bool()
   val writeEnable = Bool()

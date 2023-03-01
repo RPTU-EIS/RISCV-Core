@@ -36,7 +36,7 @@ class IDpipe extends Module
       val inReadData1       = Input(UInt(32.W))
       val inReadData2       = Input(UInt(32.W))
 
-      val freeze            = Input(Bool())
+      val stall            = Input(Bool())
 
       //Output from register - registers signals
       val outReadData1      = Output(UInt(32.W))
@@ -45,20 +45,20 @@ class IDpipe extends Module
   )
 
   //Decoder signal registers
-  val instructionReg        = RegEnable(io.inInstruction, !io.freeze)
-  val controlSignalsReg     = RegEnable(io.inControlSignals, !io.freeze)
-  val branchTypeReg         = RegEnable(io.inBranchType, 0.U, !io.freeze)
-  val PCReg                 = RegEnable(io.inPC, 0.U, !io.freeze)
-  val op1SelectReg          = RegEnable(io.inOp1Select, 0.U, !io.freeze)
-  val op2SelectReg          = RegEnable(io.inOp2Select, 0.U, !io.freeze)
-  val immDataReg            = RegEnable(io.inImmData, 0.U, !io.freeze)
-  val rdReg                 = RegEnable(io.inRd, 0.U, !io.freeze)
-  val ALUopReg              = RegEnable(io.inALUop, 0.U, !io.freeze)
+  val instructionReg        = RegEnable(io.inInstruction, !io.stall)
+  val controlSignalsReg     = RegEnable(io.inControlSignals, !io.stall)
+  val branchTypeReg         = RegEnable(io.inBranchType, 0.U, !io.stall)
+  val PCReg                 = RegEnable(io.inPC, 0.U, !io.stall)
+  val op1SelectReg          = RegEnable(io.inOp1Select, 0.U, !io.stall)
+  val op2SelectReg          = RegEnable(io.inOp2Select, 0.U, !io.stall)
+  val immDataReg            = RegEnable(io.inImmData, 0.U, !io.stall)
+  val rdReg                 = RegEnable(io.inRd, 0.U, !io.stall)
+  val ALUopReg              = RegEnable(io.inALUop, 0.U, !io.stall)
   //Register signal registers
-  val readData1Reg          = RegEnable(io.inReadData1, 0.U, !io.freeze)
-  val readData2Reg          = RegEnable(io.inReadData2, 0.U, !io.freeze)
+  val readData1Reg          = RegEnable(io.inReadData1, 0.U, !io.stall)
+  val readData2Reg          = RegEnable(io.inReadData2, 0.U, !io.stall)
 
-  val insertBubbleReg       = RegEnable(io.inInsertBubble, 0.U, !io.freeze)
+  val insertBubbleReg       = RegEnable(io.inInsertBubble, 0.U, !io.stall)
 
   //Bubble instruction for two cycles
   when(io.inInsertBubble === 1.U | insertBubbleReg === 1.U){

@@ -16,7 +16,7 @@ class EXpipe extends Module
       val inALUResult       = Input(UInt(32.W))
       val inInsertBubble    = Input(Bool())
 
-      val freeze            = Input(Bool())
+      val stall            = Input(Bool())
 
       val outBranchAddr     = Output(UInt())
       val outBranch         = Output(UInt())
@@ -28,22 +28,22 @@ class EXpipe extends Module
     }
   )
 
-  val branchAddrReg     = RegEnable(io.inBranchAddr, 0.U, !io.freeze)
-  val branchReg         = RegEnable(io.inBranch, 0.U, !io.freeze)
-  val ALUResultReg      = RegEnable(io.inALUResult, 0.U, !io.freeze) // should not be frozen?
-  val controlSignalsReg = RegEnable(io.inControlSignals, !io.freeze)
-  val rdReg             = RegEnable(io.inRd, 0.U, !io.freeze)
-  val rs2Reg            = RegEnable(io.inRs2, 0.U, !io.freeze)
-  val insertBubbleReg   = RegEnable(io.inInsertBubble, false.B, !io.freeze)
+  val branchAddrReg     = RegEnable(io.inBranchAddr, 0.U, !io.stall)
+  val branchReg         = RegEnable(io.inBranch, 0.U, !io.stall)
+  val ALUResultReg      = RegEnable(io.inALUResult, 0.U, !io.stall) // should not be frozen?
+  val controlSignalsReg = RegEnable(io.inControlSignals, !io.stall)
+  val rdReg             = RegEnable(io.inRd, 0.U, !io.stall)
+  val rs2Reg            = RegEnable(io.inRs2, 0.U, !io.stall)
+  val insertBubbleReg   = RegEnable(io.inInsertBubble, false.B, !io.stall)
 
-  val freezeReg         = RegEnable(io.freeze, false.B, true.B)
+  val stallReg         = RegEnable(io.stall, false.B, true.B)
 
   io.outBranchAddr       := branchAddrReg
 
   io.outBranch           := branchReg
 
 
-  when(io.freeze){
+  when(io.stall){
     controlSignalsReg := ControlSignalsOB.nop
   }
 

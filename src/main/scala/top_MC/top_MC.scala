@@ -54,12 +54,12 @@ class top_MC extends Module {
   IF.io.branch                := EXBarrier.outBranch
   IF.io.IFBarrierPC           := IFBarrier.outCurrentPC
   //stall
-  IF.io.freeze                := EX.io.freeze
+  IF.io.stall                := EX.io.stall
 
   //Signals to IFBarrier
   IFBarrier.inCurrentPC       := IF.io.PC
   IFBarrier.inInstruction     := IF.io.instruction
-  IFBarrier.freeze            := EX.io.freeze
+  IFBarrier.stall            := EX.io.stall
 
   //Decode stage
   ID.io.instruction           := IFBarrier.outInstruction
@@ -80,7 +80,7 @@ class top_MC extends Module {
   IDBarrier.inReadData1      := ID.io.readData1
   IDBarrier.inReadData2      := ID.io.readData2
   //Stalling
-  IDBarrier.freeze           := EX.io.freeze
+  IDBarrier.stall           := EX.io.stall
 
   //Execute stage
   EX.io.instruction           := IDBarrier.outInstruction
@@ -111,7 +111,7 @@ class top_MC extends Module {
   EXBarrier.inRs2             := EX.io.Rs2Forwarded
   EXBarrier.inInsertBubble    := EX.io.insertBubble
   //Stalling
-  EXBarrier.freeze            := EX.io.freeze
+  EXBarrier.stall            := EX.io.stall
 
   //MEM stage
   MEM.io.dataIn               := EXBarrier.outRs2

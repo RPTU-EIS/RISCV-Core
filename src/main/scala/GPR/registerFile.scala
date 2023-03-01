@@ -26,9 +26,8 @@ class registerFile extends Module
       val readData2    = Output(UInt(32.W))
     })
 
-  val registerFile = RegInit(VecInit(List.fill(32)(0.U(32.W))))
-  //val registerFile = Mem(32, UInt(32.W)) //change to vector of register to be able to see signal in waveform
 
+  val registerFile = Mem(32, UInt(32.W))
   val readAddress1 = Wire(UInt(5.W))
   val readAddress2 = Wire(UInt(5.W))
   val writeAddress = Wire(UInt(5.W))

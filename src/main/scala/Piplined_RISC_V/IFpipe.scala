@@ -8,14 +8,14 @@ class IFpipe extends Module
     new Bundle {
       val inCurrentPC     = Input(UInt(32.W))
       val inInstruction   = Input(new Instruction)
-      val freeze          = Input(Bool())
+      val stall          = Input(Bool())
 
       val outCurrentPC    = Output(UInt(32.W))
       val outInstruction  = Output(new Instruction)
     }
   )
 
-  val currentPCReg   = RegEnable(io.inCurrentPC, 0.U, !io.freeze)
+  val currentPCReg   = RegEnable(io.inCurrentPC, 0.U, !io.stall)
   val prevPC         = WireInit(UInt(), 0.U)
   //val InstructionReg = Reg(new Instruction)
 

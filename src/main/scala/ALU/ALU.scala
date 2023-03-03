@@ -52,9 +52,9 @@ class ALU extends Module {
     is(SLT){ io.aluRes := ALU_SLT}              // SLT,  SLTI, BLT,
     is(SLTU){ io.aluRes := ALU_SLTU}            // SLTU, SLTIU,BLTU
 
-    is(INC_4){ io.aluRes := io.src1 + 4.U}      // OR
-    is(COPY_B){ io.aluRes := io.src2}           // AND
-    is(DC){ io.aluRes := io.src1 - io.src2}     // XOR
+    is(INC_4){ io.aluRes := io.src1 + 4.U}
+    is(COPY_B){ io.aluRes := io.src2}
+    is(DC){ io.aluRes := io.src1 - io.src2}
 
   }
 

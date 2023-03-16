@@ -8,6 +8,7 @@ class RISCV_TOP extends Module{
       val DMEMWriteData          = Input(UInt(32.W))
       val DMEMAddress            = Input(UInt(32.W))
       val DMEMWriteEnable        = Input(Bool())
+      val DMEMReadEnable         = Input(Bool())
       val DMEMReadData           = Output(UInt(32.W))
 
       val regsWriteData          = Input(UInt(32.W))
@@ -38,6 +39,7 @@ class RISCV_TOP extends Module{
   top_MC.setupSignals.IMEMsignals.setup       := io.setup
 
   top_MC.setupSignals.DMEMsignals.writeEnable := io.DMEMWriteEnable
+  top_MC.setupSignals.DMEMsignals.readEnable  := io.DMEMReadEnable
   top_MC.setupSignals.DMEMsignals.dataAddress := io.DMEMAddress
   top_MC.setupSignals.DMEMsignals.dataIn      := io.DMEMWriteData
   top_MC.setupSignals.DMEMsignals.setup       := io.setup

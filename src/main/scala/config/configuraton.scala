@@ -5,8 +5,20 @@ import chisel3._
 import chisel3.util._
 import chisel3.util.{ BitPat, Cat }
 
-object States {  // instruction execution stages
-  val fetch :: dec :: exec :: mem :: wb :: Nil = Enum(5)
+object ALUOps {
+  val ADD    = 0.U(4.W)
+  val SUB    = 1.U(4.W)
+  val AND    = 2.U(4.W)
+  val OR     = 3.U(4.W)
+  val XOR    = 4.U(4.W)
+  val SLT    = 5.U(4.W)
+  val SLL    = 6.U(4.W)
+  val SLTU   = 7.U(4.W)
+  val SRL    = 8.U(4.W)
+  val SRA    = 9.U(4.W)
+  val INC_4  = 10.U(4.W)
+  val COPY_B = 11.U(4.W)
+  val DC     = 15.U(4.W)
 }
 
 object branch_types {
@@ -31,6 +43,7 @@ object op2sel {
   val imm = 1.asUInt(1.W)
   val DC  = 0.asUInt(1.W)
 }
+
 object ImmFormat {
   val ITYPE  = 0.asUInt(3.W)
   val STYPE  = 1.asUInt(3.W)
@@ -39,21 +52,6 @@ object ImmFormat {
   val JTYPE  = 4.asUInt(3.W)
   val SHAMT  = 5.asUInt(3.W)
   val DC     = 0.asUInt(3.W)
-}
-object ALUOps {
-  val ADD    = 0.U(4.W)
-  val SUB    = 1.U(4.W)
-  val AND    = 2.U(4.W)
-  val OR     = 3.U(4.W)
-  val XOR    = 4.U(4.W)
-  val SLT    = 5.U(4.W)
-  val SLL    = 6.U(4.W)
-  val SLTU   = 7.U(4.W)
-  val SRL    = 8.U(4.W)
-  val SRA    = 9.U(4.W)
-  val INC_4  = 10.U(4.W)
-  val COPY_B = 11.U(4.W)
-  val DC     = 15.U(4.W)
 }
 
 object ControlSignalsOB {
@@ -67,11 +65,6 @@ object ControlSignalsOB {
     b.jump       := false.B
     b
   }
-}
-
-
-object ExtensionCases{ // for extension unit
-  val id :: jal :: jalr :: auipc :: store :: i_type :: Nil = Enum(6)
 }
 
 class Instruction extends Bundle(){
@@ -115,16 +108,17 @@ class ControlSignals extends Bundle(){
   val jump       = Bool()
 }
 
-
 class DMEMsetupSignals extends Bundle {
   val setup           = Bool()
   val writeEnable = Bool()
+  val readEnable  = Bool()
   val dataIn      = UInt(32.W)
   val dataAddress = UInt(32.W)
 }
 
 class MemUpdates extends Bundle {
   val writeEnable  = Bool()
+  val readEnable  = Bool()
   val writeData    = UInt(32.W)
   val writeAddress = UInt(32.W)
 }
@@ -159,7 +153,6 @@ class TestReadouts extends Bundle {
   val registerRead = UInt(32.W)
   val DMEMread     = UInt(32.W)
 }
-
 
 object lookup {
   def BEQ                = BitPat("b?????????????????000?????1100011")

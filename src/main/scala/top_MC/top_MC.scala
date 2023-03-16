@@ -117,6 +117,7 @@ class top_MC extends Module {
   MEM.io.dataIn               := EXBarrier.outRs2
   MEM.io.dataAddress          := EXBarrier.outALUResult
   MEM.io.writeEnable          := EXBarrier.outControlSignals.memWrite
+  MEM.io.readEnable           := EXBarrier.outControlSignals.memRead
 
   //MEMBarrier
   MEMBarrier.inControlSignals := EXBarrier.outControlSignals

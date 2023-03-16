@@ -22,7 +22,7 @@ class MEM extends Module {
       val dataIn      = Input(UInt())
       val dataAddress = Input(UInt())
       val writeEnable = Input(Bool())
-
+      val readEnable  = Input(Bool())
       val dataOut     = Output(UInt())
     })
 
@@ -37,7 +37,7 @@ class MEM extends Module {
   DMEM.io.dataIn      := io.dataIn
   DMEM.io.dataAddress := io.dataAddress
   DMEM.io.writeEnable := io.writeEnable
-
+  DMEM.io.readEnable  := io.readEnable
   //Read data from DMEM
   io.dataOut          := DMEM.io.dataOut
 

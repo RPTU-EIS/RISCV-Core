@@ -22,6 +22,7 @@ class DataMemory(I_memoryFile: String = "src/main/scala/DataMemory/dataMemVals")
   val io = IO(
     new Bundle {
       val writeEnable = Input(Bool())
+      val readEnable  = Input(Bool())
       val dataIn      = Input(UInt(32.W))
       val dataAddress = Input(UInt(12.W))
 
@@ -38,26 +39,31 @@ class DataMemory(I_memoryFile: String = "src/main/scala/DataMemory/dataMemVals")
   val addressSource = Wire(UInt(32.W))
   val dataSource = Wire(UInt(32.W))
   val writeEnableSource = Wire(Bool())
+  val readEnableSource = Wire(Bool())
 
   // For loading data
   when(testHarness.setup.setup){
     addressSource     := testHarness.setup.dataAddress
     dataSource        := testHarness.setup.dataIn
     writeEnableSource := testHarness.setup.writeEnable
+    readEnableSource  := testHarness.setup.readEnable
   }.otherwise {
     addressSource     := io.dataAddress
     dataSource        := io.dataIn
     writeEnableSource := io.writeEnable
+    readEnableSource  := io.readEnable
   }
 
   testHarness.testUpdates.writeEnable  := writeEnableSource
+  testHarness.testUpdates.readEnable   := readEnableSource
   testHarness.testUpdates.writeData    := dataSource
   testHarness.testUpdates.writeAddress := addressSource
 
-
-  io.dataOut := d_memory(addressSource)
   when(writeEnableSource){
     d_memory(addressSource) := dataSource
   }
+
+  io.dataOut := Mux(readEnableSource, d_memory(addressSource), 0.U(32.W))
+
 }
 

@@ -38,8 +38,8 @@ class ALU extends Module {
 
 
   switch(io.ALUop){
-    is(ADD){ io.aluRes := (io.src1 + io.src2)}  // Add, Sub
-    is(SUB){ io.aluRes := (io.src1 - io.src2)}
+    is(ADD){ io.aluRes := (io.src1 + io.src2)}  // Add
+    is(SUB){ io.aluRes := (io.src1 - io.src2)}  // Sub
 
     is(SLL){ io.aluRes := (io.src1 << shamt)}   // SLL, SLLI
     is(SRL){ io.aluRes := (io.src1 >> shamt)}   // SRL, SRLI
@@ -52,8 +52,8 @@ class ALU extends Module {
     is(SLT){ io.aluRes := ALU_SLT}              // SLT,  SLTI, BLT,
     is(SLTU){ io.aluRes := ALU_SLTU}            // SLTU, SLTIU,BLTU
 
-    is(INC_4){ io.aluRes := io.src1 + 4.U}
-    is(COPY_B){ io.aluRes := io.src2}
+    is(INC_4){ io.aluRes := io.src1 + 4.U}      // PC increment
+    is(COPY_B){ io.aluRes := io.src2}           //Pass B
     is(DC){ io.aluRes := io.src1 - io.src2}
 
   }

@@ -13,10 +13,16 @@ The project requires the following dependencies to be installed:
 
 To run the project, simply run the following command in your terminal:
 
-sbt run
+´sbt run´
 
 
-This will generate Verilog code for the pipelined processor and simulate it using the included testbench.
+This will generate Verilog code for the pipelined processor.
+
+To run the testbench, simply run the following command in your terminal:
+
+´sbt test´
+
+This will simulate it using the included testbench.
 
 ## Structure
 

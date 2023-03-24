@@ -22,32 +22,6 @@ This will generate Verilog code for the pipelined processor and simulate it usin
 
 The project is structured as follows:
 
-
-src/
-|-- main/
-|   |-- scala/
-|   |   |-- ALU/
-|   |   |-- Branch_OP/
-|   |   |-- config/
-|   |   |-- DataMemory/
-|   |   |-- Decoder/
-|   |   |-- FW/
-|   |   |-- GPR/
-|   |   |-- InstructionMemory/
-|   |   |-- Pipeline_Regs/
-|   |   |-- RISCV_TOP/
-|   |   |-- Stage_EX/
-|   |   |-- Stage_ID/
-|   |   |-- Stage_IF/
-|   |   |-- Stage_MEM/
-|   |   |-- top_MC/
-|
-|-- test/
-|   |-- resources.tests/
-|   |-- scala/
-|   |   |-- RISC_TOP_tb/
-
-
 - `RISCV_TOP.scala`: The main Chisel file containing the pipelined RISC-V processor.
 - `RISC_TOP_tb.scala`: A ScalaTest spec that tests the pipelined processor.
 

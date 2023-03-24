@@ -22,15 +22,12 @@ This will generate Verilog code for the pipelined processor and simulate it usin
 
 The project is structured as follows:
 
-ExampleProject/
+RISCV_Core/
 ├── src/
 │   ├── main/
 │   │   ├── scala/
-│   │   │   └── Example.scala
-│   │   └── resources/
 │   └── test/
 │       └── scala/
-│           └── ExampleTest.scala
 ├── build.sbt
 └── README.md
 

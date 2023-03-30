@@ -50,10 +50,6 @@ class ID extends Module
   testHarness.testUpdates     := registers.testHarness.testUpdates
 
 
-  //////////////////////////////////////////
-  // Connect decoder and register signals //
-  //////////////////////////////////////////
-
   //Connect instruction to decoder
   decoder.instruction := io.instruction
 
@@ -69,14 +65,14 @@ class ID extends Module
   registers.io.readAddress1 := io.instruction.registerRs1
   registers.io.readAddress2 := io.instruction.registerRs2
 
-  //From EXbarrier
+  //From EXpipeline register
   registers.io.writeEnable  := io.registerWriteEnable
   registers.io.writeAddress := io.registerWriteAddress
   registers.io.writeData    := io.registerWriteData
 
-  //To IDBarrier
+  //To IDpipeline register
   // Bypass muxes, IF reading register which is currently being written
-  // send the write value to IDBarrier instead of current register value
+  // send the write value to IDpipeline register instead of current register value
   bypassRs1.readAddr     := io.instruction.registerRs1
   bypassRs1.writeAddr    := io.registerWriteAddress
   bypassRs1.writeEnable  := io.registerWriteEnable
@@ -92,12 +88,7 @@ class ID extends Module
   io.readData2           := bypassRs2.outData
 
 
-
-  ////////////////////////////
-  // Immediate value lookup //
-  ////////////////////////////
-
-  //Create alu operations map
+  //Create alu operations map for Immediate value lookup
   val ImmOpMap = Array(
     //Key,       Value
     ITYPE -> io.instruction.immediateIType,

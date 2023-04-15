@@ -13,7 +13,7 @@ package Piplined_RISC_V
 
 import chisel3._
 import chisel3.util._
-import config.{Instruction}
+import config.{Instruction, Inst}
 class IFpipe extends Module
 {
   val io = IO(
@@ -21,20 +21,26 @@ class IFpipe extends Module
       val inCurrentPC     = Input(UInt(32.W))
       val inInstruction   = Input(new Instruction)
       val stall          = Input(Bool())
-
+      val flush           = Input(Bool())
       val outCurrentPC    = Output(UInt(32.W))
       val outInstruction  = Output(new Instruction)
     }
   )
 
-  val currentPCReg   = RegEnable(io.inCurrentPC, 0.U, !io.stall)
+  val currentPCReg   = RegEnable(io.inCurrentPC, 0.U, !io.stall)  
   val prevPC         = WireInit(UInt(), 0.U)
-  //val InstructionReg = Reg(new Instruction)
+  val instructionReg = RegEnable(io.inInstruction, !io.stall)
+
+  //Flush Pipeline Register
+  when(io.flush === 1.U){
+    instructionReg  := Inst.NOP
+    //currentPCReg    := 0.U(32.W)
+  }
 
   //PC
   io.outCurrentPC := currentPCReg
 
   //Instruction
-  io.outInstruction := io.inInstruction
+  io.outInstruction := instructionReg   
 
 }

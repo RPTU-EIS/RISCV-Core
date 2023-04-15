@@ -71,7 +71,8 @@ class top_MC(BinaryFile: String) extends Module {
   //Signals to IFBarrier
   IFBarrier.inCurrentPC       := IF.io.PC
   IFBarrier.inInstruction     := IF.io.instruction
-  IFBarrier.stall            := EX.io.stall
+  IFBarrier.stall             := EX.io.stall
+  IFBarrier.flush             := EX.io.flush_IF
 
   //Decode stage
   ID.io.instruction           := IFBarrier.outInstruction
@@ -83,7 +84,8 @@ class top_MC(BinaryFile: String) extends Module {
   IDBarrier.inControlSignals := ID.io.controlSignals
   IDBarrier.inBranchType     := ID.io.branchType
   IDBarrier.inPC             := IFBarrier.outCurrentPC
-  IDBarrier.inInsertBubble   := EX.io.insertBubble
+  //IDBarrier.inInsertBubble   := EX.io.insertBubble
+  IDBarrier.flush            := EX.io.flush_ID
   IDBarrier.inOp1Select      := ID.io.op1Select
   IDBarrier.inOp2Select      := ID.io.op2Select
   IDBarrier.inImmData        := ID.io.immData

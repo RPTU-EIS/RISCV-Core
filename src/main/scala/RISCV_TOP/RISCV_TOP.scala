@@ -39,11 +39,11 @@ class RISCV_TOP extends Module{
 
       val regsDeviceWriteEnable  = Output(Bool())
       val regsDeviceWriteData    = Output(UInt(32.W))
-      val regsDeviceWriteAddr    = Output(UInt(5.W))
+      val regsDeviceWriteAddress    = Output(UInt(5.W))
 
       val memDeviceWriteEnable   = Output(Bool())
       val memDeviceWriteData     = Output(UInt(32.W))
-      val memDeviceWriteAddr     = Output(UInt(32.W))
+      val memDeviceWriteAddress     = Output(UInt(32.W))
 
 
 
@@ -73,11 +73,11 @@ class RISCV_TOP extends Module{
   io.DMEMReadData := top_MC.testReadouts.DMEMread
   io.regsReadData := top_MC.testReadouts.registerRead
 
-  io.regsDeviceWriteAddress := top_MC.regUpdates.writeAddr
+  io.regsDeviceWriteAddress := top_MC.regUpdates.writeAddress
   io.regsDeviceWriteEnable  := top_MC.regUpdates.writeEnable
   io.regsDeviceWriteData    := top_MC.regUpdates.writeData
 
-  io.memDeviceWriteAddress  := top_MC.memUpdates.writeAddr
+  io.memDeviceWriteAddress  := top_MC.memUpdates.writeAddress
   io.memDeviceWriteEnable   := top_MC.memUpdates.writeEnable
   io.memDeviceWriteData     := top_MC.memUpdates.writeData
 

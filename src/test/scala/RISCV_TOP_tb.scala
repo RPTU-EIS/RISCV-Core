@@ -27,13 +27,13 @@ class RISCV_TOP_tb extends AnyFlatSpec with ChiselScalatestTester {
     def disableTestSignals: Unit = {
     dut.io.setup.poke(1.B)
     dut.io.DMEMWriteData.poke(0.U)
-    dut.io.DMEMAddress.poke(0.U)
+    dut.io.DMEMAddr.poke(0.U)
     dut.io.DMEMWriteEnable.poke(0.B)
     dut.io.regsWriteData.poke(0.U)
-    dut.io.regsAddress.poke(0.U)
+    dut.io.regsAddr.poke(0.U)
     dut.io.regsWriteEnable.poke(0.B)
     dut.io.IMEMWriteData.poke(0.U)
-    dut.io.IMEMAddress.poke(4092.U)
+    dut.io.IMEMAddr.poke(4092.U)
   }
 
   }

@@ -20,7 +20,7 @@ class IFpipe extends Module
     new Bundle {
       val inCurrentPC     = Input(UInt(32.W))
       val inInstruction   = Input(new Instruction)
-      val stall          = Input(Bool())
+      val stall           = Input(Bool())
       val flush           = Input(Bool())
       val outCurrentPC    = Output(UInt(32.W))
       val outInstruction  = Output(new Instruction)

@@ -73,11 +73,11 @@ class RISCV_TOP extends Module{
   io.DMEMReadData := top_MC.testReadouts.DMEMread
   io.regsReadData := top_MC.testReadouts.registerRead
 
-  io.regsDeviceWriteAddress := top_MC.regUpdates.writeAddr
+  io.regsDeviceWriteAddr := top_MC.regUpdates.writeAddress
   io.regsDeviceWriteEnable  := top_MC.regUpdates.writeEnable
   io.regsDeviceWriteData    := top_MC.regUpdates.writeData
 
-  io.memDeviceWriteAddress  := top_MC.memUpdates.writeAddr
+  io.memDeviceWriteAddr  := top_MC.memUpdates.writeAddress
   io.memDeviceWriteEnable   := top_MC.memUpdates.writeEnable
   io.memDeviceWriteData     := top_MC.memUpdates.writeData
 

@@ -16,7 +16,7 @@ import chisel3.util._
 import config.{ControlSignalsOB, Inst}
 import config.Inst._
 //import config.ControlSignals._
-import config.{Instruction, ControlSignals}
+import config.{Instruction, ControlSignals, branch_types, ALUOps}
 class IDpipe extends Module
 {
   val io = IO(
@@ -73,6 +73,9 @@ class IDpipe extends Module
   when(io.flush === 1.U){
     instructionReg    := Inst.NOP
     controlSignalsReg := ControlSignalsOB.nop
+    ALUopReg          := ALUOps.DC
+    branchTypeReg     := branch_types.DC
+    rdReg             := 0.U
   }
 
   io.outInstruction    := instructionReg

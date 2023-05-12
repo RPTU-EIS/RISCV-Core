@@ -34,8 +34,6 @@ class IF extends Module
     val branch         = Input(Bool())
     val IFBarrierPC    = Input(UInt())
     val stall         = Input(Bool())
-
-
     val PC             = Output(UInt())
     val instruction    = Output(new Instruction)
   }
@@ -57,46 +55,53 @@ class IF extends Module
   //stall PC
   when(io.stall){
     PC     := PC
-    io.PC  := PC
+    // io.PC  := PC
 
     //Incremented PC
-    nextPC := PC
+    // nextPC := PC
 
-    //fetch instruction
+    //Fetch prev instruction -- Stalling the part of IF Barrier that holds the instruction
     InstructionMemory.io.instructionAddress := io.IFBarrierPC
 
   }.otherwise{
-
-    //Mux for controlling which address to go to next
-    //Either the incremented PC or branch address in the case of a jump or branch
-    when(io.controlSignals.jump | (io.controlSignals.branch & io.branch === 1.U)){
-      //Branch Addr
-      PC := nextPC
-
-      //Send the branch address to the rest of the pipeline
-      io.PC := io.branchAddr
-
-      //Incremented PC
-      nextPC := io.branchAddr + 4.U
-
-      //fetch instruction
-      InstructionMemory.io.instructionAddress := io.branchAddr
-
-    }.otherwise{
-      //Incremented PC
-      PC := nextPC
-
-      //Send the PC to the rest of the pipeline
-      io.PC := PC
-
-      //Incremented PC
-      nextPC := PC + 4.U
-
-      //fetch instruction
-      InstructionMemory.io.instructionAddress := PC
-
-    }
+    //Fetch instruction
+    InstructionMemory.io.instructionAddress := PC
+    // PC register gets nextPC
+    PC := nextPC
   }
+  //Mux for controlling which address to go to next
+  //Either the incremented PC or branch address in the case of a jump or branch
+  // when(io.controlSignals.jump | (io.controlSignals.branch & io.branch === 1.U)){
+  when(io.branch === 1.U){
+    //Branch Addr
+    // PC := nextPC
+
+    // //Send the branch address to the rest of the pipeline
+    // io.PC := io.branchAddr
+
+    //Incremented PC
+    nextPC := io.branchAddr //+ 4.U
+
+    // //fetch instruction
+    // InstructionMemory.io.instructionAddress := io.branchAddr
+
+  }.otherwise{
+    //Incremented PC
+    // PC := nextPC
+
+    // //Send the PC to the rest of the pipeline
+    // io.PC := PC
+
+    //Incremented PC
+    nextPC := PC + 4.U
+
+    // //fetch instruction
+    // InstructionMemory.io.instructionAddress := PC
+
+  }
+  
+  // Send PC to the rest of the pipeline
+  io.PC := PC
 
   io.instruction := instruction
 

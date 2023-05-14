@@ -1,3 +1,15 @@
+/*
+RISC-V Pipelined Project in Chisel
+
+This project implements a pipelined RISC-V processor in Chisel. The pipeline includes five stages: fetch, decode, execute, memory, and writeback.
+The core is part of an educational project by the Chair of Electronic Design Automation (https://eit.rptu.de/fgs/eis/) at RPTU Kaiserslautern, Germany.
+
+Supervision and Organization: Tobias Jauch, Philipp Schmitz, Alex Wezel
+Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava
+
+*/
+
+
 package RISCV_TOP_tb
 import RISCV_TOP.RISCV_TOP
 import chiseltest._

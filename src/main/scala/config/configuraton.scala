@@ -5,7 +5,7 @@ This project implements a pipelined RISC-V processor in Chisel. The pipeline inc
 The core is part of an educational project by the Chair of Electronic Design Automation (https://eit.rptu.de/fgs/eis/) at RPTU Kaiserslautern, Germany.
 
 Supervision and Organization: Tobias Jauch, Philipp Schmitz, Alex Wezel
-Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi
+Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava
 
 */
 
@@ -17,19 +17,25 @@ import chisel3.util._
 import chisel3.util.{ BitPat, Cat }
 
 object ALUOps {
-  val ADD    = 0.U(4.W)
-  val SUB    = 1.U(4.W)
-  val AND    = 2.U(4.W)
-  val OR     = 3.U(4.W)
-  val XOR    = 4.U(4.W)
-  val SLT    = 5.U(4.W)
-  val SLL    = 6.U(4.W)
-  val SLTU   = 7.U(4.W)
-  val SRL    = 8.U(4.W)
-  val SRA    = 9.U(4.W)
-  val INC_4  = 10.U(4.W)
-  val COPY_B = 11.U(4.W)
-  val DC     = 15.U(4.W)
+  val ADD    = 0.U(5.W)
+  val SUB    = 1.U(5.W)
+  val AND    = 2.U(5.W)
+  val OR     = 3.U(5.W)
+  val XOR    = 4.U(5.W)
+  val SLT    = 5.U(5.W)
+  val SLL    = 6.U(5.W)
+  val SLTU   = 7.U(5.W)
+  val SRL    = 8.U(5.W)
+  val SRA    = 9.U(5.W)
+  val INC_4  = 10.U(5.W)
+  val COPY_B = 11.U(5.W)
+  val DC     = 15.U(5.W)
+}
+
+object MDUOps {
+  val MUL    = 16.U(5.W)
+  val DIV    = 17.U(5.W)
+  val REM    = 18.U(5.W)
 }
 
 object branch_types {
@@ -197,6 +203,9 @@ object lookup {
   def AND                = BitPat("b0000000??????????111?????0110011")
   def LW                 = BitPat("b?????????????????010?????0000011")
   def SW                 = BitPat("b?????????????????010?????0100011")
+  def MUL                = BitPat("b0000001??????????000?????0110011")
+  def DIV                = BitPat("b0000001??????????100?????0110011")
+  def REM                = BitPat("b0000001??????????110?????0110011")
 }
 
 

@@ -10,7 +10,7 @@ import java.sql.Driver
 class beq_tb extends AnyFlatSpec with ChiselScalatestTester {
 
   "beq_tb" should "pass" in {
-    test(new RISCV_TOP).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+    test(new RISCV_TOP("src/main/scala/InstructionMemory/beq_test")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
       // dut.io.setup.poke(1.B)
       // disableTestSignals

@@ -39,6 +39,9 @@ class EX extends Module {
       val rs2Select          = Input(UInt(2.W))
       val ALUresultEXB       = Input(UInt(32.W))
       val ALUresultMEMB      = Input(UInt(32.W))
+      val btbHit             = Input(Bool())
+      val btbWriteEn         = Output(Bool())
+      val outPCplus4         = Output(UInt(32.W))
       val ALUResult          = Output(UInt(32.W))
       val branchAddr         = Output(UInt(32.W))
       val branchCond         = Output(Bool())
@@ -57,7 +60,7 @@ class EX extends Module {
 
   val alu_operand1            = Wire(UInt())
   val alu_operand2            = Wire(UInt())
-
+  val PCplus4 = Wire(UInt(32.W))
   // Control signals to ALU and Branch
   Branch.branchType := io.branchType
   ALU.ALUop         :=io.ALUop
@@ -119,11 +122,21 @@ class EX extends Module {
   io.branchCond   := Branch.branchCondition
   io.branchAddr   := ALU.aluRes
   io.Rs2Forwarded := alu_operand2
-    // ALU RESULT / PC + 4 MUX
-  when(io.branchType === branch_types.jump){
-    io.ALUResult := io.PC + 4.U
+  // ALU RESULT / PC + 4 MUX
+  PCplus4 := io.PC + 4.U
+  when(io.branchType === branch_types.jump){  // This is for jal, we need to place PC+4 into ra register -- Alternatively, H&H propagates PC+4 from IF stage
+    io.ALUResult := PCplus4
   }.otherwise{
     io.ALUResult := Mux(mdu_op_flag, MDU.MDURes, ALU.aluRes) //MUX to choose the value either from ALU or MDU
   }
+
+  // BTB-related
+  when(!io.btbHit && io.branchType =/= branch_types.DC){ // In case of BTB miss and the instruction is a branch, send this as new BTB entry to IF stage 
+    io.btbWriteEn := 1.B  // Update BTB! -> Tells IF to take io.branchAddr as entryBrTarget AND take IDBarrier.io.outPC as entryPC
+  }
+  .otherwise{
+    io.btbWriteEn := 0.B
+  }
+  io.outPCplus4 := PCplus4
 }
 

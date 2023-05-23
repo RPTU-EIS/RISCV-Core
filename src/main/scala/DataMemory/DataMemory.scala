@@ -13,7 +13,6 @@ package DataMemory
 
 import chisel3._
 import chisel3.experimental.{ChiselAnnotation, annotate}
-import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemorySynthInit
 import config.DMEMsetupSignals
 import config.MemUpdates

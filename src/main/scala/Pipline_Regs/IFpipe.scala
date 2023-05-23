@@ -22,6 +22,10 @@ class IFpipe extends Module
       val inInstruction   = Input(new Instruction)
       val stall           = Input(Bool())
       val flush           = Input(Bool())
+      val inBTBHit        = Input(Bool())
+      val inBTBPrediction  = Input(Bool())
+      val outBTBHit        = Output(Bool())
+      val outBTBPrediction  = Output(Bool())
       val outCurrentPC    = Output(UInt(32.W))
       val outInstruction  = Output(new Instruction)
     }
@@ -30,6 +34,14 @@ class IFpipe extends Module
   val currentPCReg   = RegEnable(io.inCurrentPC, 0.U, !io.stall)  
   val flushDelayed = RegInit(Bool(), 0.U)
   flushDelayed := io.flush // Note: Delay flush signal because io.outInstruction is combinational (because Read iMem is synchronous)
+
+  // Propagate BTB signals
+  val btbHitReg = RegInit(Bool(), 0.U)
+  val BTBPredictionReg = RegInit(Bool(), 0.U)
+  btbHitReg := io.inBTBHit
+  BTBPredictionReg := io.inBTBPrediction
+  io.outBTBHit := btbHitReg
+  io.outBTBPrediction := BTBPredictionReg
 
   // Flush, Stall, or Propagate Instruction
   when(flushDelayed === 1.U){

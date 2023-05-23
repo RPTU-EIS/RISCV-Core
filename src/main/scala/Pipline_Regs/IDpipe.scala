@@ -49,6 +49,12 @@ class IDpipe extends Module
 
       val flush            = Input(Bool())
 
+      // BTB-related
+      val inBTBHit        = Input(Bool())
+      val inBTBPrediction  = Input(Bool())
+      val outBTBHit        = Output(Bool())
+      val outBTBPrediction  = Output(Bool())
+
       //Output from register - registers signals
       val outReadData1      = Output(UInt(32.W))
       val outReadData2      = Output(UInt(32.W))
@@ -58,7 +64,7 @@ class IDpipe extends Module
   //Decoder signal registers
   val instructionReg        = RegEnable(io.inInstruction, true.B)
   val controlSignalsReg     = RegEnable(io.inControlSignals, true.B)
-  val branchTypeReg         = RegEnable(io.inBranchType, 0.U, true.B)
+  val branchTypeReg         = RegEnable(io.inBranchType, branch_types.DC, true.B) // Initialize to No Branch. beq is encoded as 0!
   val PCReg                 = RegEnable(io.inPC, 0.U, true.B)
   val op1SelectReg          = RegEnable(io.inOp1Select, 0.U, true.B)
   val op2SelectReg          = RegEnable(io.inOp2Select, 0.U, true.B)
@@ -77,6 +83,14 @@ class IDpipe extends Module
     branchTypeReg     := branch_types.DC
     rdReg             := 0.U
   }
+
+  // Propagate BTB signals
+  val btbHitReg = RegInit(Bool(), 0.U)
+  val BTBPredictionReg = RegInit(Bool(), 0.U)
+  btbHitReg := io.inBTBHit
+  BTBPredictionReg := io.inBTBPrediction
+  io.outBTBHit := btbHitReg
+  io.outBTBPrediction := BTBPredictionReg
 
   io.outInstruction    := instructionReg
 

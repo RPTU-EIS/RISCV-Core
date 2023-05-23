@@ -15,7 +15,7 @@ import chisel3.util._
 import top_MC.top_MC
 
 
-class RISCV_TOP extends Module{
+class RISCV_TOP (I_memoryFile: String = "src/main/scala/InstructionMemory/beq_test") extends Module{
 
   val io = IO(
     new Bundle {
@@ -50,7 +50,7 @@ class RISCV_TOP extends Module{
 
     })
 
-  val top_MC = Module(new top_MC).testHarness
+  val top_MC = Module(new top_MC(I_memoryFile)).testHarness
 
   io.PC := top_MC.currentPC
 

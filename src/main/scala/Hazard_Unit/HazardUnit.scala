@@ -17,7 +17,9 @@ class HazardUnit extends Module
         val rdAddrIDB           = Input(UInt())
         val rdAddrEXB           = Input(UInt())
         val rdAddrMEMB          = Input(UInt())
-        val branchCond          = Input(Bool())
+        val branchTaken         = Input(Bool())
+        val btbPrediction       = Input(Bool())
+        val branchMispredicted  = Output(Bool())
         val stall               = Output(Bool())
         val flushE              = Output(Bool())
         val flushD              = Output(Bool())
@@ -26,16 +28,15 @@ class HazardUnit extends Module
     }
   )
 
-  val branchTaken = Wire(Bool())
   val stall       = Wire(Bool())
 
 // Forwarding Unit
   // Handling source register 1
-  when((io.rs1AddrIDB =/= 0.U) & (io.rs1AddrIDB === io.rdAddrEXB) & io.controlSignalsEXB.regWrite){
+  when((io.rs1AddrIDB =/= 0.U) && (io.rs1AddrIDB === io.rdAddrEXB) && io.controlSignalsEXB.regWrite){
     // Normal forward 
     io.rs1Select  := 1.asUInt(2.W)  // Forward from EX/MEM pipeline register (EX Barrier)
   }
-  .elsewhen((io.rs1AddrIDB =/= 0.U) & (io.rs1AddrIDB === io.rdAddrMEMB) & io.controlSignalsMEMB.regWrite){
+  .elsewhen((io.rs1AddrIDB =/= 0.U) && (io.rs1AddrIDB === io.rdAddrMEMB) && io.controlSignalsMEMB.regWrite){
     io.rs1Select  := 2.asUInt(2.W)  // Forward from MEM/WB pipeline register (MEM Barrier)
   }
   .otherwise{
@@ -43,11 +44,11 @@ class HazardUnit extends Module
   }
 
   // Handling source register 2
-  when((io.rs2AddrIDB =/= 0.U) & (io.rs2AddrIDB === io.rdAddrEXB) & io.controlSignalsEXB.regWrite){
+  when((io.rs2AddrIDB =/= 0.U) && (io.rs2AddrIDB === io.rdAddrEXB) && io.controlSignalsEXB.regWrite){
     // Normal forward 
     io.rs2Select  := 1.asUInt(2.W)  // Forward from EX/MEM pipeline register (EX Barrier)
   }
-  .elsewhen((io.rs2AddrIDB =/= 0.U) & (io.rs2AddrIDB === io.rdAddrMEMB) & io.controlSignalsMEMB.regWrite){
+  .elsewhen((io.rs2AddrIDB =/= 0.U) && (io.rs2AddrIDB === io.rdAddrMEMB) && io.controlSignalsMEMB.regWrite){
     io.rs2Select  := 2.asUInt(2.W)  // Forward from MEM/WB pipeline register (MEM Barrier)
   }
   .otherwise{
@@ -56,9 +57,9 @@ class HazardUnit extends Module
 
 // Stalling for Load
   when(  (io.rs1AddrIFB =/= 0.U || io.rs2AddrIFB =/= 0.U) 
-         & (io.rs1AddrIFB === io.rdAddrIDB || io.rs2AddrIFB === io.rdAddrIDB) 
-         & io.controlSignalsEXB.regWrite 
-         & io.controlSignalsEXB.memToReg) {  
+         && (io.rs1AddrIFB === io.rdAddrIDB || io.rs2AddrIFB === io.rdAddrIDB) 
+         && io.controlSignalsEXB.regWrite 
+         && io.controlSignalsEXB.memToReg) {  
     stall := true.B
   }.otherwise{
     stall := false.B
@@ -66,7 +67,12 @@ class HazardUnit extends Module
 
 // Outputs: Data Hazard -> stall ID & IF stages, and Flush EX stage (Load) ___ Control Hazard -> flush ID & EX stages (Branch Taken)
   io.stall    := stall
-  branchTaken := io.controlSignals.jump | (io.controlSignals.branch & io.branchCond  === 1.U) // TODO: move this inside the branch unit
-  io.flushD   := branchTaken
-  io.flushE   := io.stall | branchTaken
+  when(io.branchTaken =/= io.btbPrediction){
+    io.branchMispredicted := 1.B
+  }
+  .otherwise{
+    io.branchMispredicted := 0.B
+  }
+  io.flushD   := io.branchMispredicted
+  io.flushE   := io.stall | io.branchMispredicted
 }

@@ -33,7 +33,8 @@ class IF (I_memoryFile: String = "src/main/scala/InstructionMemory/beq_test") ex
     val IFBarrierPC    = Input(UInt())
     val stall          = Input(Bool())
     // Inputs for BTB, will come from EX stage and Hazard Unit
-    val btbWriteEn     = Input(Bool())
+    val updatePrediction = Input(Bool())
+    val newBranch      = Input(Bool())
     val entryPC        = Input(UInt(32.W))
     val branchBehavior = Input(Bool())  // 1 means Taken -- 0 means Not Taken
     val branchMispredicted = Input(Bool())
@@ -64,7 +65,8 @@ class IF (I_memoryFile: String = "src/main/scala/InstructionMemory/beq_test") ex
 
   // BTB signals
   BTB.io.currentPC := PC
-  BTB.io.btbWriteEn := io.btbWriteEn
+  BTB.io.newBranch := io.newBranch
+  BTB.io.updatePrediction := io.updatePrediction
   BTB.io.entryPC := io.entryPC
   BTB.io.entryBrTarget := io.branchAddr
   BTB.io.branchMispredicted := io.branchMispredicted

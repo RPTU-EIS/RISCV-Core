@@ -66,7 +66,8 @@ class top_MC (I_memoryFile: String = "src/main/scala/InstructionMemory/beq_test"
   IF.io.branchBehavior := EX.io.branchCond
   IF.io.IFBarrierPC := IFBarrier.outCurrentPC
   IF.io.stall       := HzdUnit.io.stall             // Stall Fetch -> PC_en=0
-  IF.io.btbWriteEn  := EX.io.btbWriteEn
+  IF.io.newBranch  := EX.io.newBranch
+  IF.io.updatePrediction := EX.io.updatePrediction
   IF.io.entryPC     := IDBarrier.outPC
   IF.io.branchAddr  := EX.io.branchAddr
   IF.io.branchMispredicted := HzdUnit.io.branchMispredicted
@@ -119,7 +120,6 @@ class top_MC (I_memoryFile: String = "src/main/scala/InstructionMemory/beq_test"
   EX.io.btbHit                := IDBarrier.outBTBHit
 
   // Hazard Unit
-  HzdUnit.io.controlSignals     := IDBarrier.outControlSignals
   HzdUnit.io.controlSignalsEXB  := EXBarrier.outControlSignals
   HzdUnit.io.controlSignalsMEMB := MEMBarrier.outControlSignals
   HzdUnit.io.rs1AddrIFB         := IFBarrier.outInstruction.registerRs1
@@ -131,6 +131,7 @@ class top_MC (I_memoryFile: String = "src/main/scala/InstructionMemory/beq_test"
   HzdUnit.io.rdAddrMEMB         := MEMBarrier.outRd
   HzdUnit.io.branchTaken        := EX.io.branchCond
   HzdUnit.io.btbPrediction      := IDBarrier.outBTBPrediction
+  HzdUnit.io.branchType         := IDBarrier.outBranchType
 
   //Signals to EXBarrier
   EXBarrier.inALUResult       := EX.io.ALUResult

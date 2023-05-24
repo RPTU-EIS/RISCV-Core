@@ -39,7 +39,8 @@ class EX extends Module {
       val ALUresultEXB       = Input(UInt(32.W))
       val ALUresultMEMB      = Input(UInt(32.W))
       val btbHit             = Input(Bool())
-      val btbWriteEn         = Output(Bool())
+      val newBranch          = Output(Bool())
+      val updatePrediction   = Output(Bool())
       val outPCplus4         = Output(UInt(32.W))
       val ALUResult          = Output(UInt(32.W))
       val branchAddr         = Output(UInt(32.W))
@@ -69,8 +70,8 @@ class EX extends Module {
     Branch.src1   := io.ALUresultMEMB
   }
   .otherwise{
-    alu_operand1  := rs1
-    Branch.src1   := rs1
+    alu_operand1  := io.rs1
+    Branch.src1   := io.rs1
   }
   when(io.rs2Select === 1.asUInt(2.W)){
     alu_operand2  := io.ALUresultEXB
@@ -81,8 +82,8 @@ class EX extends Module {
     Branch.src2   := io.ALUresultMEMB
   }
   .otherwise{
-    alu_operand2  := rs2
-    Branch.src2   := rs2
+    alu_operand2  := io.rs2
+    Branch.src2   := io.rs2
   } 
     //Operand 1, 2nd Mux
   when(io.op1Select === op1sel.PC){
@@ -109,12 +110,18 @@ class EX extends Module {
     io.ALUResult := ALU.aluRes
   }
 
-  // BTB-related
-  when(!io.btbHit && io.branchType =/= branch_types.DC){ // In case of BTB miss and the instruction is a branch, send this as new BTB entry to IF stage 
-    io.btbWriteEn := 1.B  // Update BTB! -> Tells IF to take io.branchAddr as entryBrTarget AND take IDBarrier.io.outPC as entryPC
-  }
-  .otherwise{
-    io.btbWriteEn := 0.B
+  // BTB-related: Finding new Branch Instructions and Updating Existing Prediction
+  when(io.branchType =/= branch_types.DC){ // In case instruction is a valid branch (valid means not flushed)
+    when(!io.btbHit){ // In case of BTB miss, send this as new BTB entry to IF stage 
+      io.newBranch := 1.B  // Update BTB! -> Tells IF to take io.branchAddr as entryBrTarget AND take IDBarrier.io.outPC as entryPC
+      io.updatePrediction := 0.B
+    }.otherwise{ // In case of BTB hit (we already know this branch), tell IF to change prediction FSM
+      io.newBranch := 0.B
+      io.updatePrediction := 1.B
+    }
+  }.otherwise{
+    io.newBranch := 0.B
+    io.updatePrediction := 0.B
   }
   io.outPCplus4 := PCplus4
 }

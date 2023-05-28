@@ -91,6 +91,13 @@ class Decode extends Module {
     DIV    -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.DIV),
     REM    -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.REM),
 
+    MULH   -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.MULH),
+    MULHSU -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.MULHSU),
+    MULHU  -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.MULHU),
+
+    DIVU   -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.DIVU),
+    REMU   -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.REMU),
+
   )
 
 

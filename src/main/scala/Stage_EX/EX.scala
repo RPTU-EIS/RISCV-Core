@@ -74,6 +74,8 @@ class EX extends Module {
  
   val mdu_result              = Wire(UInt())
   val mdu_op_flag             = Wire(Bool())
+  val mdu_exception_flag      = Wire(Bool())
+
 
   Branch.branchType           := io.branchType
   Branch.src1                 := alu_operand_1_forwarded
@@ -144,6 +146,7 @@ class EX extends Module {
   MDU.MDUop          := io.ALUop
   mdu_result         := MDU.MDURes
   mdu_op_flag        := MDU.MDUopflag
+  mdu_exception_flag := MDU.MDUexceptionflag   //TODO: Flag that will be used in the future for exception handling
   io.branchAddr      := alu_result
 
 

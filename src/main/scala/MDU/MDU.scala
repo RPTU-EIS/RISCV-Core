@@ -44,7 +44,9 @@ class MDU extends Module {
   .elsewhen (io.MDUop === DIV){
     when(io.src2 === 0.U){
       io.MDUexceptionflag := true.B
-      io.MDURes := "h_8000_0000".U    //return  2,147,483,648 for error
+      io.MDURes := "h_FFFF_FFFF".U   //ex. result div by 0 result -1
+    }.elsewhen(io.src1 === "h_8000_0000".U && io.src2 === "h_FFFF_FFFF".U){
+      io.MDURes := "h_8000_0000".U   //ex. result div overflow
     }.otherwise{
       io.MDURes := (lhs / rhs).asUInt 
     }
@@ -52,7 +54,7 @@ class MDU extends Module {
   .elsewhen(io.MDUop === DIVU){
     when(io.src2 === 0.U){
       io.MDUexceptionflag := true.B
-      io.MDURes := "h_8000_0000".U    //return  2,147,483,648 for error
+      io.MDURes := "h_FFFF_FFFE".U    //ex. return for error
     }.otherwise{
       io.MDURes := io.src1 / io.src2
     }
@@ -60,15 +62,17 @@ class MDU extends Module {
   .elsewhen (io.MDUop === REM){
     when(io.src2 === 0.U){
       io.MDUexceptionflag := true.B
-      io.MDURes := "h_8000_0000".U    //return  2,147,483,648 for error
+      io.MDURes := io.src1    //ex. result rem by 0
+    }.elsewhen(io.src1 === "h_8000_0000".U && io.src2 === "h_FFFF_FFFF".U){
+      io.MDURes := "h_0000_0000".U //ex. result rem overflow
     }.otherwise{
-      io.MDURes := (lhs % rhs).asUInt 
+      io.MDURes := (((lhs % rhs) + rhs) % rhs).asUInt 
     }
   }
   .elsewhen (io.MDUop === REMU){
     when(io.src2 === 0.U){
       io.MDUexceptionflag := true.B
-      io.MDURes := "h_8000_0000".U    //return  2,147,483,648 for error
+      io.MDURes := io.src1    //ex. result rem by 0
     }.otherwise{
     io.MDURes := io.src1 % io.src2
     }

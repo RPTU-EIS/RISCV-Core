@@ -19,7 +19,7 @@ import Stage_IF.IF
 import Stage_EX.EX
 import Stage_MEM.MEM
 import config.{MemUpdates, RegisterUpdates, SetupSignals, TestReadouts}
-class top_MC extends Module {
+class top_MC(BinaryFile: String) extends Module {
 
   val testHarness = IO(
     new Bundle {
@@ -38,7 +38,7 @@ class top_MC extends Module {
   val MEMBarrier = Module(new MEMpipe).io
 
  //pipeline registers
-  val IF  = Module(new IF)
+  val IF  = Module(new IF(BinaryFile))
   val ID  = Module(new ID)
   val EX  = Module(new EX)
   val MEM = Module(new MEM)

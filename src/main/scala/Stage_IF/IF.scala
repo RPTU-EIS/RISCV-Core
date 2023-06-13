@@ -17,7 +17,7 @@ import config.{ControlSignals, IMEMsetupSignals, Inst, Instruction}
 import config.Inst._
 import InstructionMemory.InstructionMemory
 
-class IF extends Module
+class IF(BinaryFile: String) extends Module
 {
 
   val testHarness = IO(
@@ -41,7 +41,7 @@ class IF extends Module
   }
   )
 
-  val InstructionMemory        = Module(new InstructionMemory)
+  val InstructionMemory        = Module(new InstructionMemory(BinaryFile))
   val nextPC      = WireInit(UInt(), 0.U)
   val PC          = RegInit(UInt(32.W), 0.U)
 

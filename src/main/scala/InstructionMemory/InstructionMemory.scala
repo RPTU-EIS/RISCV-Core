@@ -17,7 +17,7 @@ import chisel3.experimental.{ChiselAnnotation, annotate}
 import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.{Annotation, MemorySynthInit}
 
-class InstructionMemory (I_memoryFile: String = "src/main/scala/InstructionMemory/instructions") extends Module
+class InstructionMemory (I_memoryFile: String) extends Module
 {
   val testHarness = IO(
     new Bundle {

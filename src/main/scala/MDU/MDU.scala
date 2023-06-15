@@ -34,7 +34,7 @@ class MDU extends Module {
   io.MDUopflag        := true.B
   io.MDUexceptionflag := false.B   //TODO: Flag that will be used in the future for exception handling 
 
-
+ 
   val lhs = io.src1.asSInt
   val rhs = io.src2.asSInt
   //If the OP is just MUL we multiply two numbers and store the lower 32 bits into the register
@@ -85,7 +85,14 @@ class MDU extends Module {
     io.MDURes := ((io.src1 * io.src2) >> 32.U)
   }
   .elsewhen (io.MDUop === MULHSU){ //signed * unsigned
-    io.MDURes := ((lhs * io.src2).asUInt >> 32.U)
+    when(io.src1(31) === 1.U){
+      val temp	 = ~io.src1 + 1.U; 
+      val temp2  = temp * io.src2;
+      io.MDURes	 := ((~temp2 + 1.U)>>32.U);
+    }
+    .otherwise{
+      io.MDURes  := ((io.src1 * io.src2) >> 32.U);
+    }
   }
   .otherwise{
     io.MDUopflag := false.B

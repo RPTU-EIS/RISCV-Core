@@ -21,7 +21,7 @@ def main(arg1):
                     "     }\n", "   }\n", "}\n"]
     fp.writelines(filemoretext)
     fp.close()
-    os.system("sbt run")
+    #os.system("sbt run")
     os.system("sbt test")
     #os.remove(file_path)
     

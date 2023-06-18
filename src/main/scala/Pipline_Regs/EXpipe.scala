@@ -24,7 +24,7 @@ class EXpipe extends Module
       val inRd              = Input(UInt(5.W))
       val inRs2             = Input(UInt(32.W))
       val inALUResult       = Input(UInt(32.W))
-      val outALUResult      = Output(UInt())
+      val outALUResult      = Output(UInt(32.W))
       val outControlSignals = Output(new ControlSignals)
       val outRd             = Output(UInt())
       val outRs2            = Output(UInt())

@@ -69,7 +69,7 @@ class top_MC (I_memoryFile: String = "src/main/scala/InstructionMemory/beq_test"
   IF.io.newBranch  := EX.io.newBranch
   IF.io.updatePrediction := EX.io.updatePrediction
   IF.io.entryPC     := IDBarrier.outPC
-  IF.io.branchAddr  := EX.io.branchAddr
+  IF.io.branchAddr  := EX.io.branchTarget
   IF.io.branchMispredicted := HzdUnit.io.branchMispredicted
   IF.io.PCplus4ExStage := EX.io.outPCplus4
 

@@ -43,7 +43,7 @@ class EX extends Module {
       val updatePrediction   = Output(Bool())
       val outPCplus4         = Output(UInt(32.W))
       val ALUResult          = Output(UInt(32.W))
-      val branchAddr         = Output(UInt(32.W))
+      val branchTarget         = Output(UInt(32.W))
       val branchCond         = Output(Bool())
       val Rs2Forwarded       = Output(UInt(32.W))
     }
@@ -100,7 +100,7 @@ class EX extends Module {
   
   // EX stage outputs
   io.branchCond   := Branch.branchCondition        
-  io.branchAddr   := ALU.aluRes
+  io.branchTarget   := ALU.aluRes
   io.Rs2Forwarded := alu_operand2
   // ALU RESULT / PC + 4 MUX
   PCplus4 := io.PC + 4.U
@@ -113,7 +113,7 @@ class EX extends Module {
   // BTB-related: Finding new Branch Instructions and Updating Existing Prediction
   when(io.branchType =/= branch_types.DC){ // In case instruction is a valid branch (valid means not flushed)
     when(!io.btbHit){ // In case of BTB miss, send this as new BTB entry to IF stage 
-      io.newBranch := 1.B  // Update BTB! -> Tells IF to take io.branchAddr as entryBrTarget AND take IDBarrier.io.outPC as entryPC
+      io.newBranch := 1.B  // Update BTB! -> Tells IF to take io.branchTarget as entryBrTarget AND take IDBarrier.io.outPC as entryPC
       io.updatePrediction := 0.B
     }.otherwise{ // In case of BTB hit (we already know this branch), tell IF to change prediction FSM
       io.newBranch := 0.B

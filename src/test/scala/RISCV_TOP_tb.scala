@@ -10,7 +10,7 @@ import java.sql.Driver
 class RISCV_TOP_tb extends AnyFlatSpec with ChiselScalatestTester {
 
   "RISCV_TOP" should "pass" in {
-    test(new RISCV_TOP("src/main/scala/InstructionMemory/instructions")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+    test(new RISCV_TOP("src/test/programs/instructions")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
     
       for(i <- 0 until 30){
         dut.clock.step()

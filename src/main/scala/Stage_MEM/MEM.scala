@@ -46,7 +46,7 @@ class MEM extends Module {
 
   //DMEM
   DMEM.io.dataIn      := io.dataIn
-  DMEM.io.dataAddress := io.dataAddress(11,0)
+  DMEM.io.dataAddress := io.dataAddress(13,2)
   DMEM.io.writeEnable := io.writeEnable
   DMEM.io.readEnable  := io.readEnable
   //Read data from DMEM

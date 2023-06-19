@@ -10,7 +10,7 @@ import java.sql.Driver
 class BTB_Test_0 extends AnyFlatSpec with ChiselScalatestTester {
 
   "BTB_Test_0" should "pass" in {
-    test(new RISCV_TOP("src/main/scala/InstructionMemory/BTB_Test_0")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+    test(new RISCV_TOP("src/test/programs/BTB_Test_0")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
  
       for(i <- 0 until 30){
         dut.clock.step()

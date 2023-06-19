@@ -7,7 +7,7 @@ void startup(void)
 {
 	__asm__ __volatile__(
   "init_stack:"
-  "la sp, 0x10001000;"
+  "la sp, 0x10003FFC;"
   );
 
   main();

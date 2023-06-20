@@ -43,4 +43,4 @@ The project is structured as follows:
 
 Supervision and Organization: Tobias Jauch, Philipp Schmitz, Alex Wezel
 
-Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava
+Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Abdullah Shaaban Saad Allam.

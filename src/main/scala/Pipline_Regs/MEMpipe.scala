@@ -5,7 +5,7 @@ This project implements a pipelined RISC-V processor in Chisel. The pipeline inc
 The core is part of an educational project by the Chair of Electronic Design Automation (https://eit.rptu.de/fgs/eis/) at RPTU Kaiserslautern, Germany.
 
 Supervision and Organization: Tobias Jauch, Philipp Schmitz, Alex Wezel
-Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi
+Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Abdullah Shaaban Saad Allam.
 
 */
 
@@ -21,10 +21,8 @@ class MEMpipe extends Module
       //val inPCBranch      = Input(UInt())
       val inControlSignals  = Input(new ControlSignals)
       val inRd              = Input(UInt())
-      val inRs2             = Input(UInt())
       val inMEMData         = Input(UInt())
       val inALUResult       = Input(UInt())
-
       val outMEMData        = Output(UInt())
       val outControlSignals = Output(new ControlSignals)
       val outRd             = Output(UInt())

@@ -5,7 +5,7 @@ This project implements a pipelined RISC-V processor in Chisel. The pipeline inc
 The core is part of an educational project by the Chair of Electronic Design Automation (https://eit.rptu.de/fgs/eis/) at RPTU Kaiserslautern, Germany.
 
 Supervision and Organization: Tobias Jauch, Philipp Schmitz, Alex Wezel
-Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi
+Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Abdullah Shaaban Saad Allam.
 
 */
 
@@ -18,7 +18,7 @@ import config.op1sel._
 import config.op2sel._
 import config.branch_types._
 import config.ImmFormat._
-import config.{ALUOps, ControlSignals, ImmFormat, Instruction, branch_types}
+import config.{ALUOps, ControlSignals, ImmFormat, Instruction, branch_types, MDUOps}
 
 class Decode extends Module {
 
@@ -30,7 +30,7 @@ class Decode extends Module {
     val op1Select      = Output(UInt(1.W))
     val op2Select      = Output(UInt(1.W))
     val immType        = Output(UInt(3.W))
-    val ALUop          = Output(UInt(4.W))
+    val ALUop          = Output(UInt(5.W))
   })
 
   val N = 0.asUInt(1.W)
@@ -39,7 +39,7 @@ class Decode extends Module {
   val opcodeMap: Array[(BitPat, List[UInt])] = Array(
     // signal      memToReg, regWrite, memRead, memWrite, branch,  jump, branchType,    Op1Select, Op2Select, ImmSelect,    ALUOp
 
-    // Mem inistructions
+    // Mem instructions
     LW     -> List(Y,        Y,        Y,       N,        N,       N,    branch_types.DC, rs1,       imm,       ITYPE,        ALUOps.ADD),
     SW     -> List(N,        N,        N,       Y,        N,       N,    branch_types.DC, rs1,       imm,       STYPE,        ALUOps.ADD),
 
@@ -56,8 +56,8 @@ class Decode extends Module {
     XORI   -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       imm,       ITYPE,        ALUOps.XOR),
 
     // Imm instructions
-    LUI    -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       imm,       UTYPE,        ALUOps.SLTU),
-    AUIPC  -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       imm,       UTYPE,        ALUOps.SLTU),
+    LUI    -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       imm,       UTYPE,        ALUOps.ADD),
+    AUIPC  -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       imm,       UTYPE,        ALUOps.ADD),
 
     // Shifts
     SRA    -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, ALUOps.SRA),
@@ -84,6 +84,20 @@ class Decode extends Module {
     BGE    -> List(N,        N,        N,       N,        Y,       N,    branch_types.gte, PC,      imm,       BTYPE,        ALUOps.ADD),
     BLTU   -> List(N,        N,        N,       N,        Y,       N,    branch_types.ltu, PC,      imm,       BTYPE,        ALUOps.ADD),
     BGEU   -> List(N,        N,        N,       N,        Y,       N,    branch_types.gteu,PC,      imm,       BTYPE,        ALUOps.ADD),
+
+    // MDU instructions
+
+    MUL    -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.MUL),
+    DIV    -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.DIV),
+    REM    -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.REM),
+
+    MULH   -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.MULH),
+    MULHSU -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.MULHSU),
+    MULHU  -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.MULHU),
+
+    DIVU   -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.DIVU),
+    REMU   -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, MDUOps.REMU),
+
   )
 
 

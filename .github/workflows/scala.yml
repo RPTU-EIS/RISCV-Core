@@ -27,8 +27,12 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: 'sbt'
+    - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
     - name: Run tests
       run: sbt test
+    - name: Run python tests
+        run: python binarytest.py mulhsutest
       # Optional: This step uploads information to the GitHub dependency graph and unblocking Dependabot alerts for the repository
-    - name: Upload dependency graph
-      uses: scalacenter/sbt-dependency-submission@ab086b50c947c9774b70f39fc7f6e20ca2706c91

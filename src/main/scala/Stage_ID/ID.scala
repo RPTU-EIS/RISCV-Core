@@ -15,7 +15,7 @@ import chisel3._
 import chisel3.util._
 import GPR.registerFile
 import GPR.ByPassReg
-import Decoder.Decoder
+import Decode.Decode
 import config.ImmFormat._
 
 import config.{RegisterSetupSignals, RegisterUpdates, Instruction, ControlSignals}
@@ -51,7 +51,7 @@ class ID extends Module
   )
 
   val registers = Module(new registerFile)
-  val decoder   = Module(new Decoder).io
+  val decoder   = Module(new Decode).io
   val bypassRs1 = Module(new ByPassReg).io
   val bypassRs2 = Module(new ByPassReg).io
 

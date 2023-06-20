@@ -15,7 +15,7 @@ import chisel3.util._
 import top_MC.top_MC
 
 
-class RISCV_TOP extends Module{
+class RISCV_TOP (I_memoryFile: String = "src/main/scala/InstructionMemory/beq_test") extends Module{
 
   val io = IO(
     new Bundle {
@@ -50,7 +50,7 @@ class RISCV_TOP extends Module{
 
     })
 
-  val top_MC = Module(new top_MC).testHarness
+  val top_MC = Module(new top_MC(I_memoryFile)).testHarness
 
   io.PC := top_MC.currentPC
 
@@ -73,11 +73,11 @@ class RISCV_TOP extends Module{
   io.DMEMReadData := top_MC.testReadouts.DMEMread
   io.regsReadData := top_MC.testReadouts.registerRead
 
-  io.regsDeviceWriteAddress := top_MC.regUpdates.writeAddr
+  io.regsDeviceWriteAddr := top_MC.regUpdates.writeAddress
   io.regsDeviceWriteEnable  := top_MC.regUpdates.writeEnable
   io.regsDeviceWriteData    := top_MC.regUpdates.writeData
 
-  io.memDeviceWriteAddress  := top_MC.memUpdates.writeAddr
+  io.memDeviceWriteAddr  := top_MC.memUpdates.writeAddress
   io.memDeviceWriteEnable   := top_MC.memUpdates.writeEnable
   io.memDeviceWriteData     := top_MC.memUpdates.writeData
 

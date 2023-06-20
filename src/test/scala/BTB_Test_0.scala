@@ -1,4 +1,4 @@
-package RISCV_TOP_tb
+package BTB_Test_0
 import RISCV_TOP.RISCV_TOP
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
@@ -7,11 +7,11 @@ import chisel3._
 import DataTypes.Data._
 import java.sql.Driver
 
-class RISCV_TOP_tb extends AnyFlatSpec with ChiselScalatestTester {
+class BTB_Test_0 extends AnyFlatSpec with ChiselScalatestTester {
 
-  "RISCV_TOP" should "pass" in {
-    test(new RISCV_TOP("src/test/programs/instructions")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-    
+  "BTB_Test_0" should "pass" in {
+    test(new RISCV_TOP("src/test/programs/BTB_Test_0")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+ 
       for(i <- 0 until 30){
         dut.clock.step()
       }

@@ -21,6 +21,6 @@ object VerilogGen extends App
   //  (new chisel3.stage.ChiselStage).emitVerilog(new InstructionMemory())
   //  (new chisel3.stage.ChiselStage).emitVerilog(new PC())
   //  (new chisel3.stage.ChiselStage).emitVerilog(new DataMemory())
-  emitVerilog(new RISCV_TOP(), Array("--target-dir", "generated-src"))
+  // emitVerilog(new RISCV_TOP("src/main/scala/InstructionMemory/instructions"), Array("--target-dir", "generated-src"))
 
 }

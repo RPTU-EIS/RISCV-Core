@@ -5,7 +5,7 @@ This project implements a pipelined RISC-V processor in Chisel. The pipeline inc
 The core is part of an educational project by the Chair of Electronic Design Automation (https://eit.rptu.de/fgs/eis/) at RPTU Kaiserslautern, Germany.
 
 Supervision and Organization: Tobias Jauch, Philipp Schmitz, Alex Wezel
-Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi
+Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava
 
 */
 
@@ -31,7 +31,7 @@ class IDpipe extends Module
       val inOp2Select       = Input(UInt(1.W))
       val inImmData         = Input(UInt(32.W))
       val inRd              = Input(UInt(5.W))
-      val inALUop           = Input(UInt(4.W))
+      val inALUop           = Input(UInt(5.W))
 
       //Output from register - decoder signals
       val outInstruction    = Output(new Instruction)
@@ -42,7 +42,7 @@ class IDpipe extends Module
       val outOp2Select      = Output(UInt(1.W))
       val outImmData        = Output(UInt(32.W))
       val outRd             = Output(UInt(5.W))
-      val outALUop          = Output(UInt(4.W))
+      val outALUop          = Output(UInt(5.W))
 
       //Input to register - registers signals
       val inReadData1       = Input(UInt(32.W))

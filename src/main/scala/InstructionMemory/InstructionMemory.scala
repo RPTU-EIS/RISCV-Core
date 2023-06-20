@@ -1,3 +1,14 @@
+/*
+RISC-V Pipelined Project in Chisel
+
+This project implements a pipelined RISC-V processor in Chisel. The pipeline includes five stages: fetch, decode, execute, memory, and writeback.
+The core is part of an educational project by the Chair of Electronic Design Automation (https://eit.rptu.de/fgs/eis/) at RPTU Kaiserslautern, Germany.
+
+Supervision and Organization: Tobias Jauch, Philipp Schmitz, Alex Wezel
+Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava
+
+*/
+
 package InstructionMemory
 import chisel3._
 import chisel3.util._
@@ -6,7 +17,7 @@ import chisel3.experimental.{ChiselAnnotation, annotate}
 import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.{Annotation, MemorySynthInit}
 
-class InstructionMemory (I_memoryFile: String = "src/main/scala/InstructionMemory/instructions") extends Module
+class InstructionMemory (I_memoryFile: String) extends Module
 {
   val testHarness = IO(
     new Bundle {

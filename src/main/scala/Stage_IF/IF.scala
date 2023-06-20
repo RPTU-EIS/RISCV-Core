@@ -5,7 +5,7 @@ This project implements a pipelined RISC-V processor in Chisel. The pipeline inc
 The core is part of an educational project by the Chair of Electronic Design Automation (https://eit.rptu.de/fgs/eis/) at RPTU Kaiserslautern, Germany.
 
 Supervision and Organization: Tobias Jauch, Philipp Schmitz, Alex Wezel
-Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi
+Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava
 
 */
 
@@ -17,7 +17,7 @@ import config.{ControlSignals, IMEMsetupSignals, Inst, Instruction}
 import config.Inst._
 import InstructionMemory.InstructionMemory
 
-class IF extends Module
+class IF(BinaryFile: String) extends Module
 {
 
   val testHarness = IO(
@@ -41,7 +41,7 @@ class IF extends Module
   }
   )
 
-  val InstructionMemory        = Module(new InstructionMemory)
+  val InstructionMemory        = Module(new InstructionMemory(BinaryFile))
   val nextPC      = WireInit(UInt(), 0.U)
   val PC          = RegInit(UInt(32.W), 0.U)
 

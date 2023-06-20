@@ -13,7 +13,6 @@ package DataMemory
 
 import chisel3._
 import chisel3.experimental.{ChiselAnnotation, annotate}
-import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemorySynthInit
 import config.DMEMsetupSignals
 import config.MemUpdates
@@ -47,7 +46,7 @@ class DataMemory(I_memoryFile: String = "src/main/scala/DataMemory/dataMemVals")
   val d_memory = SyncReadMem(4096, UInt(32.W))
   loadMemoryFromFileInline(d_memory,I_memoryFile)
 
-  val addressSource = Wire(UInt(32.W))
+  val addressSource = Wire(UInt(12.W))
   val dataSource = Wire(UInt(32.W))
   val writeEnableSource = Wire(Bool())
   val readEnableSource = Wire(Bool())
@@ -74,7 +73,8 @@ class DataMemory(I_memoryFile: String = "src/main/scala/DataMemory/dataMemVals")
     d_memory(addressSource) := dataSource
   }
 
-  io.dataOut := Mux(readEnableSource, d_memory(addressSource), 0.U(32.W))
+  // io.dataOut := Mux(readEnableSource, d_memory(addressSource), 0.U(32.W))
+  io.dataOut := d_memory(addressSource)
 
 }
 

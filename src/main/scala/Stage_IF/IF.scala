@@ -30,22 +30,27 @@ class IF(BinaryFile: String) extends Module
 
   val io = IO(new Bundle {
     val branchAddr     = Input(UInt())
-    val controlSignals = Input(new ControlSignals)
-    val branch         = Input(Bool())
     val IFBarrierPC    = Input(UInt())
-    val stall         = Input(Bool())
-
-
+    val stall          = Input(Bool())
+    // Inputs for BTB, will come from EX stage and Hazard Unit
+    val updatePrediction = Input(Bool())
+    val newBranch      = Input(Bool())
+    val entryPC        = Input(UInt(32.W))
+    val branchBehavior = Input(Bool())  // 1 means Taken -- 0 means Not Taken
+    val branchMispredicted = Input(Bool())
+    val PCplus4ExStage = Input(UInt(32.W))
+    val btbHit         = Output(Bool())
+    val btbPrediction  = Output(Bool())
     val PC             = Output(UInt())
     val instruction    = Output(new Instruction)
   }
   )
 
   val InstructionMemory        = Module(new InstructionMemory(BinaryFile))
+  val BTB = Module(new BTB)
   val nextPC      = WireInit(UInt(), 0.U)
   val PC          = RegInit(UInt(32.W), 0.U)
-
-
+  val PCplus4     = Wire(UInt(32.W))
   val instruction = Wire(new Instruction)
   val branch      = WireInit(Bool(), false.B)
 
@@ -54,49 +59,56 @@ class IF(BinaryFile: String) extends Module
   testHarness.PC := InstructionMemory.testHarness.requestedAddress
 
   instruction := InstructionMemory.io.instruction.asTypeOf(new Instruction)
-  //stall PC
+
+  // Adder to increment PC
+  PCplus4 := PC + 4.U
+
+  // BTB signals
+  BTB.io.currentPC := PC
+  BTB.io.newBranch := io.newBranch
+  BTB.io.updatePrediction := io.updatePrediction
+  BTB.io.entryPC := io.entryPC
+  BTB.io.entryBrTarget := io.branchAddr
+  BTB.io.branchMispredicted := io.branchMispredicted
+  BTB.io.branchBehavior := io.branchBehavior
+  io.btbPrediction := BTB.io.prediction
+  io.btbHit := BTB.io.btbHit
+
+  // Stall PC
   when(io.stall){
-    PC     := PC
-    io.PC  := PC
-
-    //Incremented PC
-    nextPC := PC
-
-    //fetch instruction
+    PC := PC
+    //Fetch prev instruction -- Stalling the part of IF Barrier that holds the instruction
     InstructionMemory.io.instructionAddress := io.IFBarrierPC
 
   }.otherwise{
-
-    //Mux for controlling which address to go to next
-    //Either the incremented PC or branch address in the case of a jump or branch
-    when(io.controlSignals.jump | (io.controlSignals.branch & io.branch === 1.U)){
-      //Branch Addr
-      PC := nextPC
-
-      //Send the branch address to the rest of the pipeline
-      io.PC := io.branchAddr
-
-      //Incremented PC
-      nextPC := io.branchAddr + 4.U
-
-      //fetch instruction
-      InstructionMemory.io.instructionAddress := io.branchAddr
-
-    }.otherwise{
-      //Incremented PC
-      PC := nextPC
-
-      //Send the PC to the rest of the pipeline
-      io.PC := PC
-
-      //Incremented PC
-      nextPC := PC + 4.U
-
-      //fetch instruction
-      InstructionMemory.io.instructionAddress := PC
-
+    //Fetch instruction
+    InstructionMemory.io.instructionAddress := PC
+    // PC register gets nextPC
+    PC := nextPC
+  }
+  //Mux for controlling which address to go to next
+  when(io.branchMispredicted === 1.U){  // Case of branch mispredicted, we realize that in EX stage
+    when(io.branchBehavior === 1.U){  // Branch Behavior is Taken, but Predicted Not-Taken
+      nextPC := io.branchAddr
+    }
+    .otherwise{
+      nextPC := io.PCplus4ExStage
     }
   }
+  .elsewhen(BTB.io.btbHit === 1.B){  // BTB hits -> Choose nextPC as per the prediction
+    when(BTB.io.prediction === 1.B){  // Predict taken
+      nextPC := BTB.io.targetAdr
+    }
+    .otherwise{ // Predict not taken
+      nextPC := PCplus4
+    }
+  }
+  .otherwise{ // Normal instruction OR assume not taken (BTB miss)
+    nextPC := PCplus4
+  }
+  
+  // Send PC to the rest of the pipeline
+  io.PC := PC
 
   io.instruction := instruction
 

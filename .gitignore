@@ -1,6 +1,9 @@
 .bsp
 .idea
 project
+.vscode
+.metals
+.bloop
 target
 test_run_dir
 *.json

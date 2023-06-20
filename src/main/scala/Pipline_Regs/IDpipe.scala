@@ -16,7 +16,7 @@ import chisel3.util._
 import config.{ControlSignalsOB, Inst}
 import config.Inst._
 //import config.ControlSignals._
-import config.{Instruction, ControlSignals}
+import config.{Instruction, ControlSignals, branch_types, ALUOps}
 class IDpipe extends Module
 {
   val io = IO(
@@ -26,7 +26,6 @@ class IDpipe extends Module
       val inControlSignals  = Input(new ControlSignals)
       val inPC              = Input(UInt(32.W))
       val inBranchType      = Input(UInt(3.W))
-      val inInsertBubble    = Input(UInt())
       val inOp1Select       = Input(UInt(1.W))
       val inOp2Select       = Input(UInt(1.W))
       val inImmData         = Input(UInt(32.W))
@@ -48,7 +47,13 @@ class IDpipe extends Module
       val inReadData1       = Input(UInt(32.W))
       val inReadData2       = Input(UInt(32.W))
 
-      val stall            = Input(Bool())
+      val flush            = Input(Bool())
+
+      // BTB-related
+      val inBTBHit        = Input(Bool())
+      val inBTBPrediction  = Input(Bool())
+      val outBTBHit        = Output(Bool())
+      val outBTBPrediction  = Output(Bool())
 
       //Output from register - registers signals
       val outReadData1      = Output(UInt(32.W))
@@ -57,30 +62,35 @@ class IDpipe extends Module
   )
 
   //Decoder signal registers
-  val instructionReg        = RegEnable(io.inInstruction, !io.stall)
-  val controlSignalsReg     = RegEnable(io.inControlSignals, !io.stall)
-  val branchTypeReg         = RegEnable(io.inBranchType, 0.U, !io.stall)
-  val PCReg                 = RegEnable(io.inPC, 0.U, !io.stall)
-  val op1SelectReg          = RegEnable(io.inOp1Select, 0.U, !io.stall)
-  val op2SelectReg          = RegEnable(io.inOp2Select, 0.U, !io.stall)
-  val immDataReg            = RegEnable(io.inImmData, 0.U, !io.stall)
-  val rdReg                 = RegEnable(io.inRd, 0.U, !io.stall)
-  val ALUopReg              = RegEnable(io.inALUop, 0.U, !io.stall)
+  val instructionReg        = RegEnable(io.inInstruction, true.B)
+  val controlSignalsReg     = RegEnable(io.inControlSignals, true.B)
+  val branchTypeReg         = RegEnable(io.inBranchType, branch_types.DC, true.B) // Initialize to No Branch. beq is encoded as 0!
+  val PCReg                 = RegEnable(io.inPC, 0.U, true.B)
+  val op1SelectReg          = RegEnable(io.inOp1Select, 0.U, true.B)
+  val op2SelectReg          = RegEnable(io.inOp2Select, 0.U, true.B)
+  val immDataReg            = RegEnable(io.inImmData, 0.U, true.B)
+  val rdReg                 = RegEnable(io.inRd, 0.U, true.B)
+  val ALUopReg              = RegEnable(io.inALUop, 0.U, true.B)
   //Register signal registers
-  val readData1Reg          = RegEnable(io.inReadData1, 0.U, !io.stall)
-  val readData2Reg          = RegEnable(io.inReadData2, 0.U, !io.stall)
+  val readData1Reg          = RegEnable(io.inReadData1, 0.U, true.B)
+  val readData2Reg          = RegEnable(io.inReadData2, 0.U, true.B)
 
-  val insertBubbleReg       = RegEnable(io.inInsertBubble, 0.U, !io.stall)
-
-  //Bubble instruction for two cycles
-  when(io.inInsertBubble === 1.U | insertBubbleReg === 1.U){
+  //Flush
+  when(io.flush === 1.U){
     instructionReg    := Inst.NOP
+    controlSignalsReg := ControlSignalsOB.nop
+    ALUopReg          := ALUOps.DC
+    branchTypeReg     := branch_types.DC
+    rdReg             := 0.U
   }
 
-  //Bubble control signals for two cycles
-  when(io.inInsertBubble === 1.U | insertBubbleReg === 1.U){
-    controlSignalsReg := ControlSignalsOB.nop
-  }
+  // Propagate BTB signals
+  val btbHitReg = RegInit(Bool(), 0.U)
+  val BTBPredictionReg = RegInit(Bool(), 0.U)
+  btbHitReg := io.inBTBHit
+  BTBPredictionReg := io.inBTBPrediction
+  io.outBTBHit := btbHitReg
+  io.outBTBPrediction := BTBPredictionReg
 
   io.outInstruction    := instructionReg
 

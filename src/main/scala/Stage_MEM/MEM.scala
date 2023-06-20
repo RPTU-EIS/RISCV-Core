@@ -31,7 +31,7 @@ class MEM extends Module {
   val io = IO(
     new Bundle {
       val dataIn      = Input(UInt())
-      val dataAddress = Input(UInt())
+      val dataAddress = Input(UInt(32.W))
       val writeEnable = Input(Bool())
       val readEnable  = Input(Bool())
       val dataOut     = Output(UInt())
@@ -46,7 +46,7 @@ class MEM extends Module {
 
   //DMEM
   DMEM.io.dataIn      := io.dataIn
-  DMEM.io.dataAddress := io.dataAddress
+  DMEM.io.dataAddress := io.dataAddress(13,2)
   DMEM.io.writeEnable := io.writeEnable
   DMEM.io.readEnable  := io.readEnable
   //Read data from DMEM

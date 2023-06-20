@@ -13,28 +13,45 @@ package Piplined_RISC_V
 
 import chisel3._
 import chisel3.util._
-import config.{Instruction}
+import config.{Instruction, Inst}
 class IFpipe extends Module
 {
   val io = IO(
     new Bundle {
       val inCurrentPC     = Input(UInt(32.W))
       val inInstruction   = Input(new Instruction)
-      val stall          = Input(Bool())
-
+      val stall           = Input(Bool())
+      val flush           = Input(Bool())
+      val inBTBHit        = Input(Bool())
+      val inBTBPrediction  = Input(Bool())
+      val outBTBHit        = Output(Bool())
+      val outBTBPrediction  = Output(Bool())
       val outCurrentPC    = Output(UInt(32.W))
       val outInstruction  = Output(new Instruction)
     }
   )
 
-  val currentPCReg   = RegEnable(io.inCurrentPC, 0.U, !io.stall)
-  val prevPC         = WireInit(UInt(), 0.U)
-  //val InstructionReg = Reg(new Instruction)
+  val currentPCReg   = RegEnable(io.inCurrentPC, 0.U, !io.stall)  
+  val flushDelayed = RegInit(Bool(), 0.U)
+  flushDelayed := io.flush // Note: Delay flush signal because io.outInstruction is combinational (because Read iMem is synchronous)
 
-  //PC
-  io.outCurrentPC := currentPCReg
+  // Propagate BTB signals
+  val btbHitReg = RegInit(Bool(), 0.U)
+  val BTBPredictionReg = RegInit(Bool(), 0.U)
+  btbHitReg := io.inBTBHit
+  BTBPredictionReg := io.inBTBPrediction
+  io.outBTBHit := btbHitReg
+  io.outBTBPrediction := BTBPredictionReg
 
-  //Instruction
-  io.outInstruction := io.inInstruction
+  // Flush, Stall, or Propagate Instruction
+  when(flushDelayed === 1.U){
+    io.outInstruction := Inst.NOP
+  }
+  .otherwise{
+    io.outInstruction := io.inInstruction
+  }
+
+  // Propagate PC
+  io.outCurrentPC := currentPCReg   
 
 }

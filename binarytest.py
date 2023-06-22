@@ -185,10 +185,32 @@ def print_files_and_folders_in_current_directory():
     return curr_dir
 
 
+def print_files_and_folders_in_current_directory_all():
+    os.system('clear')
+    print("Current Directory:")
+    print("-----------------")
+    current_directory = os.getcwd()
+    i = 1
+    print(f"{i}) ../")
+    i += 1
+    curr_dir = ['../']
+    for item in os.listdir(current_directory):
+        item_path = os.path.join(current_directory, item)
+        if os.path.isdir(item_path):
+            print(f"{i}) {item}/")
+            curr_dir.append(item + "/")
+            i+=1
+        elif os.path.isfile(item_path):
+            print(f"{i})", item)
+            curr_dir.append(item)
+            i+=1
+    print("X) Exit program")
+    print("-----------------")
+    return curr_dir
+
 def check_and_create_file(file_path):
     if not os.path.exists(file_path):
-        with open(file_path, 'w'):
-            pass
+        pass
     else:
        with open(file_path, 'r') as file:
         line = file.readline()
@@ -197,6 +219,7 @@ def check_and_create_file(file_path):
 def dasmfunction():
     user_input = ""
     directory_path = os.getcwd()
+    curr_dir = []
     file_path = directory_path + "/dasmfilepath.txt"
     check_and_create_file(file_path)
     while not user_input.endswith(".dasm"):
@@ -225,7 +248,29 @@ def dasmfunction():
 
 
 def hexfunction():
-    pass
+    user_input = ""
+    directory_path = os.getcwd()
+    file_path = directory_path + "/hexfilepath.txt"
+    curr_dir = []
+    check_and_create_file(file_path)
+    while user_input != "x":
+        curr_dir = print_files_and_folders_in_current_directory_all()
+        directory_path = os.getcwd()
+        user_input = input("Please select a HEX file or go into a folder by entering respective digit: ")
+        if user_input.lower() == 'x':
+            return -1
+        else:
+            if curr_dir[int(user_input)-1].find(".") == -1 and not curr_dir[int(user_input)-1].endswith("/"):
+                break
+            else:
+                os.chdir(curr_dir[int(user_input)-1])
+
+    file_namelocation = directory_path + "/" + curr_dir[int(user_input)-1]
+
+    with open(file_path, 'w') as file:
+        file.write(directory_path)
+
+    return curr_dir[int(user_input)-1]
 
 def main():
     number = None
@@ -234,16 +279,17 @@ def main():
         if number == 1:
             filelocation = dasmfunction()
             if(filelocation == -1):
+                print("Error has occured!\n")
                 break
             sbttest('hexfile')
             break
         elif number == 2:
-            hexfunction()
+            sbttest(hexfunction())
             break
         else:
             pass
 	
-    print("Exiting program")
+    print("Exiting program.")
     
 if __name__ == '__main__':
    main()

@@ -1,3 +1,5 @@
+ ![CI Pipeline](https://github.com/TUK-EIS/RISCV-Core/actions/workflows/scala.yml/badge.svg?event=push)
+ 
 # RISC-V Pipelined Project in Chisel
 
 This project implements a pipelined RISC-V processor in Chisel. The pipeline includes five stages: fetch, decode, execute, memory, and writeback.

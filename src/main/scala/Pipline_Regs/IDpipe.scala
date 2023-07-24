@@ -50,10 +50,12 @@ class IDpipe extends Module
       val flush            = Input(Bool())
 
       // BTB-related
-      val inBTBHit        = Input(Bool())
-      val inBTBPrediction  = Input(Bool())
-      val outBTBHit        = Output(Bool())
-      val outBTBPrediction  = Output(Bool())
+      val inBTBHit            = Input(Bool())
+      val inBTBPrediction     = Input(Bool())
+      val inBTBTargetPredict  = Input(UInt(32.W))
+      val outBTBHit           = Output(Bool())
+      val outBTBPrediction    = Output(Bool())
+      val outBTBTargetPredict = Output(UInt(32.W))
 
       //Output from register - registers signals
       val outReadData1      = Output(UInt(32.W))
@@ -74,6 +76,10 @@ class IDpipe extends Module
   //Register signal registers
   val readData1Reg          = RegEnable(io.inReadData1, 0.U, true.B)
   val readData2Reg          = RegEnable(io.inReadData2, 0.U, true.B)
+  // BTB signals
+  val btbHitReg        = RegInit(false.B)
+  val btbPredictionReg = RegInit(false.B)
+  val btbTargetPredict = RegInit(0.U(32.W))
 
   //Flush
   when(io.flush === 1.U){
@@ -84,35 +90,25 @@ class IDpipe extends Module
     rdReg             := 0.U
   }
 
-  // Propagate BTB signals
-  val btbHitReg = RegInit(Bool(), 0.U)
-  val BTBPredictionReg = RegInit(Bool(), 0.U)
-  btbHitReg := io.inBTBHit
-  BTBPredictionReg := io.inBTBPrediction
-  io.outBTBHit := btbHitReg
-  io.outBTBPrediction := BTBPredictionReg
+  btbHitReg        := io.inBTBHit
+  btbPredictionReg := io.inBTBPrediction
+  btbTargetPredict := io.inBTBTargetPredict
+
+  io.outBTBHit           := btbHitReg
+  io.outBTBPrediction    := btbPredictionReg
+  io.outBTBTargetPredict := btbTargetPredict
 
   io.outInstruction    := instructionReg
-
   io.outControlSignals := controlSignalsReg
-
   io.outBranchType     := branchTypeReg
-
   io.outPC             := PCReg
-
   io.outOp1Select      := op1SelectReg
-
   io.outOp2Select      := op2SelectReg
-
   io.outImmData        := immDataReg
-
   io.outRd             := rdReg
-
   io.outALUop          := ALUopReg
-
 
   //Register signals registers
   io.outReadData1      := readData1Reg
-
   io.outReadData2      := readData2Reg
 }

@@ -40,8 +40,10 @@ class EX extends Module {
       val ALUresultEXB       = Input(UInt(32.W))
       val ALUresultMEMB      = Input(UInt(32.W))
       val btbHit             = Input(Bool())
+      val btbTargetPredict   = Input(UInt(32.W))
       val newBranch          = Output(Bool())
       val updatePrediction   = Output(Bool())
+      val updateTarget       = Output(Bool())
       val outPCplus4         = Output(UInt(32.W))
       val ALUResult          = Output(UInt(32.W))
       val branchTarget       = Output(UInt(32.W))
@@ -67,7 +69,7 @@ class EX extends Module {
 
 
 
-  Branch.branchType           := io.branchType
+  Branch.branchType := io.branchType
   ALU.ALUop         :=io.ALUop
 
   // Choosing ALU and Branch_Op Inputs  -- 2 consecutive MUXes
@@ -121,6 +123,9 @@ class EX extends Module {
   // EX stage outputs
   io.branchCond   := Branch.branchCondition
   io.branchTarget := ALU.aluRes
+
+  //assert((ALU.aluRes === io.btbTargetPredict),"BTB hit, but predicted branch target doesn't match!")
+
   io.Rs2Forwarded := alu_operand2
   // ALU RESULT / PC + 4 MUX
   PCplus4 := io.PC + 4.U
@@ -133,15 +138,22 @@ class EX extends Module {
   // BTB-related: Finding new Branch Instructions and Updating Existing Prediction
   when(io.branchType =/= branch_types.DC){ // In case instruction is a valid branch (valid means not flushed)
     when(!io.btbHit){ // In case of BTB miss, send this as new BTB entry to IF stage
-      io.newBranch := 1.B  // Update BTB! -> Tells IF to take io.branchTarget as entryBrTarget AND take IDBarrier.io.outPC as entryPC
+      io.newBranch        := 1.B  // Update BTB! -> Tells IF to take io.branchTarget as entryBrTarget AND take IDBarrier.io.outPC as entryPC
+      io.updateTarget     := 0.B
       io.updatePrediction := 0.B
-    }.otherwise{ // In case of BTB hit (we already know this branch), tell IF to change prediction FSM
-      io.newBranch := 0.B
+    }.elsewhen(ALU.aluRes =/= io.btbTargetPredict) {
+      io.newBranch        := 0.B
+      io.updateTarget     := 1.B
       io.updatePrediction := 1.B
+    }otherwise{ // In case of BTB hit (we already know this branch), tell IF to change prediction FSM
+      io.newBranch        := 0.B
+      io.updatePrediction := 1.B
+      io.updateTarget     := 0.B
     }
   }.otherwise{
-    io.newBranch := 0.B
+    io.newBranch        := 0.B
     io.updatePrediction := 0.B
+    io.updateTarget     := 0.B
   }
   io.outPCplus4 := PCplus4
 }

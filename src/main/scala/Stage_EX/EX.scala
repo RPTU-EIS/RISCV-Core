@@ -43,7 +43,6 @@ class EX extends Module {
       val btbTargetPredict   = Input(UInt(32.W))
       val newBranch          = Output(Bool())
       val updatePrediction   = Output(Bool())
-      val updateTarget       = Output(Bool())
       val outPCplus4         = Output(UInt(32.W))
       val ALUResult          = Output(UInt(32.W))
       val branchTarget       = Output(UInt(32.W))
@@ -137,23 +136,16 @@ class EX extends Module {
 
   // BTB-related: Finding new Branch Instructions and Updating Existing Prediction
   when(io.branchType =/= branch_types.DC){ // In case instruction is a valid branch (valid means not flushed)
-    when(!io.btbHit){ // In case of BTB miss, send this as new BTB entry to IF stage
-      io.newBranch        := 1.B  // Update BTB! -> Tells IF to take io.branchTarget as entryBrTarget AND take IDBarrier.io.outPC as entryPC
-      io.updateTarget     := 0.B
-      io.updatePrediction := 0.B
-    }.elsewhen(ALU.aluRes =/= io.btbTargetPredict) {
-      io.newBranch        := 0.B
-      io.updateTarget     := 1.B
-      io.updatePrediction := 1.B
+    when(!io.btbHit || (io.btbHit && (ALU.aluRes =/= io.btbTargetPredict))){ // In case of BTB miss, or BTB hit, but wrong target address (may occur only for JALR) send this as new BTB entry to IF stage
+      io.newBranch        := true.B  // Update BTB! -> Tells IF to take io.branchTarget as entryBrTarget AND take IDBarrier.io.outPC as entryPC
+      io.updatePrediction := false.B
     }otherwise{ // In case of BTB hit (we already know this branch), tell IF to change prediction FSM
-      io.newBranch        := 0.B
-      io.updatePrediction := 1.B
-      io.updateTarget     := 0.B
+      io.newBranch        := false.B
+      io.updatePrediction := true.B
     }
   }.otherwise{
-    io.newBranch        := 0.B
-    io.updatePrediction := 0.B
-    io.updateTarget     := 0.B
+    io.newBranch        := false.B
+    io.updatePrediction := false.B
   }
   io.outPCplus4 := PCplus4
 }

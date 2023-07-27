@@ -98,14 +98,9 @@ class BTB_2way(parameters: btb2WayParameters = btb2WayParameters()) extends Modu
   val predictorArray = Mem(numSets * numWays, UInt(2.W))
   val predictorOut = Wire(UInt(2.W))
 
-  val btbWrEn = Wire(Bool())
-
   // Avoiding a simulation artifact during reset
-  when(reset.asBool) {
-    btbWrEn := false.B
-  }.otherwise {
-    btbWrEn := io.newBranch && io.branchMispredicted
-  }
+  val btbWriteNewEntry = WireInit(false.B)
+  btbWriteNewEntry := io.newBranch && io.branchMispredicted  // Collecting new Branches only if mispredicted (i.e., they are taken!)
 
   // Initialize BTB and Prediction Array
   // TODO: Not working for complex datatypes like btbEntry
@@ -156,7 +151,11 @@ class BTB_2way(parameters: btb2WayParameters = btb2WayParameters()) extends Modu
   io.btbHit     := way0Hit || way1Hit
   io.targetAdr  := Cat(BranchTarget, 0.U(2.W)) // restore full 32-bit target address
 
-  // Read Predictor
+
+  // --------------------------------------------------------------
+  // READ PREDICTION
+  // --------------------------------------------------------------
+
   predictorOut  := predictorArray(hitEntry)
   io.prediction := io.btbHit && (predictorOut === strongTaken || predictorOut === weakTaken)
 
@@ -174,34 +173,14 @@ class BTB_2way(parameters: btb2WayParameters = btb2WayParameters()) extends Modu
   // --------------------------------------------------------------
 
   val btbUpdate = Wire(new btbEntry)
-
-  val replIdx   = Wire(UInt(6.W))
-  replIdx      :=  io.entryPC((indexBits + 1), 2)
-
-  val replIdx_debug = RegNext(replIdx)
-
-  val lruWay    = Wire(Bool())
-  lruWay       := lruArray(replIdx)
+  val replIdx   = io.entryPC((indexBits + 1), 2)
+  val lruWay    = lruArray(replIdx)
 
   btbUpdate.valid        := true.B
   btbUpdate.tag          := io.entryPC(31, (indexBits + 2))
   btbUpdate.branchTarget := io.entryBrTarget(31, 2) // instr. mem is word aligned, last two bits are always zero
 
-  val btbEntry0Way_debug = Wire(new btbEntry)
-  btbEntry0Way_debug.valid := btb((replIdx_debug << 1).asUInt).valid
-  btbEntry0Way_debug.tag := btb((replIdx_debug << 1).asUInt).tag
-  btbEntry0Way_debug.branchTarget := btb((replIdx_debug << 1).asUInt).branchTarget
-
-  dontTouch(btbEntry0Way_debug)
-
-  val btbEntry1Way_debug = Wire(new btbEntry)
-  btbEntry1Way_debug.valid := btb((replIdx_debug << 1 | 1.U).asUInt).valid
-  btbEntry1Way_debug.tag := btb((replIdx_debug << 1 | 1.U).asUInt).tag
-  btbEntry1Way_debug.branchTarget := btb((replIdx_debug << 1 | 1.U).asUInt).branchTarget
-
-  dontTouch(btbEntry1Way_debug)
-
-  when(btbWrEn) {
+  when(btbWriteNewEntry) {
     when((btb((replIdx << 1).asUInt).tag === btbUpdate.tag) && btb((replIdx << 1).asUInt).valid) {
 
       btb((replIdx << 1).asUInt)        := btbUpdate
@@ -217,6 +196,7 @@ class BTB_2way(parameters: btb2WayParameters = btb2WayParameters()) extends Modu
     }
   }
 
+
   // --------------------------------------------------------------
   // UPDATE 2-BIT FSM FOR PREDICTION
   // --------------------------------------------------------------
@@ -224,7 +204,7 @@ class BTB_2way(parameters: btb2WayParameters = btb2WayParameters()) extends Modu
   val prevPrediction1 = RegNext(predictorOut)
   val prevPrediction2 = RegNext(prevPrediction1)  
 
-  when(btbWrEn) {
+  when(btbWriteNewEntry) {
     predictorArray(io.entryPC((indexBits + 1), 2)) := strongTaken // TODO: what's the best initial state? Strong taken helps with Loops
   }.elsewhen(io.updatePrediction === 1.B){
 

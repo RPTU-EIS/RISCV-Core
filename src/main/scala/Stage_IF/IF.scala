@@ -47,7 +47,7 @@ class IF(BinaryFile: String) extends Module
   })
 
   val InstructionMemory = Module(new InstructionMemory(BinaryFile))
-  val BTB               = Module(new BTB)
+  val BTB               = Module(new BTB_direct)
   val nextPC            = WireInit(UInt(), 0.U)
   val PC                = RegInit(UInt(32.W), 0.U)
   val PCplus4           = Wire(UInt(32.W))

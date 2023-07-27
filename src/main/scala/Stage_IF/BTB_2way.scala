@@ -51,14 +51,14 @@ import chisel3.util._
 import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemoryLoadFileType
 
-case class btbParameters(
+case class btb2WayParameters(
   numSets: Int = 32, // Number of sets in the BTB
   numWays: Int = 2,  // Number of ways in the BTB (associativity)
   btbEntrySize: Int = 55 // Layout: 1 bit (Valid) + 25 bits (Tag) + 30 bits (Target, ignoring Byte Offset)
 )
 
 
-class BTB(parameters: btbParameters = btbParameters()) extends Module {
+class BTB_2way(parameters: btb2WayParameters = btb2WayParameters()) extends Module {
 
   val io = IO(new Bundle {
     val currentPC           = Input(UInt(32.W))

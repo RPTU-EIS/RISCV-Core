@@ -217,16 +217,3 @@ object lookup {
   def REM                = BitPat("b0000001??????????110?????0110011")
   def REMU               = BitPat("b0000001??????????111?????0110011")
 }
-
-
-class btbEntry extends Bundle(){
-  val valid = UInt(1.W)
-  val Tag = UInt(24.W)
-  val branchTarget =  UInt(30.W)
-}
-object predictorState {
-  val strongTaken  = 0.asUInt(2.W)
-  val weakTaken = 1.asUInt(2.W)
-  val weakNotTaken = 2.asUInt(2.W)
-  val strongNotTaken = 3.asUInt(2.W)
-}

@@ -12,12 +12,10 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Ab
 package Stage_IF
 import chisel3._
 import chisel3.util._
-import config.btbEntry
-import config.predictorState
 import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemoryLoadFileType
 
-class BTB extends Module {
+class BTB_direct extends Module {
   
   val io = IO(new Bundle {
     val currentPC           = Input(UInt(32.W))
@@ -32,13 +30,25 @@ class BTB extends Module {
     val targetAdr           = Output(UInt(32.W))
   })
 
+
+  // Define the btbEntry type
+  class btbEntry extends Bundle(){
+    val valid = UInt(1.W)
+    val Tag = UInt(24.W)
+    val branchTarget =  UInt(30.W)
+  }
+
+  // Predictor State
+  val strongTaken :: weakTaken :: weakNotTaken :: strongNotTaken :: Nil = Enum(4)
+
   // BTB: 64 entry Cache
   val btb = Mem(64, UInt(55.W))   // NOTE: must use combinational read to select correct address next cycle (parallel to PC+4)
                                   // Layout: 1 bit (Valid) + 24 bits (Tag) + 30 bits (Target, ignoring Byte Offset)
   val btbOutput = Wire(new btbEntry)
   val btbInput = Wire(new btbEntry)
+
   // Array of 2bit FSMs -- state bits. It is indexed by currentPC[7:2]
-  val predictorArr = Mem(64, UInt(2.W)) 
+  val predictorArray = Mem(64, UInt(2.W)) 
   val predictorOut = Wire(UInt(2.W))
   
   // Avoiding a simulation artifact during reset
@@ -53,7 +63,7 @@ class BTB extends Module {
   var BTB_Init:String = "src/main/scala/Stage_IF/BTB_Init"
   var Predictor_Init:String = "src/main/scala/Stage_IF/Predictor_Init"
   loadMemoryFromFileInline(btb, BTB_Init,  MemoryLoadFileType.Hex)
-  loadMemoryFromFileInline(predictorArr, Predictor_Init, MemoryLoadFileType.Binary)
+  loadMemoryFromFileInline(predictorArray, Predictor_Init, MemoryLoadFileType.Binary)
 
   // Read BTB
   val btbOut = WireInit(btb(io.currentPC(7,2)))
@@ -68,8 +78,8 @@ class BTB extends Module {
     io.btbHit := 0.B  // Miss
   }
   // Read Predictor
-  predictorOut := predictorArr(io.currentPC(7,2))
-  when( io.btbHit && (predictorOut === predictorState.strongTaken || predictorOut === predictorState.weakTaken) ){
+  predictorOut := predictorArray(io.currentPC(7,2))
+  when( io.btbHit && (predictorOut === strongTaken || predictorOut === weakTaken) ){
     io.prediction := 1.B  // Taken
   }
   .otherwise{
@@ -88,41 +98,41 @@ class BTB extends Module {
   val prevPrediction1 = RegNext(predictorOut)
   val prevPrediction2 = RegNext(prevPrediction1)  // This register holds the prediction from 2 cycles before. It is used for updating Prediction after EX stage calculates branch behavior
   when(btbWrEn === 1.B){
-    predictorArr(io.entryPC(7,2)) := predictorState.strongTaken  // *Note*: what's the best initial state? Strong taken helps with Loops
+    predictorArray(io.entryPC(7,2)) := strongTaken  // *Note*: what's the best initial state? Strong taken helps with Loops
   }
   .elsewhen(io.updatePrediction === 1.B){
     // Prediction FSMs next state logic
     switch ( prevPrediction2 ) { // Switch on the Current State
-      is( predictorState.strongNotTaken ) {
-        when( io.branchMispredicted === 1.B ){
-          predictorArr(io.entryPC(7,2)) := predictorState.weakNotTaken
+      is(strongNotTaken) {
+        when(io.branchMispredicted === 1.B){
+          predictorArray(io.entryPC(7,2)) := weakNotTaken
         }
         .otherwise{
-          predictorArr(io.entryPC(7,2)) := predictorState.strongNotTaken
+          predictorArray(io.entryPC(7,2)) := strongNotTaken
         }
       }
-      is( predictorState.weakNotTaken ) {
+      is(weakNotTaken) {
         when( io.branchMispredicted === 1.B ){
-          predictorArr(io.entryPC(7,2)) := predictorState.weakTaken
+          predictorArray(io.entryPC(7,2)) := weakTaken
         }
         .otherwise{
-          predictorArr(io.entryPC(7,2)) := predictorState.strongNotTaken
+          predictorArray(io.entryPC(7,2)) := strongNotTaken
         }
       }
-      is( predictorState.strongTaken ) {
+      is(strongTaken) {
         when( io.branchMispredicted === 1.B ){
-          predictorArr(io.entryPC(7,2)) := predictorState.weakTaken
+          predictorArray(io.entryPC(7,2)) := weakTaken
         }
         .otherwise{
-          predictorArr(io.entryPC(7,2)) := predictorState.strongTaken
+          predictorArray(io.entryPC(7,2)) := strongTaken
         }
       }
-      is( predictorState.weakTaken ) {
+      is(weakTaken) {
         when( io.branchMispredicted === 1.B ){
-          predictorArr(io.entryPC(7,2)) := predictorState.weakNotTaken
+          predictorArray(io.entryPC(7,2)) := weakNotTaken
         }
         .otherwise{
-          predictorArr(io.entryPC(7,2)) := predictorState.strongTaken
+          predictorArray(io.entryPC(7,2)) := strongTaken
         }
       }
     }

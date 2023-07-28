@@ -19,7 +19,7 @@ import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemorySynthInit
 
 import config.{DMEMsetupSignals, MemUpdates}
-class MEM extends Module {
+class MEM(DataFile: String) extends Module {
   val testHarness = IO(
     new Bundle {
       val DMEMsetup      = Input(new DMEMsetupSignals)
@@ -38,7 +38,7 @@ class MEM extends Module {
     })
 
 
-  val DMEM = Module(new DataMemory())
+  val DMEM = Module(new DataMemory(DataFile))
 
   DMEM.testHarness.setup  := testHarness.DMEMsetup
   testHarness.DMEMpeek    := DMEM.io.dataOut

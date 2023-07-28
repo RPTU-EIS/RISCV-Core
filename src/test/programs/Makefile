@@ -17,7 +17,7 @@ TARGET = main
 LINKER_SCR = riscv.ld
 
 all: $(TARGET).out
-
+vscode-remote://wsl%2Bubuntu/home/tsotne/riscv-tests/benchmarks/multiply.riscv.dasm
 $(TARGET).out: $(DEP) $(OBJ) $(LINKER_SCR)
 	$(CC) $(CFLAGS) $(OBJ) -o $(TARGET).elf -T $(LINKER_SCR) $(LDFLAGS) 
 	$(OBJDUMP) --disassemble-all -Mno-aliases $(TARGET).elf	> main.dasm

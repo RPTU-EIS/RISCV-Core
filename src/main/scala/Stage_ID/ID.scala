@@ -125,5 +125,10 @@ class ID extends Module
   immData := MuxLookup(io.immType, 0.S(32.W), ImmOpMap)
 
   //Sign extend immdata
-  io.immData := Cat(Fill(16, immData(15)), immData(15,0)).asUInt
+  when(io.immType === UTYPE){
+      io.immData := immData.asUInt
+  }.otherwise{
+      io.immData := Cat(Fill(16, immData(15)), immData(15,0)).asUInt
+  }
+  
 }

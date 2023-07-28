@@ -64,7 +64,7 @@ class top_MC(BinaryFile: String) extends Module {
 
 
   // Fetch Stage
-  IF.io.branchBehavior     := EX.io.branchCond
+  IF.io.branchTaken        := EX.io.branchTaken
   IF.io.IFBarrierPC        := IFBarrier.outCurrentPC
   IF.io.stall              := HzdUnit.io.stall             // Stall Fetch -> PC_en=0
   IF.io.newBranch          := EX.io.newBranch
@@ -133,7 +133,8 @@ class top_MC(BinaryFile: String) extends Module {
   HzdUnit.io.rdAddrIDB          := IDBarrier.outInstruction.registerRd
   HzdUnit.io.rdAddrEXB          := EXBarrier.outRd
   HzdUnit.io.rdAddrMEMB         := MEMBarrier.outRd
-  HzdUnit.io.branchTaken        := EX.io.branchCond
+  HzdUnit.io.branchTaken        := EX.io.branchTaken
+  HzdUnit.io.wrongAddrPred      := EX.io.wrongAddrPred
   HzdUnit.io.btbPrediction      := IDBarrier.outBTBPrediction
   HzdUnit.io.branchType         := IDBarrier.outBranchType
 

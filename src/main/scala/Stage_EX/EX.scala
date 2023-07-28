@@ -46,14 +46,15 @@ class EX extends Module {
       val outPCplus4         = Output(UInt(32.W))
       val ALUResult          = Output(UInt(32.W))
       val branchTarget       = Output(UInt(32.W))
-      val branchCond         = Output(Bool())
+      val branchTaken        = Output(Bool())
+      val wrongAddrPred      = Output(Bool())
       val Rs2Forwarded       = Output(UInt(32.W))
     }
   )
 
-  val ALU          = Module(new ALU).io
-  val MDU          = Module(new MDU).io
-  val Branch       = Module(new Branch_OP).io
+  val ALU                 = Module(new ALU).io
+  val MDU                 = Module(new MDU).io
+  val ResolveBranch       = Module(new Branch_OP).io
 
 
   val mdu_op_flag             = Wire(Bool())
@@ -63,39 +64,34 @@ class EX extends Module {
   val alu_operand2            = Wire(UInt())
   val PCplus4 = Wire(UInt(32.W))
   // Control signals to ALU and Branch
-  Branch.branchType := io.branchType
-  ALU.ALUop         :=io.ALUop
-
-
-
-  Branch.branchType := io.branchType
-  ALU.ALUop         :=io.ALUop
+  ResolveBranch.branchType := io.branchType
+  ALU.ALUop                :=io.ALUop
 
   // Choosing ALU and Branch_Op Inputs  -- 2 consecutive MUXes
     //Forwarded operands -- 1st MUX
   when(io.rs1Select === 1.asUInt(2.W)){
-    alu_operand1  := io.ALUresultEXB
-    Branch.src1   := io.ALUresultEXB
+    alu_operand1         := io.ALUresultEXB
+    ResolveBranch.src1   := io.ALUresultEXB
   }
   .elsewhen(io.rs1Select === 2.asUInt(2.W)){
-    alu_operand1  := io.ALUresultMEMB
-    Branch.src1   := io.ALUresultMEMB
+    alu_operand1         := io.ALUresultMEMB
+    ResolveBranch.src1   := io.ALUresultMEMB
   }
   .otherwise{
-    alu_operand1  := io.rs1
-    Branch.src1   := io.rs1
+    alu_operand1         := io.rs1
+    ResolveBranch.src1   := io.rs1
   }
   when(io.rs2Select === 1.asUInt(2.W)){
-    alu_operand2  := io.ALUresultEXB
-    Branch.src2   := io.ALUresultEXB
+    alu_operand2         := io.ALUresultEXB
+    ResolveBranch.src2   := io.ALUresultEXB
   }
   .elsewhen(io.rs2Select === 2.asUInt(2.W)){
-    alu_operand2  := io.ALUresultMEMB
-    Branch.src2   := io.ALUresultMEMB
+    alu_operand2         := io.ALUresultMEMB
+    ResolveBranch.src2   := io.ALUresultMEMB
   }
   .otherwise{
-    alu_operand2  := io.rs2
-    Branch.src2   := io.rs2
+    alu_operand2         := io.rs2
+    ResolveBranch.src2   := io.rs2
   }
     //Operand 1, 2nd Mux
   when(io.op1Select === op1sel.PC){
@@ -120,8 +116,10 @@ class EX extends Module {
 
 
   // EX stage outputs
-  io.branchCond   := Branch.branchCondition
-  io.branchTarget := ALU.aluRes
+  io.branchTaken   := ResolveBranch.branchTaken // Branch taken or not in sequential program flow?
+  io.wrongAddrPred := io.btbHit && (ALU.aluRes =/= io.btbTargetPredict) // hit but target addr in BTB was incorrect
+  io.branchTarget  := ALU.aluRes  // calculated branch target
+  
 
   //assert((ALU.aluRes === io.btbTargetPredict),"BTB hit, but predicted branch target doesn't match!")
 

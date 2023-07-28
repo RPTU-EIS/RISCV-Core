@@ -23,7 +23,6 @@ class BTB_direct extends Module {
     val entryPC             = Input(UInt(32.W))
     val entryBrTarget       = Input(UInt(32.W))
     val branchMispredicted  = Input(Bool())       // Acts as WrEn for Predictor Array
-    val branchBehavior      = Input(Bool())       // 1 means Taken -- 0 means Not Taken 
     val updatePrediction    = Input(Bool())
     val prediction          = Output(Bool())      // 1 means Taken
     val btbHit              = Output(Bool())      // 1 means Hit
@@ -50,10 +49,14 @@ class BTB_direct extends Module {
   // Array of 2bit FSMs -- state bits. It is indexed by currentPC[7:2]
   val predictorArray = Mem(64, UInt(2.W)) 
   val predictorOut = Wire(UInt(2.W))
-  
+
   // Avoiding a simulation artifact during reset
-  val btbWriteNewEntry = WireInit(false.B)
-  btbWriteNewEntry := io.newBranch && io.branchMispredicted  // Collecting new Branches only if mispredicted (i.e., they are taken!)
+  val btbWriteNewEntry = Wire(Bool())
+  when(Module.reset.asBool){
+    btbWriteNewEntry := false.B
+  }.otherwise{
+    btbWriteNewEntry := io.newBranch && io.branchMispredicted  // Collecting new Branches only if mispredicted (i.e., they are taken!)
+  }
 
   // Initialize BTB and Prediction Array
   var BTB_Init:String = "src/main/scala/Stage_IF/BTB_Init"

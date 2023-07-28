@@ -36,7 +36,7 @@ class IF(BinaryFile: String) extends Module
     val updatePrediction   = Input(Bool())
     val newBranch          = Input(Bool())
     val entryPC            = Input(UInt(32.W))
-    val branchBehavior     = Input(Bool())  // 1 means Taken -- 0 means Not Taken
+    val branchTaken        = Input(Bool())  // 1 means Taken -- 0 means Not Taken
     val branchMispredicted = Input(Bool())
     val PCplus4ExStage     = Input(UInt(32.W))
     val btbHit             = Output(Bool())
@@ -70,7 +70,6 @@ class IF(BinaryFile: String) extends Module
   BTB.io.entryPC := io.entryPC
   BTB.io.entryBrTarget := io.branchAddr
   BTB.io.branchMispredicted := io.branchMispredicted
-  BTB.io.branchBehavior := io.branchBehavior
   io.btbPrediction := BTB.io.prediction
   io.btbHit := BTB.io.btbHit
   io.btbTargetPredict := BTB.io.targetAdr
@@ -88,16 +87,16 @@ class IF(BinaryFile: String) extends Module
     PC := nextPC
   }
   //Mux for controlling which address to go to next
-  when(io.branchMispredicted === 1.U){  // Case of branch mispredicted, we realize that in EX stage
-    when(io.branchBehavior === 1.U){  // Branch Behavior is Taken, but Predicted Not-Taken
+  when(io.branchMispredicted){  // Case of branch mispredicted, we realize that in EX stage
+    when(io.branchTaken){  // Branch Behavior is Taken, but Predicted Not-Taken
       nextPC := io.branchAddr
     }
     .otherwise{
       nextPC := io.PCplus4ExStage
     }
   }
-  .elsewhen(BTB.io.btbHit === 1.B){  // BTB hits -> Choose nextPC as per the prediction
-    when(BTB.io.prediction === 1.B){  // Predict taken
+  .elsewhen(BTB.io.btbHit){  // BTB hits -> Choose nextPC as per the prediction
+    when(BTB.io.prediction){  // Predict taken
       nextPC := BTB.io.targetAdr
     }
     .otherwise{ // Predict not taken

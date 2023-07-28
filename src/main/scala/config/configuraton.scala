@@ -102,7 +102,8 @@ class Instruction extends Bundle(){
   def immediateIType = instruction(31, 20).asSInt
   def immediateSType = Cat(instruction(31, 25), instruction(11,7)).asSInt
   def immediateBType = Cat(instruction(31), instruction(7), instruction(30, 25), instruction(11, 8), 0.U(1.W)).asSInt
-  def immediateUType = Cat(instruction(31, 12), 0.U(12.W)).asSInt
+  // def immediateUType = Cat(instruction(31, 12), 0.U(12.W)).asSInt
+  def immediateUType = Cat(0.U(12.W), instruction(31, 12)).asSInt
   def immediateJType = Cat(instruction(31), instruction(19, 12), instruction(20), instruction(30, 25), instruction(24, 21), 0.U(1.W)).asSInt
   def immediateZType = instruction(19, 15).zext
 

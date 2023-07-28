@@ -26,25 +26,26 @@ class Branch_OP extends Module {
 
   //Branch lookup
   io.branchCondition := 0.U
-
+  val lhs = io.src1.asSInt
+  val rhs = io.src2.asSInt
   switch(io.branchType) {
     is(beq) {
-      io.branchCondition := (io.src1 === io.src2)
+      io.branchCondition := (lhs === rhs)
     }
     is(neq) {
-      io.branchCondition := (io.src1 =/= io.src2)
+      io.branchCondition := (lhs =/= rhs)
     }
     is(gte) {
-      io.branchCondition := (io.src1 >= io.src2)
+      io.branchCondition := (lhs >= rhs)
     }
     is(lt) {
-      io.branchCondition := (io.src1 < io.src2)
+      io.branchCondition := (lhs < rhs)
     }
     is(gteu) {
-      io.branchCondition := (io.src1 >= io.src2)
+      io.branchCondition := (lhs >= rhs)
     }
     is(ltu) {
-      io.branchCondition := (io.src1 < io.src2)
+      io.branchCondition := (lhs < rhs)
     }
     is(jump) {
       io.branchCondition := (1.U)

@@ -40,14 +40,14 @@ def dasmtohex(filepath):
 
 	with open(filepath, "w") as f:
 		for line in lines:
-			if line.find("00000000 <startup>:") != -1:
+			if line.find("00000000 <_start>:")!= -1:
 				writebool = 1
 			if writebool:
 				f.write(line)
 
 	with open(filepath, 'r') as file:  # adjust the input file name/path
 		for line in file:
-			if line.find(".comment:") != -1:
+			if line.find(".data:") != -1:
 				break
 			if not line.isspace() and not isBadLine(line):
 

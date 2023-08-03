@@ -19,6 +19,7 @@ import Branch_OP.Branch_OP
 import config.branch_types._
 import config.op1sel._
 import config.op2sel._
+import config.ImmFormat._
 import config.{ControlSignals, Instruction, branch_types, op1sel, op2sel}
 
 class EX extends Module {
@@ -47,6 +48,9 @@ class EX extends Module {
       val branchTarget       = Output(UInt(32.W))
       val branchCond         = Output(Bool())
       val Rs2Forwarded       = Output(UInt(32.W))
+
+      val immType            = Input(UInt(3.W))
+
     }
   )
 
@@ -72,6 +76,8 @@ class EX extends Module {
 
   // Choosing ALU and Branch_Op Inputs  -- 2 consecutive MUXes
     //Forwarded operands -- 1st MUX
+
+
   when(io.rs1Select === 1.asUInt(2.W)){
     alu_operand1  := io.ALUresultEXB
     Branch.src1   := io.ALUresultEXB
@@ -109,7 +115,10 @@ class EX extends Module {
     ALU.src2    := io.immData
   }
 
-
+  // when(io.immType === UTYPE){
+  //     ALU.src1    := io.immData
+  //     ALU.src2    := 12.asUInt(32.W)
+  // }
   //MDU
   MDU.src1           := alu_operand1
   MDU.src2           := alu_operand2

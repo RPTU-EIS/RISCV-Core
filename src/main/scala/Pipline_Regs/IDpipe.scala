@@ -60,6 +60,12 @@ class IDpipe extends Module
       //Output from register - registers signals
       val outReadData1      = Output(UInt(32.W))
       val outReadData2      = Output(UInt(32.W))
+
+
+      //input and output Utype
+      val immTypein              = Input(UInt(3.W))
+      val immTypeout             = Output(UInt(3.W))
+
     }
   )
 
@@ -111,4 +117,7 @@ class IDpipe extends Module
   //Register signals registers
   io.outReadData1      := readData1Reg
   io.outReadData2      := readData2Reg
+
+
+  io.immTypeout        := io.immTypein
 }

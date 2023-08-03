@@ -56,8 +56,8 @@ class Decode extends Module {
     XORI   -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       imm,       ITYPE,        ALUOps.XOR),
 
     // Imm instructions
-    LUI    -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       imm,       UTYPE,        ALUOps.SLL),
-    AUIPC  -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       imm,       UTYPE,        ALUOps.SLL),
+    LUI    -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       imm,       UTYPE,        ALUOps.LUI),
+    AUIPC  -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       imm,       UTYPE,        ALUOps.ADD),
 
     // Shifts
     SRA    -> List(N,        Y,        N,       N,        N,       N,    branch_types.DC, rs1,       rs2,       ImmFormat.DC, ALUOps.SRA),

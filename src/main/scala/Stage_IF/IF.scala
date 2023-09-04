@@ -117,4 +117,3 @@ class IF(BinaryFile: String) extends Module
     instruction := Inst.NOP
   }
 }
-

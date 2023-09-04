@@ -72,33 +72,46 @@ def main():
    
    allitems = []
    i = True
-   with open('data.dump', 'r') as file:
-    for line in file:
-        word_list = line.split()
-        if i == True:
-            addr = int(word_list[0],16) - 4      #take the address of the first input data location
-            i = False
-        word_list.pop(0)
-        if len(word_list) > 4:
-            word_list.pop(4)
-        if len(word_list) > 4:
-           word_list.pop(4)
-        for j in range(0,len(word_list)):
-            s = word_list[j]
-            word_list[j] = "".join(map(str.__add__, s[-2::-2] ,s[-1::-2]))
-            allitems.append(word_list[j])
-        print(word_list)
-   #checkvalues(allitems)
-   with open('datadump', 'w') as file:
-            for i in range(0, addr, 4):
-                file.write("00000000" + "\n")
-            for item in allitems:
-                file.write(item + '\n')
+   j = False
+   tempitems = []
+   with open('data63elements.dump', 'r') as file:           
+       for line in file:
+           if j:
+               tempitems.append(line)
+           if line.endswith('.data:\n'):
+               j = True
+
+   with open('data63elements.dump', 'w') as file:   
+       for item in tempitems:
+           file.write(item)
+        
+#    with open('data63elements.dump', 'r') as file:
+#     for line in file:
+#         word_list = line.split()
+#         if i == True:
+#             addr = int(word_list[0],16) - 4      #take the address of the first input data location
+#             i = False
+#         word_list.pop(0)
+#         if len(word_list) > 4:
+#             word_list.pop(4)
+#         if len(word_list) > 4:
+#            word_list.pop(4)
+#         for j in range(0,len(word_list)):
+#             s = word_list[j]
+#             word_list[j] = "".join(map(str.__add__, s[-2::-2] ,s[-1::-2]))
+#             allitems.append(word_list[j])
+#         print(word_list)
+#    #checkvalues(allitems)
+#    with open('data63elements', 'w') as file:
+#             for i in range(0, addr+4, 4):
+#                 file.write("00000000" + "\n")
+#             for item in allitems:
+#                 file.write(item + '\n')
 
 
 
 if __name__ == '__main__':
-   with open('instrdummy', 'w') as file:
-    for i in range (472,8188,4):
-        file.write("00000013" + "\n")
-#    main()
+#    with open('instrdummy', 'w') as file:
+    # for i in range (472,8188,4):
+    #     file.write("00000013" + "\n")
+   main()

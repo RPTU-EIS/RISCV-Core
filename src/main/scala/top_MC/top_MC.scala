@@ -45,6 +45,7 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   val MEM = Module(new MEM(DataFile))
   val writeBackData = Wire(UInt())
 
+  
   // Hazard Unit
   val HzdUnit = Module(new HazardUnit)
 
@@ -63,23 +64,24 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
 
 
   // Fetch Stage
-  IF.io.branchBehavior := EX.io.branchCond
-  IF.io.IFBarrierPC := IFBarrier.outCurrentPC
-  IF.io.stall       := HzdUnit.io.stall             // Stall Fetch -> PC_en=0
-  IF.io.newBranch  := EX.io.newBranch
-  IF.io.updatePrediction := EX.io.updatePrediction
-  IF.io.entryPC     := IDBarrier.outPC
-  IF.io.branchAddr  := EX.io.branchTarget
+  IF.io.branchTaken        := EX.io.branchTaken
+  IF.io.IFBarrierPC        := IFBarrier.outCurrentPC
+  IF.io.stall              := HzdUnit.io.stall             // Stall Fetch -> PC_en=0
+  IF.io.newBranch          := EX.io.newBranch
+  IF.io.updatePrediction   := EX.io.updatePrediction
+  IF.io.entryPC            := IDBarrier.outPC
+  IF.io.branchAddr         := EX.io.branchTarget
   IF.io.branchMispredicted := HzdUnit.io.branchMispredicted
-  IF.io.PCplus4ExStage := EX.io.outPCplus4
+  IF.io.PCplus4ExStage     := EX.io.outPCplus4
 
   //Signals to IFBarrier
-  IFBarrier.inCurrentPC       := IF.io.PC
-  IFBarrier.inInstruction     := IF.io.instruction
-  IFBarrier.stall             := HzdUnit.io.stall             // Stall Decode -> IFBarrier_en=0
-  IFBarrier.flush             := HzdUnit.io.flushD
-  IFBarrier.inBTBHit          := IF.io.btbHit
-  IFBarrier.inBTBPrediction   := IF.io.btbPrediction
+  IFBarrier.inCurrentPC        := IF.io.PC
+  IFBarrier.inInstruction      := IF.io.instruction
+  IFBarrier.stall              := HzdUnit.io.stall             // Stall Decode -> IFBarrier_en=0
+  IFBarrier.flush              := HzdUnit.io.flushD
+  IFBarrier.inBTBHit           := IF.io.btbHit
+  IFBarrier.inBTBPrediction    := IF.io.btbPrediction
+  IFBarrier.inBTBTargetPredict := IF.io.btbTargetPredict
 
   //Decode stage
   ID.io.instruction           := IFBarrier.outInstruction
@@ -87,21 +89,21 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   ID.io.registerWriteEnable   := MEMBarrier.outControlSignals.regWrite
 
   //Signals to IDBarrier
-  IDBarrier.immTypein        := ID.io.immType
-  IDBarrier.inInstruction    := ID.io.instruction
-  IDBarrier.inControlSignals := ID.io.controlSignals
-  IDBarrier.inBranchType     := ID.io.branchType
-  IDBarrier.inPC             := IFBarrier.outCurrentPC
-  IDBarrier.flush            := HzdUnit.io.flushE
-  IDBarrier.inOp1Select      := ID.io.op1Select
-  IDBarrier.inOp2Select      := ID.io.op2Select
-  IDBarrier.inImmData        := ID.io.immData
-  IDBarrier.inRd             := IFBarrier.outInstruction.registerRd
-  IDBarrier.inALUop          := ID.io.ALUop
-  IDBarrier.inReadData1      := ID.io.readData1
-  IDBarrier.inReadData2      := ID.io.readData2
-  IDBarrier.inBTBHit         := IFBarrier.outBTBHit
-  IDBarrier.inBTBPrediction  := IFBarrier.outBTBPrediction
+  IDBarrier.inInstruction      := ID.io.instruction
+  IDBarrier.inControlSignals   := ID.io.controlSignals
+  IDBarrier.inBranchType       := ID.io.branchType
+  IDBarrier.inPC               := IFBarrier.outCurrentPC
+  IDBarrier.flush              := HzdUnit.io.flushE
+  IDBarrier.inOp1Select        := ID.io.op1Select
+  IDBarrier.inOp2Select        := ID.io.op2Select
+  IDBarrier.inImmData          := ID.io.immData
+  IDBarrier.inRd               := IFBarrier.outInstruction.registerRd
+  IDBarrier.inALUop            := ID.io.ALUop
+  IDBarrier.inReadData1        := ID.io.readData1
+  IDBarrier.inReadData2        := ID.io.readData2
+  IDBarrier.inBTBHit           := IFBarrier.outBTBHit
+  IDBarrier.inBTBPrediction    := IFBarrier.outBTBPrediction
+  IDBarrier.inBTBTargetPredict := IFBarrier.outBTBTargetPredict
 
   //Execute stage
   EX.io.instruction           := IDBarrier.outInstruction
@@ -119,8 +121,7 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   EX.io.ALUresultEXB          := EXBarrier.outALUResult
   EX.io.ALUresultMEMB         := writeBackData
   EX.io.btbHit                := IDBarrier.outBTBHit
-
-  EX.io.immType               := IDBarrier.immTypeout
+  EX.io.btbTargetPredict      := IDBarrier.outBTBTargetPredict
 
   // Hazard Unit
   HzdUnit.io.controlSignalsEXB  := EXBarrier.outControlSignals
@@ -132,7 +133,8 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   HzdUnit.io.rdAddrIDB          := IDBarrier.outInstruction.registerRd
   HzdUnit.io.rdAddrEXB          := EXBarrier.outRd
   HzdUnit.io.rdAddrMEMB         := MEMBarrier.outRd
-  HzdUnit.io.branchTaken        := EX.io.branchCond
+  HzdUnit.io.branchTaken        := EX.io.branchTaken
+  HzdUnit.io.wrongAddrPred      := EX.io.wrongAddrPred
   HzdUnit.io.btbPrediction      := IDBarrier.outBTBPrediction
   HzdUnit.io.branchType         := IDBarrier.outBranchType
 

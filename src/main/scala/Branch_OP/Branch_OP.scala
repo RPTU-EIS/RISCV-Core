@@ -16,42 +16,41 @@ import chisel3.util._
 class Branch_OP extends Module {
   val io = IO(
     new Bundle {
-      val branchType         = Input(UInt())
-      val src1                = Input(UInt())
-      val src2                = Input(UInt())
-
-      val branchCondition = Output(UInt())
+      val branchType  = Input(UInt())
+      val src1        = Input(UInt())
+      val src2        = Input(UInt())
+      val branchTaken = Output(UInt())
     }
   )
 
   //Branch lookup
-  io.branchCondition := 0.U
+  io.branchTaken := 0.U
   val lhs = io.src1.asSInt
   val rhs = io.src2.asSInt
   switch(io.branchType) {
     is(beq) {
-      io.branchCondition := (lhs === rhs)
+      io.branchTaken := (lhs === rhs)
     }
     is(neq) {
-      io.branchCondition := (lhs =/= rhs)
+      io.branchTaken := (lhs =/= rhs)
     }
     is(gte) {
-      io.branchCondition := (lhs >= rhs)
+      io.branchTaken := (lhs >= rhs)
     }
     is(lt) {
-      io.branchCondition := (lhs < rhs)
+      io.branchTaken := (lhs < rhs)
     }
     is(gteu) {
-      io.branchCondition := (lhs >= rhs)
+      io.branchTaken := (lhs >= rhs)
     }
     is(ltu) {
-      io.branchCondition := (lhs < rhs)
+      io.branchTaken := (lhs < rhs)
     }
     is(jump) {
-      io.branchCondition := (1.U)
+      io.branchTaken := (1.U)
     }
     is(DC) {
-      io.branchCondition := (0.U)
+      io.branchTaken := (0.U)
     }
   }
 

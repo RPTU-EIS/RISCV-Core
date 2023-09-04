@@ -34,7 +34,7 @@ class DataMemory(I_memoryFile: String = "src/main/scala/DataMemory/dataMemVals")
       val writeEnable = Input(Bool())
       val readEnable  = Input(Bool())
       val dataIn      = Input(UInt(32.W))
-      val dataAddress = Input(UInt(12.W))
+      val dataAddress = Input(UInt(32.W))
 
       val dataOut     = Output(UInt(32.W))
     })
@@ -44,10 +44,12 @@ class DataMemory(I_memoryFile: String = "src/main/scala/DataMemory/dataMemVals")
   })
 
   // val d_memory = SyncReadMem(4096, UInt(32.W))  //changed to 16,384
-  val d_memory = SyncReadMem(16384, UInt(32.W))  //changed to 16,384  
+  // val d_memory = SyncReadMem(16384, UInt(32.W))  //changed to 16,384
+  val d_memory = SyncReadMem(1048576, UInt(32.W))  //changed to   524288
+  
   loadMemoryFromFileInline(d_memory,I_memoryFile)
 
-  val addressSource = Wire(UInt(12.W))
+  val addressSource = Wire(UInt(32.W))
   val dataSource = Wire(UInt(32.W))
   val writeEnableSource = Wire(Bool())
   val readEnableSource = Wire(Bool())

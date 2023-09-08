@@ -7,7 +7,7 @@ void startup(void)
 {
 	__asm__ __volatile__(
   "init_stack:"
-  "la sp, 0x10003FFC;"
+  "la sp, 0x00003FFC;"
   );
 
   main();
@@ -18,5 +18,5 @@ int main(){
   volatile int x2=2;
   volatile int y;
   y = x1 + x2;
-  return y;
+  return 1;
 }

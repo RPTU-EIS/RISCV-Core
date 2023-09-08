@@ -1,0 +1,1 @@
+/home/tsotne/Hiwijob/RISCV-Core/src/test/programs

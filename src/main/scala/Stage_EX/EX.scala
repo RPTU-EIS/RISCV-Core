@@ -147,4 +147,3 @@ class EX extends Module {
   }
   io.outPCplus4 := PCplus4
 }
-

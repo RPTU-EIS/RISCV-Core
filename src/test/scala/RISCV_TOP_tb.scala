@@ -22,31 +22,31 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava
 // class RISCV_TOP_tb extends AnyFlatSpec with ChiselScalatestTester {
 
 //   "RISCV_TOP" should "pass" in {
-//     test(new RISCV_TOP("src/main/scala/InstructionMemory/instructions")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+//     test(new RISCV_TOP("src/main/scala/InstructionMemory/mulhsutest")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 //     for(i <- 0 until 100){
 //     dut.clock.step()
 //   }
 
-  //     dut.io.setup.poke(1.B)
-  //     dut.clock.step()
-  //     disableTestSignals
-  //     for(i <- 0 until 10){
-  //     dut.clock.step()
-  //     }
+//       dut.io.setup.poke(1.B)
+//       dut.clock.step()
+//       disableTestSignals
+//       for(i <- 0 until 10){
+//       dut.clock.step()
+//       }
 
-  //     dut.io.setup.poke(0.B)
+//       dut.io.setup.poke(0.B)
 
-  //   def disableTestSignals: Unit = {
-  //   dut.io.setup.poke(1.B)
-  //   dut.io.DMEMWriteData.poke(0.U)
-  //   dut.io.DMEMAddr.poke(0.U)
-  //   dut.io.DMEMWriteEnable.poke(0.B)
-  //   dut.io.regsWriteData.poke(0.U)
-  //   dut.io.regsAddr.poke(0.U)
-  //   dut.io.regsWriteEnable.poke(0.B)
-  //   dut.io.IMEMWriteData.poke(0.U)
-  //   dut.io.IMEMAddr.poke(4092.U)
-  // }
+//     def disableTestSignals: Unit = {
+//     dut.io.setup.poke(1.B)
+//     dut.io.DMEMWriteData.poke(0.U)
+//     dut.io.DMEMAddr.poke(0.U)
+//     dut.io.DMEMWriteEnable.poke(0.B)
+//     dut.io.regsWriteData.poke(0.U)
+//     dut.io.regsAddr.poke(0.U)
+//     dut.io.regsWriteEnable.poke(0.B)
+//     dut.io.IMEMWriteData.poke(0.U)
+//     dut.io.IMEMAddr.poke(4092.U)
+//   }
 
 //   }
 

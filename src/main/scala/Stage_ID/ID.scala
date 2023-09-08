@@ -17,6 +17,7 @@ import GPR.registerFile
 import GPR.ByPassReg
 import Decode.Decode
 import config.ImmFormat._
+import config.{ALUOps}
 
 import config.{RegisterSetupSignals, RegisterUpdates, Instruction, ControlSignals}
 class ID extends Module
@@ -125,5 +126,12 @@ class ID extends Module
   immData := MuxLookup(io.immType, 0.S(32.W), ImmOpMap)
 
   //Sign extend immdata
-  io.immData := Cat(Fill(16, immData(15)), immData(15,0)).asUInt
+  when(decoder.ALUop === ALUOps.LUI){
+      io.readData1 := 0.U(32.W)
+      io.immData := immData.asUInt
+      io.ALUop   := ALUOps.ADD
+  }.otherwise{
+      io.immData := Cat(Fill(16, immData(15)), immData(15,0)).asUInt
+  }
+  
 }

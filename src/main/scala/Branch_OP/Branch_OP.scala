@@ -27,7 +27,6 @@ class Branch_OP extends Module {
   io.branchTaken := 0.U
   val lhs = io.src1.asSInt
   val rhs = io.src2.asSInt
-
   switch(io.branchType) {
     is(beq) {
       io.branchTaken := (lhs === rhs)

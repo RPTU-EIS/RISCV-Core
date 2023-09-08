@@ -89,7 +89,6 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   ID.io.registerWriteEnable   := MEMBarrier.outControlSignals.regWrite
 
   //Signals to IDBarrier
-  IDBarrier.immTypein        := ID.io.immType
   IDBarrier.inInstruction      := ID.io.instruction
   IDBarrier.inControlSignals   := ID.io.controlSignals
   IDBarrier.inBranchType       := ID.io.branchType
@@ -123,8 +122,6 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   EX.io.ALUresultMEMB         := writeBackData
   EX.io.btbHit                := IDBarrier.outBTBHit
   EX.io.btbTargetPredict      := IDBarrier.outBTBTargetPredict
-
-  EX.io.immType               := IDBarrier.immTypeout
 
   // Hazard Unit
   HzdUnit.io.controlSignalsEXB  := EXBarrier.outControlSignals

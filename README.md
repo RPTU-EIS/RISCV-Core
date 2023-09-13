@@ -1,10 +1,78 @@
- ![CI Pipeline](https://github.com/TUK-EIS/RISCV-Core/actions/workflows/scala.yml/badge.svg?event=push)
- 
-# RISC-V Pipelined Project in Chisel
+<div id="top"></div>
+<!--
+*** Thanks for checking out the Best-README-Template. If you have a suggestion
+*** that would make this better, please fork the repo and create a pull request
+*** or simply open an issue with the tag "enhancement".
+*** Don't forget to give the project a star!
+*** Thanks again! Now go create something AMAZING! :D
+-->
 
-This project implements a pipelined RISC-V processor in Chisel. The pipeline includes five stages: fetch, decode, execute, memory, and writeback.
+<!-- PROJECT SHIELDS -->
+<!--
+*** I'm using markdown "reference style" links for readability.
+*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
+*** See the bottom of this document for the declaration of the reference variables
+*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
+*** https://www.markdownguide.org/basic-syntax/#reference-style-links
+-->
+[![Contributors][contributors-shield]][contributors-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
 
-The core is part of an educational project by the [Chair of Electronic Design Automation](https://eit.rptu.de/fgs/eis/) at RPTU in Kaiserslautern, Germany.
+<!--
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
+-->
+
+
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/RPTU-EIS/RISCV-Core">
+    <img src="fig/RPTU_logo.png" alt="Logo" width="400" height="200">
+  </a>
+  <h3 align="center">
+  5-Stage Pipelined RISC-V Core in Chisel
+  <br />
+  An Educational Project by the [Chair of Electronic Design Automation](https://eit.rptu.de/fgs/eis/) @ RPTU
+  <br />
+  2023 Kaiserslautern, Germany
+  </h3>
+
+  <p align="center">
+    <br />
+    <a href="https://github.com/RPTU-EIS/RISCV-Core/issues">Report Bug</a> 
+  </p>
+</div>
+
+ ![CI Pipeline](https://github.com/RPTU-EIS/RISCV-Core/actions/workflows/scala.yml/badge.svg?event=push)
+
+<br />
+
+<!-- TABLE OF CONTENTS 
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details> -->
+
+
+## Core Design
+
+<img src="fig/RISC-V_Core_Pipeline.png" alt="Pipelines RISC-V Core Design" width="500">
 
 ## Dependencies
 

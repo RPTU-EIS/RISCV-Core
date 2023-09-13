@@ -115,14 +115,14 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Ab
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/TUK-EIS/ADSProject.svg?style=for-the-badge
-[contributors-url]: https://github.com/TUK-EIS/ADSProject/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/TUK-EIS/ADSProject.svg?style=for-the-badge
-[forks-url]: https://github.com/TUK-EIS/ADSProject/network/members
-[stars-shield]: https://img.shields.io/github/stars/TUK-EIS/ADSProject.svg?style=for-the-badge
-[stars-url]: https://github.com/TUK-EIS/ADSProject/stargazers
-[issues-shield]: https://img.shields.io/github/issues/TUK-EIS/ADSProject.svg?style=for-the-badge
-[issues-url]: https://github.com/TUK-EIS/ADSProject/issues
+[contributors-shield]: https://img.shields.io/github/contributors/RPTU-EIS/RISCV-Core.svg?style=for-the-badge
+[contributors-url]: https://github.com/RPTU-EIS/RISCV-Core/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/RPTU-EIS/RISCV-Core.svg?style=for-the-badge
+[forks-url]: https://github.com/RPTU-EIS/RISCV-Core/network/members
+[stars-shield]: https://img.shields.io/github/stars/RPTU-EIS/RISCV-Core.svg?style=for-the-badge
+[stars-url]: https://github.com/RPTU-EIS/RISCV-Core/stargazers
+[issues-shield]: https://img.shields.io/github/issues/RPTU-EIS/RISCV-Core.svg?style=for-the-badge
+[issues-url]: https://github.com/RPTU-EIS/RISCV-Core/issues
 <!--
 [license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
 [license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt

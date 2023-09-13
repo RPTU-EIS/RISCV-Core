@@ -31,8 +31,10 @@ class HazardUnit extends Module
         val branchTaken         = Input(Bool())
         val btbPrediction       = Input(Bool())
         val wrongAddrPred       = Input(Bool())
+        val membusy             = Input(Bool())
         val branchMispredicted  = Output(Bool())
         val stall               = Output(Bool())
+        val stall_membusy       = Output(Bool())
         val flushE              = Output(Bool())
         val flushD              = Output(Bool())
         val rs1Select           = Output(UInt(2.W))     //Used to select input to ALU in case of forwarding -- output from FwdUint
@@ -41,6 +43,7 @@ class HazardUnit extends Module
   )
 
   val stall       = Wire(Bool())
+  //val stall_membusy = Wire(Bool())
 
 // Forwarding Unit
   // Handling source register 1
@@ -77,10 +80,14 @@ class HazardUnit extends Module
     stall := false.B
   }
 
+  // Stall when memory unit is busy
+  io.stall_membusy := io.membusy
+
   // Outputs: Data Hazard -> stall ID & IF stages, and Flush EX stage (Load) ___ Control Hazard -> flush ID & EX stages (Branch Taken)
   // *NOTE*: If io.branchType = DC, this means the branch/jump instruction currently in EX is invalid (flushed!) --> correcting misprediction is invalid too!
 
   io.stall    := stall
+
   when((io.branchTaken =/= io.btbPrediction &&  io.branchType =/= branch_types.DC) || io.wrongAddrPred){
     io.branchMispredicted := 1.B
   }
@@ -89,4 +96,6 @@ class HazardUnit extends Module
   }
   io.flushD   := io.branchMispredicted
   io.flushE   := io.stall | io.branchMispredicted
+  //io.flushE   := io.stall | io.branchMispredicted | io.stall_membusy
+
 }

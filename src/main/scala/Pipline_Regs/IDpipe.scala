@@ -48,6 +48,7 @@ class IDpipe extends Module
       val inReadData2       = Input(UInt(32.W))
 
       val flush            = Input(Bool())
+      val stall            = Input(Bool())
 
       // BTB-related
       val inBTBHit            = Input(Bool())
@@ -64,18 +65,18 @@ class IDpipe extends Module
   )
 
   //Decoder signal registers
-  val instructionReg        = RegEnable(io.inInstruction, true.B)
-  val controlSignalsReg     = RegEnable(io.inControlSignals, true.B)
-  val branchTypeReg         = RegEnable(io.inBranchType, branch_types.DC, true.B) // Initialize to No Branch. beq is encoded as 0!
-  val PCReg                 = RegEnable(io.inPC, 0.U, true.B)
-  val op1SelectReg          = RegEnable(io.inOp1Select, 0.U, true.B)
-  val op2SelectReg          = RegEnable(io.inOp2Select, 0.U, true.B)
-  val immDataReg            = RegEnable(io.inImmData, 0.U, true.B)
-  val rdReg                 = RegEnable(io.inRd, 0.U, true.B)
-  val ALUopReg              = RegEnable(io.inALUop, 0.U, true.B)
+  val instructionReg        = RegEnable(io.inInstruction, !io.stall) //**
+  val controlSignalsReg     = RegEnable(io.inControlSignals, !io.stall)
+  val branchTypeReg         = RegEnable(io.inBranchType, branch_types.DC, !io.stall) // Initialize to No Branch. beq is encoded as 0!
+  val PCReg                 = RegEnable(io.inPC, 0.U, !io.stall)
+  val op1SelectReg          = RegEnable(io.inOp1Select, 0.U, !io.stall)
+  val op2SelectReg          = RegEnable(io.inOp2Select, 0.U, !io.stall)
+  val immDataReg            = RegEnable(io.inImmData, 0.U, !io.stall)
+  val rdReg                 = RegEnable(io.inRd, 0.U, !io.stall)
+  val ALUopReg              = RegEnable(io.inALUop, 0.U, !io.stall)
   //Register signal registers
-  val readData1Reg          = RegEnable(io.inReadData1, 0.U, true.B)
-  val readData2Reg          = RegEnable(io.inReadData2, 0.U, true.B)
+  val readData1Reg          = RegEnable(io.inReadData1, 0.U, !io.stall)
+  val readData2Reg          = RegEnable(io.inReadData2, 0.U, !io.stall)
   // BTB signals
   val btbHitReg        = RegInit(false.B)
   val btbPredictionReg = RegInit(false.B)

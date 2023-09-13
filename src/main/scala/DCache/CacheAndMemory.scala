@@ -13,8 +13,9 @@ class CacheAndMemory extends Module{
       val address = Input(UInt(32.W))
       val write_en = Input(Bool())
       val read_en = Input(Bool())
-      val ready = Output(Bool())
+      val valid = Output(Bool())
       val data_out = Output(UInt(32.W))
+      val busy = Output(Bool())
     }
   )
   val data_mem  = Module(new DataMemory)
@@ -30,8 +31,9 @@ class CacheAndMemory extends Module{
   dcache.io.data_addr := io.address
   dcache.io.write_en := io.write_en
   dcache.io.read_en := io.read_en
-  io.ready := dcache.io.ready
+  io.valid := dcache.io.valid
   io.data_out := dcache.io.data_out
+  io.busy := dcache.io.busy
 
   data_mem.io.writeEnable := dcache.io.mem_write_en
   data_mem.io.readEnable := dcache.io.mem_read_en

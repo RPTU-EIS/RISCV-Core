@@ -16,7 +16,8 @@ class DCache(CacheFile: String) extends Module {
       val data_addr = Input(UInt(32.W))
       val data_in = Input(UInt(32.W))
       val data_out = Output(UInt(32.W))
-      val ready = Output(Bool())
+      val valid = Output(Bool())
+      val busy = Output(Bool())
 
       val mem_write_en = Output(Bool())
       val mem_read_en = Output(Bool())
@@ -31,10 +32,6 @@ class DCache(CacheFile: String) extends Module {
   val data_addr_reg = Reg(UInt(32.W))
   val data_in_reg = Reg(UInt(32.W))
 
-  object state extends ChiselEnum {
-    val idle, compare, writeback, allocate = Value
-  }
-
   /*
   class cachecontent extends Bundle{
     val valid = Bool()
@@ -43,8 +40,7 @@ class DCache(CacheFile: String) extends Module {
     val data = UInt(32.W)
   }*/
 
-  import state._
-
+  val idle :: compare :: writeback :: allocate :: Nil = Enum(4)
   val stateReg = RegInit(idle)
   val index = Reg(UInt(6.W)) // stores the current cache index in a register to use in later states
   val data_element = Reg(UInt(58.W)) // stores the loaded cache element in a register to use in later states
@@ -53,8 +49,10 @@ class DCache(CacheFile: String) extends Module {
 
   val cache_data_array = Mem(64, UInt(58.W))
   loadMemoryFromFileInline(cache_data_array,CacheFile, MemoryLoadFileType.Binary)
+
   io.data_out := 0.U
-  io.ready := 0.B
+  io.valid := 0.B
+  io.busy := (stateReg =/= idle)
 
   io.mem_write_en := 0.B
   io.mem_read_en := 0.B
@@ -66,6 +64,7 @@ class DCache(CacheFile: String) extends Module {
     is(idle) {
       printf("idle state\n")
       when(io.write_en || io.read_en) { // store the inputs on registers
+        //io.busy := 1.B
         stateReg := compare
         write_en_reg := io.write_en
         read_en_reg := io.read_en
@@ -84,8 +83,9 @@ class DCache(CacheFile: String) extends Module {
 
       when(data_element_wire(57) && (data_element_wire(55, 32).asUInt === data_addr_reg(31, 8).asUInt)) { // if valid is 1 and tags match
         printf("compare hit\n")
+        //io.busy := 0.B
         stateReg := idle
-        io.ready := 1.B
+        io.valid := 1.B
         when(read_en_reg) {
           //printf(p"io.data_out\n")
           io.data_out := data_element_wire(31, 0)
@@ -100,6 +100,7 @@ class DCache(CacheFile: String) extends Module {
         }
       }.otherwise {
         printf("compare miss\n")
+        //io.busy := 1.B
         when(data_element_wire(56) && data_element_wire(57)) { // if dirty the go to writeback state
           stateReg := writeback
         }.otherwise {
@@ -109,6 +110,7 @@ class DCache(CacheFile: String) extends Module {
     }
     is(writeback) {
       printf("writeback state\n")
+      //io.busy := 1.B
       io.mem_write_en := 1.U
       io.mem_read_en := 0.U
       val temp = Wire(Vec(32, Bool()))
@@ -124,6 +126,7 @@ class DCache(CacheFile: String) extends Module {
 
     is(allocate) {
       printf("allocate state\n")
+      //io.busy := 1.B
       when(statecount) { // 2nd cycle of allocate state: take the value returned from memory and put it on the cache element
         statecount := 0.B
         io.mem_read_en := 0.B

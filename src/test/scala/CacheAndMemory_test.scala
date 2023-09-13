@@ -19,7 +19,7 @@ class CacheAndMemory_test extends AnyFlatSpec with ChiselScalatestTester {
       c.clock.step()
       c.clock.step()
       c.clock.step()
-      c.io.ready.expect(1.B)
+      c.io.valid.expect(1.B)
       c.io.data_out.expect(10.U)
       c.clock.step()
       c.clock.step()
@@ -37,7 +37,7 @@ class CacheAndMemory_test extends AnyFlatSpec with ChiselScalatestTester {
       c.clock.step()
       c.clock.step()
       c.clock.step()
-      c.io.ready.expect(1.B)
+      c.io.valid.expect(1.B)
       c.io.data_out.expect(12.U)
       c.clock.step()
       c.clock.step()
@@ -53,7 +53,7 @@ class CacheAndMemory_test extends AnyFlatSpec with ChiselScalatestTester {
 
       c.io.read_en.poke(0.B)
 
-      c.io.ready.expect(1.B)
+      c.io.valid.expect(1.B)
       c.io.data_out.expect(2284362812L.U)
 
       c.clock.step()
@@ -122,7 +122,7 @@ class CacheAndMemory_test extends AnyFlatSpec with ChiselScalatestTester {
       c.clock.step()
       c.clock.step()
 
-      //c.io.ready.expect(1.B)
+      //c.io.valid.expect(1.B)
       //c.io.data_out.expect(2284362812L.U)
 
       c.clock.step()

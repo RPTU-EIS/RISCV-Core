@@ -21,7 +21,7 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
 
       c.io.read_en.poke(0.B)
       c.io.data_out.expect(2284362812L.U)
-      c.io.ready.expect(1.B)
+      c.io.valid.expect(1.B)
       c.clock.step()
 
       c.clock.step()
@@ -51,7 +51,7 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
       c.clock.step()
       // compare
       c.io.data_out.expect(13.U)
-      c.io.ready.expect(1.B)
+      c.io.valid.expect(1.B)
       c.clock.step()
       // idle
       c.clock.step()
@@ -87,7 +87,7 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
       c.clock.step()
       // compare
       c.io.data_out.expect(987654321.U)
-      c.io.ready.expect(1.B)
+      c.io.valid.expect(1.B)
       c.clock.step()
       // idle
       c.clock.step()
@@ -105,7 +105,7 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
       c.clock.step()
       // compare
       c.io.write_en.poke(0.B)
-      c.io.ready.expect(1.B)
+      c.io.valid.expect(1.B)
       c.clock.step()
       // idle
       c.clock.step()
@@ -135,7 +135,7 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
       c.io.mem_read_en.expect(0.B)
       c.clock.step()
       // compare
-      c.io.ready.expect(1.B)
+      c.io.valid.expect(1.B)
       c.clock.step()
       // idle
       c.clock.step()
@@ -171,7 +171,7 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
       c.io.mem_read_en.expect(0.B)
       c.clock.step()
       // compare
-      c.io.ready.expect(1.B)
+      c.io.valid.expect(1.B)
       c.clock.step()
       // idle
       c.clock.step()
@@ -205,7 +205,7 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
       c.io.data_addr.poke(40.U)
       c.clock.step()
       c.io.read_en.poke(0.B)
-      c.io.ready.expect(1.B)
+      c.io.valid.expect(1.B)
       c.io.data_out.expect(123.U)
       c.clock.step()
       c.clock.step()
@@ -236,7 +236,7 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
       c.io.mem_read_en.expect(0.B)
       c.clock.step()
       // compare
-      c.io.ready.expect(1.B)
+      c.io.valid.expect(1.B)
       c.io.data_out.expect(999.U)
       c.clock.step()
       // idle

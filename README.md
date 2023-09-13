@@ -34,9 +34,7 @@
   <h3 align="center">
   5-Stage Pipelined RISC-V Core in Chisel
   <br />
-  An Educational Project by the [Chair of Electronic Design Automation](https://eit.rptu.de/fgs/eis/) @ RPTU
-  <br />
-  2023 Kaiserslautern, Germany
+  Educational Project
   </h3>
 
   <p align="center">
@@ -72,7 +70,7 @@
 
 ## Core Design
 
-<img src="fig/RISC-V_Core_Pipeline.png" alt="Pipelines RISC-V Core Design" width="500">
+<img src="fig/RISC-V_Core_Pipeline.png" alt="Pipelines RISC-V Core Design" width="2000">
 
 ## Dependencies
 
@@ -114,3 +112,21 @@ The project is structured as follows:
 Supervision and Organization: Tobias Jauch, Philipp Schmitz, Alex Wezel
 
 Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Abdullah Shaaban Saad Allam.
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/TUK-EIS/ADSProject.svg?style=for-the-badge
+[contributors-url]: https://github.com/TUK-EIS/ADSProject/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/TUK-EIS/ADSProject.svg?style=for-the-badge
+[forks-url]: https://github.com/TUK-EIS/ADSProject/network/members
+[stars-shield]: https://img.shields.io/github/stars/TUK-EIS/ADSProject.svg?style=for-the-badge
+[stars-url]: https://github.com/TUK-EIS/ADSProject/stargazers
+[issues-shield]: https://img.shields.io/github/issues/TUK-EIS/ADSProject.svg?style=for-the-badge
+[issues-url]: https://github.com/TUK-EIS/ADSProject/issues
+<!--
+[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
+[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/othneildrew
+-->
+[product-screenshot]: images/screenshot.png

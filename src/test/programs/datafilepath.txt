@@ -1,1 +1,1 @@
-/home/tsotne/Hiwijob/RISCV-Core
+/home/kamal/Documents/riscv-proj/RISCV-Core

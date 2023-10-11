@@ -34,22 +34,17 @@ class MEMpipe extends Module
   val ALUResultReg      = RegEnable(io.inALUResult, 0.U, !io.stall) //RegInit(UInt(), 0.U)
   val controlSignalsReg = RegEnable(io.inControlSignals, !io.stall) //Reg(new ControlSignals)
   val rdReg             = RegEnable(io.inRd, 0.U, !io.stall) //RegInit(UInt(), 0.U)
-  val MEMDataReg        = RegEnable(io.inMEMData, 0.U, !io.stall) //RegInit(UInt(), 0.U)
 
   //Control singals register
-  //controlSignalsReg    := io.inControlSignals
   io.outControlSignals := controlSignalsReg
 
   //immediate data register
-  //rdReg                := io.inRd
   io.outRd             := rdReg
 
   //MEM data
-  //MEMDataReg           := io.inMEMData
-  io.outMEMData        := MEMDataReg
+  io.outMEMData        := io.inMEMData
 
   //ALU result register
-  //ALUResultReg         := io.inALUResult
   io.outALUResult      := ALUResultReg
 
 }

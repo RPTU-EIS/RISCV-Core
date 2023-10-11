@@ -3,13 +3,13 @@ package DCache_test
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
-import DCache.{DCache, DCache_2}
+import DCache.DCache
 
 class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
   behavior of "DCache"
-  "read hit" should "do something" in {
+  "read hit" should "pass" in {
     test(new DCache("src/main/scala/DCache/CacheContent.bin")){ c =>
-      println("\n ---------------- test 1: read hit ------------------\n")
+      //println("\n ---------------- test 1: read hit ------------------\n")
       c.clock.step()
       c.clock.step()
       c.clock.step()
@@ -29,9 +29,9 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
-  "read miss clean" should "do something" in {
+  "read miss clean" should "pass" in {
     test(new DCache("src/main/scala/DCache/CacheContent.bin")) { c =>
-      println("\n ---------------- test 2: read miss clean ------------------\n")
+      //println("\n ---------------- test 2: read miss clean ------------------\n")
       c.io.write_en.poke(0.B)
       c.io.read_en.poke(1.B)
       c.io.data_addr.poke(31519552L.U)
@@ -59,9 +59,9 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
-  "read miss dirty" should "do something" in {
+  "read miss dirty" should "pass" in {
     test(new DCache("src/main/scala/DCache/CacheContent.bin")) { c =>
-      println("\n ---------------- test 3: read miss dirty ------------------\n")
+      //println("\n ---------------- test 3: read miss dirty ------------------\n")
       c.io.write_en.poke(0.B)
       c.io.read_en.poke(1.B)
       c.io.data_addr.poke(3359519652L.U)
@@ -95,9 +95,9 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
-  "write hit" should "do something" in {
+  "write hit" should "pass" in {
     test(new DCache("src/main/scala/DCache/CacheContent.bin")) { c =>
-      println("\n ---------------- test 4: write hit ------------------\n")
+      //println("\n ---------------- test 4: write hit ------------------\n")
       c.io.write_en.poke(1.B)
       c.io.read_en.poke(0.B)
       c.io.data_addr.poke(1318216816.U)
@@ -113,9 +113,9 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
-  "write miss clean" should "do something" in {
+  "write miss clean" should "pass" in {
     test(new DCache("src/main/scala/DCache/CacheContent.bin")) { c =>
-      println("\n ---------------- test 5: write miss clean ------------------\n")
+      //println("\n ---------------- test 5: write miss clean ------------------\n")
       c.io.write_en.poke(1.B)
       c.io.read_en.poke(0.B)
       c.io.data_addr.poke(4.U)
@@ -143,9 +143,9 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
-  "write miss dirty" should "do something" in {
+  "write miss dirty" should "pass" in {
     test(new DCache("src/main/scala/DCache/CacheContent.bin")) { c =>
-      println("\n ---------------- test 6: write miss dirty ------------------\n")
+      //println("\n ---------------- test 6: write miss dirty ------------------\n")
       c.io.write_en.poke(1.B)
       c.io.read_en.poke(0.B)
       c.io.data_addr.poke(0.U)
@@ -179,9 +179,9 @@ class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
-  "write then read" should "do something" in {
+  "write then read" should "pass" in {
     test(new DCache("src/main/scala/DCache/CacheContent.bin")){ c =>
-      println("\n ---------------- test 7: write then read ------------------\n")
+      //println("\n ---------------- test 7: write then read ------------------\n")
       c.clock.step()
       c.clock.step()
       c.clock.step()

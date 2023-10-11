@@ -6,7 +6,7 @@ import chisel3.experimental._
 import chisel3.util.experimental._
 import firrtl.annotations.MemoryLoadFileType
 
-// this one does not create a bundle for cache elements, instead uses 58-bit UInt. "DCache_2.scala" attepmts uses a bundle
+// this one does not create a bundle for cache elements, instead uses 58-bit UInt. "DCache_2.scala" attempts to use a bundle
 
 class DCache(CacheFile: String) extends Module {
   val io = IO(
@@ -62,7 +62,8 @@ class DCache(CacheFile: String) extends Module {
   switch(stateReg) {
 
     is(idle) {
-      printf("idle state\n")
+      ////printf("idle state\n")
+      io.data_out := data_element(31, 0)
       when(io.write_en || io.read_en) { // store the inputs on registers
         //io.busy := 1.B
         stateReg := compare
@@ -75,19 +76,19 @@ class DCache(CacheFile: String) extends Module {
     }
 
     is(compare) {
-      printf("compare state\n")
+      //printf("compare state\n")
       index := (data_addr_reg / 4.U) % 64.U
       data_element_wire := cache_data_array((data_addr_reg / 4.U) % 64.U).asUInt
       data_element := data_element_wire
-      printf(p"$data_element_wire\n")
+      //printf(p"$data_element_wire\n")
 
       when(data_element_wire(57) && (data_element_wire(55, 32).asUInt === data_addr_reg(31, 8).asUInt)) { // if valid is 1 and tags match
-        printf("compare hit\n")
+        //printf("compare hit\n")
         //io.busy := 0.B
         stateReg := idle
         io.valid := 1.B
         when(read_en_reg) {
-          //printf(p"io.data_out\n")
+          ////printf(p"io.data_out\n")
           io.data_out := data_element_wire(31, 0)
         }.elsewhen(write_en_reg) { // if write hit
           val temp = Wire(Vec(58, Bool()))
@@ -99,9 +100,9 @@ class DCache(CacheFile: String) extends Module {
           cache_data_array((data_addr_reg / 4.U) % 64.U) := temp.asUInt
         }
       }.otherwise {
-        printf("compare miss\n")
+        //printf("compare miss\n")
         //io.busy := 1.B
-        when(data_element_wire(56) && data_element_wire(57)) { // if dirty the go to writeback state
+        when(data_element_wire(56) && data_element_wire(57)) { // if dirty then go to writeback state
           stateReg := writeback
         }.otherwise {
           stateReg := allocate
@@ -109,7 +110,7 @@ class DCache(CacheFile: String) extends Module {
       }
     }
     is(writeback) {
-      printf("writeback state\n")
+      //printf("writeback state\n")
       //io.busy := 1.B
       io.mem_write_en := 1.U
       io.mem_read_en := 0.U
@@ -125,7 +126,7 @@ class DCache(CacheFile: String) extends Module {
     }
 
     is(allocate) {
-      printf("allocate state\n")
+      //printf("allocate state\n")
       //io.busy := 1.B
       when(statecount) { // 2nd cycle of allocate state: take the value returned from memory and put it on the cache element
         statecount := 0.B

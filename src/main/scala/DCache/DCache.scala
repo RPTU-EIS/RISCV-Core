@@ -6,8 +6,6 @@ import chisel3.experimental._
 import chisel3.util.experimental._
 import firrtl.annotations.MemoryLoadFileType
 
-// this one does not create a bundle for cache elements, instead uses 58-bit UInt. "DCache_2.scala" attempts to use a bundle
-
 class DCache(CacheFile: String) extends Module {
   val io = IO(
     new Bundle {

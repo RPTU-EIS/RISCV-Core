@@ -189,8 +189,8 @@ def dasmtohex(filepath):
 								# misalligned
 								split_id = split_id + 1
 
-	fp = open("/home/kamal/Documents/riscv-proj/RISCV-Core/src/test/programs/ahexfile", 'w')
-	print(dump_val)
+	fp = open("~/RISCV-Core/src/test/programs/hexfile", 'w')
+
 	for x in dump_val:
 		fp.write(x)
 		fp.write("\n")
@@ -212,7 +212,7 @@ def sbttest(arg1, arg2 = ""):
             fp.writelines(filetext)
             location = 'src/test/programs/' + arg1
             txt = '     test(new RISCV_TOP("' + location + '")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>\n'
-            filemoretext = [txt,"      dut.clock.setTimeout(0)\n", "      for(i <- 0 until 200){\n", "        dut.clock.step()\n", "      }\n",
+            filemoretext = [txt,"      dut.clock.setTimeout(0)\n", "      for(i <- 0 until 50000){\n", "        dut.clock.step()\n", "      }\n",
                             "     }\n", "   }\n", "}\n"]
             fp.writelines(filemoretext)
             fp.close()
@@ -222,7 +222,7 @@ def sbttest(arg1, arg2 = ""):
             location = 'src/test/programs/' + arg1
             datalocation = 'src/main/scala/DataMemory/' + arg2
             txt = '     test(new RISCV_TOP("' + location + '","' + datalocation + '")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>\n'
-            filemoretext = [txt,"      dut.clock.setTimeout(0)\n", "      for(i <- 0 until 200){\n", "        dut.clock.step()\n", "      }\n",
+            filemoretext = [txt,"      dut.clock.setTimeout(0)\n", "      for(i <- 0 until 50000){\n", "        dut.clock.step()\n", "      }\n",
                             "     }\n", "   }\n", "}\n"]
             fp.writelines(filemoretext)
             fp.close()
@@ -425,9 +425,9 @@ def main():
                 break
             if((input("Would you like to select a data file? (y/n)\n")).lower() == "y"):
                 datalocation = datafunction()
-                sbttest('ahexfile','datadump')
+                sbttest('hexfile','datadump')
             else:
-                sbttest('ahexfile')
+                sbttest('hexfile')
             break
         elif number == 2:
             sbttest(hexfunction())

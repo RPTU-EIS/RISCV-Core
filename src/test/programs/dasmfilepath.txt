@@ -1,1 +1,1 @@
-/home/kamal/Documents/riscv-proj/RISCV-Core/src/test/programs
+~/RISCV-Core/src/test/programs

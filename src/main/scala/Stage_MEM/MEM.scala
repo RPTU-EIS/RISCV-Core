@@ -11,13 +11,13 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Ab
 
 package Stage_MEM
 
+import DCache.CacheAndMemory
 import DataMemory.DataMemory
 import chisel3._
 import chisel3.util._
 import chisel3.experimental.{ChiselAnnotation, annotate}
 import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemorySynthInit
-
 import config.{DMEMsetupSignals, MemUpdates}
 class MEM(DataFile: String) extends Module {
   val testHarness = IO(
@@ -35,26 +35,26 @@ class MEM(DataFile: String) extends Module {
       val writeEnable = Input(Bool())
       val readEnable  = Input(Bool())
       val dataOut     = Output(UInt())
+      val dataValid   = Output(Bool())
+      val memBusy     = Output(Bool())
     })
 
 
-  val DMEM = Module(new DataMemory(DataFile))
+  //val DMEM = Module(new DataMemory())
+  val DMEM = Module(new CacheAndMemory())
 
-  DMEM.testHarness.setup  := testHarness.DMEMsetup
-  testHarness.DMEMpeek    := DMEM.io.dataOut
-  testHarness.testUpdates := DMEM.testHarness.testUpdates
+  //DMEM.testHarness.setup  := testHarness.DMEMsetup
+  testHarness.DMEMpeek    := DMEM.io.data_out
+  testHarness.testUpdates := 0.U.asTypeOf(new MemUpdates) //DMEM.testHarness.testUpdates
 
   //DMEM
-  DMEM.io.dataIn      := io.dataIn
-  // DMEM.io.dataAddress := io.dataAddress(31,2)
-  DMEM.io.dataAddress := io.dataAddress >> 2.U
-  // DMEM.io.dataAddress := io.dataAddress
-  // val tempval = io.dataAddress.asSInt
-  // DMEM.io.dataAddress := (tempval & -4.S(32.W)).asUInt
-
-  DMEM.io.writeEnable := io.writeEnable
-  DMEM.io.readEnable  := io.readEnable
+  DMEM.io.write_data  := io.dataIn
+  DMEM.io.address     := io.dataAddress
+  DMEM.io.write_en    := io.writeEnable
+  DMEM.io.read_en     := io.readEnable
   //Read data from DMEM
-  io.dataOut          := DMEM.io.dataOut
+  io.dataOut          := DMEM.io.data_out
+  io.dataValid        := DMEM.io.valid
+  io.memBusy          := DMEM.io.busy
 
 }

@@ -66,7 +66,7 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   // Fetch Stage
   IF.io.branchTaken        := EX.io.branchTaken
   IF.io.IFBarrierPC        := IFBarrier.outCurrentPC
-  IF.io.stall              := HzdUnit.io.stall             // Stall Fetch -> PC_en=0
+  IF.io.stall              := HzdUnit.io.stall | HzdUnit.io.stall_membusy     // Stall Fetch -> PC_en=0
   IF.io.newBranch          := EX.io.newBranch
   IF.io.updatePrediction   := EX.io.updatePrediction
   IF.io.entryPC            := IDBarrier.outPC
@@ -77,7 +77,7 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   //Signals to IFBarrier
   IFBarrier.inCurrentPC        := IF.io.PC
   IFBarrier.inInstruction      := IF.io.instruction
-  IFBarrier.stall              := HzdUnit.io.stall             // Stall Decode -> IFBarrier_en=0
+  IFBarrier.stall              := HzdUnit.io.stall | HzdUnit.io.stall_membusy     // Stall Decode -> IFBarrier_en=0
   IFBarrier.flush              := HzdUnit.io.flushD
   IFBarrier.inBTBHit           := IF.io.btbHit
   IFBarrier.inBTBPrediction    := IF.io.btbPrediction
@@ -94,6 +94,7 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   IDBarrier.inBranchType       := ID.io.branchType
   IDBarrier.inPC               := IFBarrier.outCurrentPC
   IDBarrier.flush              := HzdUnit.io.flushE
+  IDBarrier.stall              := HzdUnit.io.stall_membusy
   IDBarrier.inOp1Select        := ID.io.op1Select
   IDBarrier.inOp2Select        := ID.io.op2Select
   IDBarrier.inImmData          := ID.io.immData
@@ -137,12 +138,14 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   HzdUnit.io.wrongAddrPred      := EX.io.wrongAddrPred
   HzdUnit.io.btbPrediction      := IDBarrier.outBTBPrediction
   HzdUnit.io.branchType         := IDBarrier.outBranchType
+  HzdUnit.io.membusy            := MEM.io.memBusy
 
   //Signals to EXBarrier
   EXBarrier.inALUResult       := EX.io.ALUResult
   EXBarrier.inControlSignals  := IDBarrier.outControlSignals
   EXBarrier.inRd              := IDBarrier.outRd
   EXBarrier.inRs2             := EX.io.Rs2Forwarded
+  EXBarrier.stall             := HzdUnit.io.stall_membusy
 
   //MEM stage
   MEM.io.dataIn               := EXBarrier.outRs2
@@ -155,6 +158,7 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   MEMBarrier.inALUResult      := EXBarrier.outALUResult
   MEMBarrier.inRd             := EXBarrier.outRd
   MEMBarrier.inMEMData        := MEM.io.dataOut
+  MEMBarrier.stall            := HzdUnit.io.stall_membusy
 
   // MEM stage
   //Mux for which data to write to register

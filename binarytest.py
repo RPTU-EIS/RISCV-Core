@@ -103,7 +103,8 @@ def dasmtohex(filepath):
 
 	with open(filepath, "w") as f:
 		for line in lines:
-			if line.find("00000000 <_start>:")!= -1:
+			#if line.find("00000000 <.text>:")!= -1:
+			if line.find(".text")!= -1:
 				writebool = 1
 			if writebool:
 				f.write(line)
@@ -188,7 +189,8 @@ def dasmtohex(filepath):
 								# misalligned
 								split_id = split_id + 1
 
-	fp = open("/home/tsotne/Hiwijob/RISCV-Core/src/test/programs/hexfile", 'w')
+	fp = open("~/RISCV-Core/src/test/programs/hexfile", 'w')
+
 	for x in dump_val:
 		fp.write(x)
 		fp.write("\n")

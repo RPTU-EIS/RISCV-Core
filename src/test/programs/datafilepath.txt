@@ -1,1 +1,1 @@
-/home/tsotne/Hiwijob/RISCV-Core
+~/RISCV-Core

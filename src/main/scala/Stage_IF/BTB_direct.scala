@@ -24,6 +24,7 @@ class BTB_direct extends Module {
     val entryBrTarget       = Input(UInt(32.W))
     val branchMispredicted  = Input(Bool())       // Acts as WrEn for Predictor Array
     val updatePrediction    = Input(Bool())
+    val stall               = Input(Bool())
     val prediction          = Output(Bool())      // 1 means Taken
     val btbHit              = Output(Bool())      // 1 means Hit
     val targetAdr           = Output(UInt(32.W))
@@ -52,10 +53,11 @@ class BTB_direct extends Module {
 
   // Avoiding a simulation artifact during reset
   val btbWriteNewEntry = Wire(Bool())
+
   when(Module.reset.asBool){
     btbWriteNewEntry := false.B
   }.otherwise{
-    btbWriteNewEntry := io.newBranch && io.branchMispredicted  // Collecting new Branches only if mispredicted (i.e., they are taken!)
+    btbWriteNewEntry := io.newBranch && io.branchMispredicted && io.stall === false.B  // Collecting new Branches only if mispredicted (i.e., they are taken!)
   }
 
   // Initialize BTB and Prediction Array
@@ -99,6 +101,7 @@ class BTB_direct extends Module {
   // WRITE TO BTB
   // --------------------------------------------------------------
 
+
   btbInput.Tag := io.entryPC(31,8)
   btbInput.branchTarget := io.entryBrTarget(31,2)
   btbInput.valid := false.B // Default value, it's a wire
@@ -107,7 +110,7 @@ class BTB_direct extends Module {
     btbInput.valid := true.B
     btb(io.entryPC(7,2)) := btbInput.asUInt
   }
-
+  
 
   // --------------------------------------------------------------
   // UPDATE 2-BIT FSM FOR PREDICTION
@@ -115,10 +118,12 @@ class BTB_direct extends Module {
 
   val prevPrediction1 = RegNext(predictorOut)
   val prevPrediction2 = RegNext(prevPrediction1)  // This register holds the prediction from 2 cycles before. It is used for updating Prediction after EX stage calculates branch behavior
+
+
   when(btbWriteNewEntry === true.B){
     predictorArray(io.entryPC(7,2)) := strongTaken  // *Note*: what's the best initial state? Strong taken helps with Loops
   }
-  .elsewhen(io.updatePrediction === true.B){
+  .elsewhen(io.updatePrediction === true.B && io.stall === false.B){
     // Prediction FSMs next state logic
     switch (prevPrediction2) { // Switch on the Current State
       is(strongNotTaken) {
@@ -154,7 +159,8 @@ class BTB_direct extends Module {
         }
       }
     }
-  }               
+  }
+               
 
 
 }

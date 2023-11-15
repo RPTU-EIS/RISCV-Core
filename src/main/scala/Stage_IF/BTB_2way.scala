@@ -67,6 +67,7 @@ class BTB_2way(parameters: btb2WayParameters = btb2WayParameters()) extends Modu
     val entryBrTarget       = Input(UInt(32.W))
     val branchMispredicted  = Input(Bool())       // Acts as WrEn for Predictor Array
     val updatePrediction    = Input(Bool())
+    val stall               = Input(Bool())
     val prediction          = Output(Bool())      // 1 means Taken
     val btbHit              = Output(Bool())      // 1 means Hit
     val targetAdr           = Output(UInt(32.W))
@@ -102,7 +103,7 @@ class BTB_2way(parameters: btb2WayParameters = btb2WayParameters()) extends Modu
   when(Module.reset.asBool){
     btbWriteNewEntry := false.B
   }.otherwise{
-    btbWriteNewEntry := io.newBranch && io.branchMispredicted  // Collecting new Branches only if mispredicted (i.e., they are taken!)
+    btbWriteNewEntry := io.newBranch && io.branchMispredicted && io.stall === false.B // Collecting new Branches only if mispredicted (i.e., they are taken!)
   }
 
   // Initialize BTB and Prediction Array
@@ -198,6 +199,7 @@ class BTB_2way(parameters: btb2WayParameters = btb2WayParameters()) extends Modu
 
     }
   }
+  
 
 
   // --------------------------------------------------------------
@@ -207,10 +209,11 @@ class BTB_2way(parameters: btb2WayParameters = btb2WayParameters()) extends Modu
   val prevPrediction1 = RegNext(predictorOut)
   val prevPrediction2 = RegNext(prevPrediction1)  
 
+
   when(btbWriteNewEntry) {
     predictorArray(io.entryPC((indexBits + 1), 2)) := strongTaken // TODO: what's the best initial state? Strong taken helps with Loops
-  }.elsewhen(io.updatePrediction === 1.B){
-
+  }.elsewhen(io.updatePrediction === true.B && io.stall === false.B){
+    // Prediction FSMs next state logic
     switch ( prevPrediction2 ) { // Switch on the Current State
       is( strongNotTaken ) {
         when(io.branchMispredicted){
@@ -246,6 +249,7 @@ class BTB_2way(parameters: btb2WayParameters = btb2WayParameters()) extends Modu
       }
     }
   } 
+  
 
 }
 

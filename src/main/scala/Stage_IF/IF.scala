@@ -70,6 +70,7 @@ class IF(BinaryFile: String) extends Module
   BTB.io.entryPC := io.entryPC
   BTB.io.entryBrTarget := io.branchAddr
   BTB.io.branchMispredicted := io.branchMispredicted
+  BTB.io.stall := io.stall
   io.btbPrediction := BTB.io.prediction
   io.btbHit := BTB.io.btbHit
   io.btbTargetPredict := BTB.io.targetAdr

@@ -56,7 +56,7 @@ class IF(BinaryFile: String) extends Module
 
 
   //combined.testHarness.setupSignals := testHarness.InstructionMemorySetup
-  testHarness.PC := combined.testHarness.requestedAddress
+  //testHarness.PC := combined.testHarness.requestedAddress
 
   instruction := combined.io.instruction.asTypeOf(new Instruction)
 
@@ -78,7 +78,7 @@ class IF(BinaryFile: String) extends Module
   // Stall PC
   when(io.stall){
     PC := PC
-    Fetch prev instruction -- Stalling the part of IF Barrier that holds the instruction
+    //Fetch prev instruction -- Stalling the part of IF Barrier that holds the instruction
     combined.io.instructionAddress := io.IFBarrierPC
 
   }.otherwise{

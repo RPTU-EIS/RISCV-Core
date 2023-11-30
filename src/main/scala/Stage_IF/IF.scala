@@ -15,7 +15,7 @@ import chisel3._
 import chisel3.util._
 import config.{ControlSignals, IMEMsetupSignals, Inst, Instruction}
 import config.Inst._
-import InstructionMemory.InstructionMemory
+import combined.combined
 
 class IF(BinaryFile: String) extends Module
 {
@@ -46,7 +46,7 @@ class IF(BinaryFile: String) extends Module
     val instruction        = Output(new Instruction)
   })
 
-  val InstructionMemory = Module(new InstructionMemory(BinaryFile))
+  val combined = Module(new combined(BinaryFile))
   val BTB               = Module(new BTB_direct)
   val nextPC            = WireInit(UInt(), 0.U)
   val PC                = RegInit(UInt(32.W), 0.U)
@@ -55,10 +55,10 @@ class IF(BinaryFile: String) extends Module
   val branch            = WireInit(Bool(), false.B)
 
 
-  InstructionMemory.testHarness.setupSignals := testHarness.InstructionMemorySetup
-  testHarness.PC := InstructionMemory.testHarness.requestedAddress
+  //combined.testHarness.setupSignals := testHarness.InstructionMemorySetup
+  testHarness.PC := combined.testHarness.requestedAddress
 
-  instruction := InstructionMemory.io.instruction.asTypeOf(new Instruction)
+  instruction := combined.io.instruction.asTypeOf(new Instruction)
 
   // Adder to increment PC
   PCplus4 := PC + 4.U
@@ -78,12 +78,12 @@ class IF(BinaryFile: String) extends Module
   // Stall PC
   when(io.stall){
     PC := PC
-    //Fetch prev instruction -- Stalling the part of IF Barrier that holds the instruction
-    InstructionMemory.io.instructionAddress := io.IFBarrierPC
+    Fetch prev instruction -- Stalling the part of IF Barrier that holds the instruction
+    combined.io.instructionAddress := io.IFBarrierPC
 
   }.otherwise{
     //Fetch instruction
-    InstructionMemory.io.instructionAddress := PC
+    combined.io.instructionAddress := PC
     // PC register gets nextPC
     PC := nextPC
   }

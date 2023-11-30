@@ -20,6 +20,7 @@ import Stage_EX.EX
 import Stage_MEM.MEM
 import HazardUnit.HazardUnit
 import config.{MemUpdates, RegisterUpdates, SetupSignals, TestReadouts}
+import combined.combined
 
 class top_MC(BinaryFile: String, DataFile: String) extends Module {
 
@@ -30,9 +31,13 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
       val regUpdates   = Output(new RegisterUpdates)
       val memUpdates   = Output(new MemUpdates)
       val currentPC    = Output(UInt(32.W))
+      //val PC        = Output(UInt())
     }
   )
 
+  val combined = Module(new combined(BinaryFile))
+
+  
   // Pipeline Registers
   val IFBarrier  = Module(new IFpipe).io
   val IDBarrier  = Module(new IDpipe).io
@@ -49,6 +54,16 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   // Hazard Unit
   val HzdUnit = Module(new HazardUnit)
 
+  
+
+  combined.testHarness.setupSignals := IF.testHarness.InstructionMemorySetup
+  IF.testHarness.PC := combined.testHarness.requestedAddress
+
+
+
+
+
+
 
   IF.testHarness.InstructionMemorySetup := testHarness.setupSignals.IMEMsignals
   ID.testHarness.registerSetup          := testHarness.setupSignals.registerSignals
@@ -60,7 +75,7 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
 
   testHarness.regUpdates                := ID.testHarness.testUpdates
   testHarness.memUpdates                := MEM.testHarness.testUpdates
-  testHarness.currentPC                 := IF.testHarness.PC
+  testHarness.currentPC                 := combined.testHarness.requestedAddress
 
 
   // Fetch Stage
@@ -159,6 +174,9 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   MEMBarrier.inRd             := EXBarrier.outRd
   MEMBarrier.inMEMData        := MEM.io.dataOut
   MEMBarrier.stall            := HzdUnit.io.stall_membusy
+
+
+
 
   // MEM stage
   //Mux for which data to write to register

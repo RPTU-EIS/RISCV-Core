@@ -19,9 +19,10 @@ import Stage_IF.IF
 import Stage_EX.EX
 import Stage_MEM.MEM
 import HazardUnit.HazardUnit
-import config.{MemUpdates, RegisterUpdates, SetupSignals, TestReadouts}
+import config.{MemUpdates, RegisterUpdates, SetupSignals, TestReadouts, Instruction}
 import combined.combined
-
+import DCache.DCache
+import DCache.CacheAndMemory
 class top_MC(BinaryFile: String, DataFile: String) extends Module {
 
   val testHarness = IO(
@@ -50,19 +51,42 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   val EX  = Module(new EX)
   val MEM = Module(new MEM(DataFile))
   val writeBackData = Wire(UInt())
+  var dcache = Module(new DCache("src/main/scala/DCache/CacheContent.bin"))
+  var CM = Module(new CacheAndMemory)
 
   // Hazard Unit
   val HzdUnit = Module(new HazardUnit)
 
   
-
-  combined.testHarness.setupSignals := IF.testHarness.InstructionMemorySetup
-  IF.testHarness.PC := combined.testHarness.requestedAddress
+  
 
 
+  combined.io.instructionAddress := IF.io.fetchPC 
+  IF.io.instruction_inp := combined.io.instruction.asTypeOf(new Instruction)
+
+  combined.io.writeEnable := dcache.io.mem_write_en
+  combined.io.readEnable := dcache.io.mem_read_en
+  combined.io.dataIn := dcache.io.mem_data_in
+  combined.io.dataAddress := dcache.io.mem_data_addr / 4.U
+  dcache.io.mem_data_out := combined.io.dataOut
 
 
+  dcache.io.data_in := CM.io.cache_data_in 
+  dcache.io.data_addr := CM.io.cache_data_addr
+  dcache.io.write_en := CM.io.cache_write_en
+  dcache.io.read_en := CM.io.cache_read_en
+  CM.io.cache_valid := dcache.io.valid
+  CM.io.cache_data_out := dcache.io.data_out 
+  CM.io.cache_busy := dcache.io.busy
 
+  CM.io.write_data  := MEM.io.CM_write_data
+  CM.io.address := MEM.io.CM_address
+  CM.io.write_en := MEM.io.CM_write_en
+  CM.io.read_en := MEM.io.CM_read_en
+  
+  MEM.io.CM_data_out := CM.io.data_out
+  MEM.io.CM_dataValid := CM.io.valid
+  MEM.io.CM_memBusy := CM.io.busy
 
 
   IF.testHarness.InstructionMemorySetup := testHarness.setupSignals.IMEMsignals
@@ -70,10 +94,10 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   MEM.testHarness.DMEMsetup             := testHarness.setupSignals.DMEMsignals
 
   testHarness.testReadouts.registerRead := ID.testHarness.registerPeek
-  testHarness.testReadouts.DMEMread     := MEM.testHarness.DMEMpeek
+testHarness.testReadouts.DMEMread     := MEM.testHarness.DMEMpeek
 
 
-  testHarness.regUpdates                := ID.testHarness.testUpdates
+testHarness.regUpdates                := ID.testHarness.testUpdates
   testHarness.memUpdates                := MEM.testHarness.testUpdates
   testHarness.currentPC                 := combined.testHarness.requestedAddress
 

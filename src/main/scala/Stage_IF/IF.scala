@@ -15,17 +15,17 @@ import chisel3._
 import chisel3.util._
 import config.{ControlSignals, IMEMsetupSignals, Inst, Instruction}
 import config.Inst._
-import combined.combined
+//import combined.combined
 
 class IF(BinaryFile: String) extends Module
 {
 
-  val testHarness = IO(
+  /*val testHarness = IO(
     new Bundle {
       val InstructionMemorySetup = Input(new IMEMsetupSignals)
       val PC        = Output(UInt())
     }
-  )
+  ) */
 
 
   val io = IO(new Bundle {
@@ -44,22 +44,25 @@ class IF(BinaryFile: String) extends Module
     val btbTargetPredict   = Output(UInt(32.W))
     val PC                 = Output(UInt())
     val instruction        = Output(new Instruction)
+    val fetchPC            = Output(UInt(32.W))
+    val instruction_inp    = Input(new Instruction)
   })
 
-  val combined = Module(new combined(BinaryFile))
+  //val combined = Module(new combined(BinaryFile))
   val BTB               = Module(new BTB_direct)
   val nextPC            = WireInit(UInt(), 0.U)
   val PC                = RegInit(UInt(32.W), 0.U)
   val PCplus4           = Wire(UInt(32.W))
   val instruction       = Wire(new Instruction)
   val branch            = WireInit(Bool(), false.B)
+  val fetchPC           = Wire(UInt(32.W))
 
 
   //combined.testHarness.setupSignals := testHarness.InstructionMemorySetup
   //testHarness.PC := combined.testHarness.requestedAddress
 
-  instruction := combined.io.instruction.asTypeOf(new Instruction)
-
+  //instruction := combined.io.instruction.asTypeOf(new Instruction)
+  instruction := io.instruction_inp
   // Adder to increment PC
   PCplus4 := PC + 4.U
 
@@ -79,11 +82,12 @@ class IF(BinaryFile: String) extends Module
   when(io.stall){
     PC := PC
     //Fetch prev instruction -- Stalling the part of IF Barrier that holds the instruction
-    combined.io.instructionAddress := io.IFBarrierPC
-
+    //combined.io.instructionAddress := io.IFBarrierPC
+    fetchPC := io.IFBarrierPC
   }.otherwise{
     //Fetch instruction
-    combined.io.instructionAddress := PC
+    //combined.io.instructionAddress := PC
+    fetchPC := PC
     // PC register gets nextPC
     PC := nextPC
   }
@@ -112,9 +116,9 @@ class IF(BinaryFile: String) extends Module
   io.PC := PC
 
   io.instruction := instruction
-
-  when(testHarness.InstructionMemorySetup.setup) {
+  io.fetchPC := fetchPC
+ /* when(testHarness.InstructionMemorySetup.setup) {
     PC := 0.U
     instruction := Inst.NOP
-  }
+  }*/
 }

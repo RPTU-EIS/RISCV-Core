@@ -15,7 +15,7 @@ import chisel3.util._
 import top_MC.top_MC
 
 
-class RISCV_TOP(BinaryFile: String, DataFile: String = "src/main/scala/DataMemory/dataMemVals") extends Module{
+class RISCV_TOP(BinaryFile: String = "src/test/programs/beq_test", DataFile: String = "src/main/scala/DataMemory/dataMemVals") extends Module{
 
   val io = IO(
     new Bundle {

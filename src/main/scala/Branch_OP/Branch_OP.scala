@@ -13,13 +13,14 @@ package Branch_OP
 import config.branch_types._
 import chisel3._
 import chisel3.util._
+
 class Branch_OP extends Module {
   val io = IO(
     new Bundle {
-      val branchType  = Input(UInt())
-      val src1        = Input(UInt())
-      val src2        = Input(UInt())
-      val branchTaken = Output(UInt())
+      val branchType  = Input(UInt(32.W))
+      val src1        = Input(UInt(32.W))
+      val src2        = Input(UInt(32.W))
+      val branchTaken = Output(UInt(32.W))
     }
   )
 

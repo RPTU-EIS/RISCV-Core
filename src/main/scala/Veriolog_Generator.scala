@@ -9,8 +9,9 @@ import RISCV_TOP._
 
 object VerilogGen extends App
 {
-  //emitVerilog(new RISCV_TOP("src/test/programs/beq_test"), Array("--target-dir", "generated-src"))
-    (new chisel3.stage.ChiselStage).emitVerilog(new RISCV_TOP("src/test/programs/beq_test"))
+  emitVerilog(new RISCV_TOP(), Array("--target-dir", "generated-src"))
+  //emitVerilog(new top_MC.top_MC("src/test/programs/beq_test", "src/main/scala/DataMemory/dataMemVals"), Array("--target-dir", "generated-src"))
+  //(new chisel3.stage.ChiselStage).emitVerilog(new RISCV_TOP)
   //  (new chisel3.stage.ChiselStage).emitVerilog(new bool())
   //
   //  (new chisel3.stage.ChiselStage).emitVerilog(new Control())
@@ -22,6 +23,6 @@ object VerilogGen extends App
   //  (new chisel3.stage.ChiselStage).emitVerilog(new InstructionMemory())
   //  (new chisel3.stage.ChiselStage).emitVerilog(new PC())
   //  (new chisel3.stage.ChiselStage).emitVerilog(new DataMemory())
-  // emitVerilog(new RISCV_TOP("src/main/scala/InstructionMemory/instructions"), Array("--target-dir", "generated-src"))
+  //emitVerilog(new MDU.MDU, Array("--target-dir", "generated-src"))
 
 }

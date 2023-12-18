@@ -19,14 +19,14 @@ import config.ALUOps._
 class ALU extends Module {
 
   val io = IO(new Bundle {
-    val src1   = Input(UInt())
-    val src2   = Input(UInt())
-    val ALUop  = Input(UInt())
+    val src1   = Input(UInt(32.W))
+    val src2   = Input(UInt(32.W))
+    val ALUop  = Input(UInt(32.W))
     val aluRes = Output(UInt(32.W))
   })
 
-  val ALU_SLT  = Wire(UInt())
-  val ALU_SLTU = Wire(UInt())
+  val ALU_SLT  = Wire(UInt(32.W))
+  val ALU_SLTU = Wire(UInt(32.W))
 
   //SLT operation
   when (io.src1.asSInt < io.src2.asSInt){

@@ -19,15 +19,15 @@ class ByPassReg extends Module
 {
   val io = IO(
     new Bundle {
-      val readAddr     = Input(UInt())
+      val readAddr     = Input(UInt(32.W))
 
-      val writeAddr    = Input(UInt())
+      val writeAddr    = Input(UInt(32.W))
       val writeEnable  = Input(Bool())
 
-      val registerData = Input(UInt())
-      val writeData    = Input(UInt())
+      val registerData = Input(UInt(32.W))
+      val writeData    = Input(UInt(32.W))
 
-      val outData      = Output(UInt())
+      val outData      = Output(UInt(32.W))
 
     }
   )

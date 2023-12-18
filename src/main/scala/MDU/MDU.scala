@@ -10,8 +10,6 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Ab
 */
 
 
-
-//Multiplication/Division unit for RISCV
 package MDU
 
 import chisel3._
@@ -22,9 +20,9 @@ import config.MDUOps._
 class MDU extends Module {
 
   val io = IO(new Bundle {
-    val src1             = Input(UInt())
-    val src2             = Input(UInt())
-    val MDUop            = Input(UInt())
+    val src1             = Input(UInt(32.W))
+    val src2             = Input(UInt(32.W))
+    val MDUop            = Input(UInt(32.W))
     val MDURes           = Output(UInt(32.W))
     val MDUopflag        = Output(Bool())
     val MDUexceptionflag = Output(Bool())
@@ -37,6 +35,7 @@ class MDU extends Module {
  
   val lhs = io.src1.asSInt
   val rhs = io.src2.asSInt
+
   //If the OP is just MUL we multiply two numbers and store the lower 32 bits into the register
   when (io.MDUop === MUL){
     io.MDURes := (lhs * rhs).asUInt 
@@ -44,9 +43,9 @@ class MDU extends Module {
   .elsewhen (io.MDUop === DIV){
     when(io.src2 === 0.U){
       io.MDUexceptionflag := true.B
-      io.MDURes := "h_FFFF_FFFF".U   //ex. result div by 0 result -1
-    }.elsewhen(io.src1 === "h_8000_0000".U && io.src2 === "h_FFFF_FFFF".U){
-      io.MDURes := "h_8000_0000".U   //ex. result div overflow
+      io.MDURes := "hFFFFFFFF".U   //ex. result div by 0 result -1
+    }.elsewhen(io.src1 === "h80000000".U && io.src2 === "hFFFFFFFF".U){
+      io.MDURes := "h80000000".U   //ex. result div overflow
     }.otherwise{
       io.MDURes := (lhs / rhs).asUInt 
     }
@@ -54,7 +53,7 @@ class MDU extends Module {
   .elsewhen(io.MDUop === DIVU){
     when(io.src2 === 0.U){
       io.MDUexceptionflag := true.B
-      io.MDURes := "h_FFFF_FFFE".U    //ex. return for error
+      io.MDURes := "hFFFFFFFE".U    //ex. return for error
     }.otherwise{
       io.MDURes := io.src1 / io.src2
     }
@@ -63,10 +62,10 @@ class MDU extends Module {
     when(io.src2 === 0.U){
       io.MDUexceptionflag := true.B
       io.MDURes := io.src1    //ex. result rem by 0
-    }.elsewhen(io.src1 === "h_8000_0000".U && io.src2 === "h_FFFF_FFFF".U){
-      io.MDURes := "h_0000_0000".U //ex. result rem overflow
+    }.elsewhen(io.src1 === "h80000000".U && io.src2 === "hFFFFFFFF".U){
+      io.MDURes := "h00000000".U //ex. result rem overflow
     }.otherwise{
-      io.MDURes := (((lhs % rhs) + rhs) % rhs).asUInt 
+      io.MDURes := (lhs % rhs).asUInt //TODO: Verify this
     }
   }
   .elsewhen (io.MDUop === REMU){

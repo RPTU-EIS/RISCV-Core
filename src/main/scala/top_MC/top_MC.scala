@@ -23,7 +23,7 @@ import config.{MemUpdates, RegisterUpdates, SetupSignals, TestReadouts, Instruct
 import combined.combined
 import DCache.DCache
 import DCache.CacheAndMemory
-class top_MC(BinaryFile: String, DataFile: String) extends Module {
+class top_MC(BinaryFile: String) extends Module {
 
   val testHarness = IO(
     new Bundle {
@@ -49,7 +49,7 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   val IF  = Module(new IF(BinaryFile))
   val ID  = Module(new ID)
   val EX  = Module(new EX)
-  val MEM = Module(new MEM(DataFile))
+  val MEM = Module(new MEM)
   val writeBackData = Wire(UInt())
   var dcache = Module(new DCache("src/main/scala/DCache/CacheContent.bin"))
   var CM = Module(new CacheAndMemory)
@@ -88,17 +88,17 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   MEM.io.CM_dataValid := CM.io.valid
   MEM.io.CM_memBusy := CM.io.busy
 
-
-  IF.testHarness.InstructionMemorySetup := testHarness.setupSignals.IMEMsignals
+  
+  //IF.testHarness.InstructionMemorySetup := testHarness.setupSignals.IMEMsignals
   ID.testHarness.registerSetup          := testHarness.setupSignals.registerSignals
   MEM.testHarness.DMEMsetup             := testHarness.setupSignals.DMEMsignals
 
   testHarness.testReadouts.registerRead := ID.testHarness.registerPeek
-testHarness.testReadouts.DMEMread     := MEM.testHarness.DMEMpeek
+ testHarness.testReadouts.DMEMread     := MEM.testHarness.DMEMpeek
 
 
-testHarness.regUpdates                := ID.testHarness.testUpdates
-  testHarness.memUpdates                := MEM.testHarness.testUpdates
+ testHarness.regUpdates                := ID.testHarness.testUpdates
+ testHarness.memUpdates                := MEM.testHarness.testUpdates
   testHarness.currentPC                 := combined.testHarness.requestedAddress
 
 

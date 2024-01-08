@@ -12,14 +12,15 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Ab
 package Stage_MEM
 
 import DCache.CacheAndMemory
-import DataMemory.DataMemory
+//import DataMemory.DataMemory
 import chisel3._
 import chisel3.util._
 import chisel3.experimental.{ChiselAnnotation, annotate}
 import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemorySynthInit
 import config.{DMEMsetupSignals, MemUpdates}
-class MEM(DataFile: String) extends Module {
+class MEM() extends Module {
+//class MEM(DataFile: String) extends Module {
   val testHarness = IO(
     new Bundle {
       val DMEMsetup      = Input(new DMEMsetupSignals)

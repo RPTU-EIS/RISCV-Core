@@ -21,12 +21,12 @@ import chisel3.experimental.{ChiselAnnotation, annotate}
 import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemorySynthInit
 
-class combined(I_memoryFile: String = "src/main/scala/DataMemory/dataMemVals") extends Module //default constructor
+class combined(I_memoryFile: String) extends Module //default constructor
 {
   val testHarness = IO(
     new Bundle {
-      //val setup = Input(new DMEMsetupSignals)
-      //val testUpdates = Output(new MemUpdates)
+      val setup = Input(new DMEMsetupSignals)
+      val testUpdates = Output(new MemUpdates)
       val setupSignals     = Input(new IMEMsetupSignals)
       val requestedAddress = Output(UInt(32.W))
     })
@@ -63,37 +63,37 @@ class combined(I_memoryFile: String = "src/main/scala/DataMemory/dataMemVals") e
   val addressSource2 = Wire(UInt(32.W))
 
   // For loading data
- /* when(testHarness.setup.setup){
+ when(testHarness.setup.setup){
     addressSource2 := testHarness.setupSignals.address
     addressSource     := testHarness.setup.dataAddress
     dataSource        := testHarness.setup.dataIn
     writeEnableSource := testHarness.setup.writeEnable
     readEnableSource  := testHarness.setup.readEnable
-  }.otherwise {*/
+  }.otherwise {
     addressSource     := io.dataAddress
     dataSource        := io.dataIn
     writeEnableSource := io.writeEnable
     readEnableSource  := io.readEnable
 
     addressSource2 := io.instructionAddress
- // }
+  }
 
- /*
+ 
   testHarness.testUpdates.writeEnable  := writeEnableSource
   testHarness.testUpdates.readEnable   := readEnableSource
   testHarness.testUpdates.writeData    := dataSource
   testHarness.testUpdates.writeAddress := addressSource
 
   testHarness.requestedAddress := io.instructionAddress
-  */
+  
   when(writeEnableSource){
     d_memory(addressSource) := dataSource
   }
 
- /* when(testHarness.setupSignals.setup){
+ when(testHarness.setupSignals.setup){
     d_memory(addressSource2) := testHarness.setupSignals.instruction
   }
-*/
+
   // io.dataOut := Mux(readEnableSource, d_memory(addressSource), 0.U(32.W))
   io.dataOut := d_memory(addressSource)
   io.instruction := d_memory(addressSource2(31,2))

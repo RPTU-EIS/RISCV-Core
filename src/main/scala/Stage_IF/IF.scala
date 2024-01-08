@@ -20,7 +20,7 @@ import config.Inst._
 class IF(BinaryFile: String) extends Module
 {
 
-  /*val testHarness = IO(
+/*val testHarness = IO(
     new Bundle {
       val InstructionMemorySetup = Input(new IMEMsetupSignals)
       val PC        = Output(UInt())
@@ -120,5 +120,5 @@ class IF(BinaryFile: String) extends Module
  /* when(testHarness.InstructionMemorySetup.setup) {
     PC := 0.U
     instruction := Inst.NOP
-  }*/
+  } */
 }

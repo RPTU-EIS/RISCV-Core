@@ -13,16 +13,16 @@ package GPR
 
 import chisel3._
 import chisel3.util._
-import config.{RegisterSetupSignals, RegisterUpdates}
+//import config.{RegisterSetupSignals, RegisterUpdates}
 
 class registerFile extends Module
 {
-  val testHarness = IO(
-    new Bundle {
-      val setup        = Input(new RegisterSetupSignals)
-      val testUpdates  = Output(new RegisterUpdates)
-    }
-  )
+  // val testHarness = IO(
+  //   new Bundle {
+  //     val setup        = Input(new RegisterSetupSignals)
+  //     val testUpdates  = Output(new RegisterUpdates)
+  //   }
+  // )
 
 
   val io = IO(
@@ -45,24 +45,24 @@ class registerFile extends Module
   val writeData    = Wire(UInt(32.W))
   val writeEnable  = Wire(Bool())
 
-  when(testHarness.setup.setup){
-    readAddress1 := testHarness.setup.readAddress
-    readAddress2 := io.readAddress2
-    writeData    := testHarness.setup.writeData
-    writeEnable  := testHarness.setup.writeEnable
-    writeAddress := testHarness.setup.readAddress
-  }.otherwise{
+//  when(testHarness.setup.setup){
+  //   readAddress1 := testHarness.setup.readAddress
+  //   readAddress2 := io.readAddress2
+  //   writeData    := testHarness.setup.writeData
+  //   writeEnable  := testHarness.setup.writeEnable
+  //   writeAddress := testHarness.setup.readAddress
+  // }.otherwise{
     readAddress1 := io.readAddress1
     readAddress2 := io.readAddress2
     writeData    := io.writeData
     writeEnable  := io.writeEnable
     writeAddress := io.writeAddress
-  }
+  //}
 
 
-  testHarness.testUpdates.writeData := writeData
-  testHarness.testUpdates.writeEnable := writeEnable
-  testHarness.testUpdates.writeAddress := writeAddress
+  // testHarness.testUpdates.writeData := writeData
+  // testHarness.testUpdates.writeEnable := writeEnable
+  // testHarness.testUpdates.writeAddress := writeAddress
 
 
   when(writeEnable){

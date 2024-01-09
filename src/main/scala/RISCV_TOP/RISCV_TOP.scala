@@ -54,31 +54,31 @@ class RISCV_TOP(BinaryFile: String) extends Module{
 
   io.PC := top_MC.currentPC
 
-  top_MC.setupSignals.IMEMsignals.address     := io.IMEMAddr
-  top_MC.setupSignals.IMEMsignals.instruction := io.IMEMWriteData
-  top_MC.setupSignals.IMEMsignals.setup       := io.setup
+  // top_MC.setupSignals.IMEMsignals.address     := io.IMEMAddr
+  // top_MC.setupSignals.IMEMsignals.instruction := io.IMEMWriteData
+  // top_MC.setupSignals.IMEMsignals.setup       := io.setup
 
-  top_MC.setupSignals.DMEMsignals.writeEnable := io.DMEMWriteEnable
-  top_MC.setupSignals.DMEMsignals.readEnable  := io.DMEMReadEnable
-  top_MC.setupSignals.DMEMsignals.dataAddress := io.DMEMAddr
-  top_MC.setupSignals.DMEMsignals.dataIn      := io.DMEMWriteData
-  top_MC.setupSignals.DMEMsignals.setup       := io.setup
+  // top_MC.setupSignals.DMEMsignals.writeEnable := io.DMEMWriteEnable
+  // top_MC.setupSignals.DMEMsignals.readEnable  := io.DMEMReadEnable
+  // top_MC.setupSignals.DMEMsignals.dataAddress := io.DMEMAddr
+  // top_MC.setupSignals.DMEMsignals.dataIn      := io.DMEMWriteData
+  // top_MC.setupSignals.DMEMsignals.setup       := io.setup
 
-  top_MC.setupSignals.registerSignals.readAddress  := io.regsAddr
-  top_MC.setupSignals.registerSignals.writeEnable  := io.regsWriteEnable
-  top_MC.setupSignals.registerSignals.writeAddress := io.regsAddr
-  top_MC.setupSignals.registerSignals.writeData    := io.regsWriteData
-  top_MC.setupSignals.registerSignals.setup        := io.setup
+  // top_MC.setupSignals.registerSignals.readAddress  := io.regsAddr
+  // top_MC.setupSignals.registerSignals.writeEnable  := io.regsWriteEnable
+  // top_MC.setupSignals.registerSignals.writeAddress := io.regsAddr
+  // top_MC.setupSignals.registerSignals.writeData    := io.regsWriteData
+  // top_MC.setupSignals.registerSignals.setup        := io.setup
 
-  io.DMEMReadData := top_MC.testReadouts.DMEMread
-  io.regsReadData := top_MC.testReadouts.registerRead
+  // io.DMEMReadData := top_MC.testReadouts.DMEMread
+  // io.regsReadData := top_MC.testReadouts.registerRead
 
-  io.regsDeviceWriteAddress := top_MC.regUpdates.writeAddress
-  io.regsDeviceWriteEnable  := top_MC.regUpdates.writeEnable
-  io.regsDeviceWriteData    := top_MC.regUpdates.writeData
+  // io.regsDeviceWriteAddress := top_MC.regUpdates.writeAddress
+  // io.regsDeviceWriteEnable  := top_MC.regUpdates.writeEnable
+  // io.regsDeviceWriteData    := top_MC.regUpdates.writeData
 
-  io.memDeviceWriteAddress  := top_MC.memUpdates.writeAddress
-  io.memDeviceWriteEnable   := top_MC.memUpdates.writeEnable
-  io.memDeviceWriteData     := top_MC.memUpdates.writeData
+  // io.memDeviceWriteAddress  := top_MC.memUpdates.writeAddress
+  // io.memDeviceWriteEnable   := top_MC.memUpdates.writeEnable
+  // io.memDeviceWriteData     := top_MC.memUpdates.writeData
 
 }

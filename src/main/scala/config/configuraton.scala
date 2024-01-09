@@ -140,43 +140,43 @@ class DMEMsetupSignals extends Bundle {
   val dataAddress = UInt(32.W)
 }
 
-class MemUpdates extends Bundle {
-  val writeEnable  = Bool()
-  val readEnable  = Bool()
-  val writeData    = UInt(32.W)
-  val writeAddress = UInt(32.W)
-}
+// class MemUpdates extends Bundle {
+//   val writeEnable  = Bool()
+//   val readEnable  = Bool()
+//   val writeData    = UInt(32.W)
+//   val writeAddress = UInt(32.W)
+// }
 
-class IMEMsetupSignals extends Bundle {
-  val setup       = Bool()
-  val address     = UInt(32.W)
-  val instruction = UInt(32.W)
-}
+// class IMEMsetupSignals extends Bundle {
+//   val setup       = Bool()
+//   val address     = UInt(32.W)
+//   val instruction = UInt(32.W)
+// }
 
-class RegisterSetupSignals extends Bundle {
-  val setup = Bool()
-  val readAddress  = UInt(5.W)
-  val writeEnable  = Bool()
-  val writeAddress = UInt(5.W)
-  val writeData    = UInt(32.W)
-}
+// class RegisterSetupSignals extends Bundle {
+//   val setup = Bool()
+//   val readAddress  = UInt(5.W)
+//   val writeEnable  = Bool()
+//   val writeAddress = UInt(5.W)
+//   val writeData    = UInt(32.W)
+// }
 
-class RegisterUpdates extends Bundle {
-  val writeEnable  = Bool()
-  val writeData    = UInt(32.W)
-  val writeAddress = UInt(5.W)
-}
+// class RegisterUpdates extends Bundle {
+//   val writeEnable  = Bool()
+//   val writeData    = UInt(32.W)
+//   val writeAddress = UInt(5.W)
+// }
 
-class SetupSignals extends Bundle {
-  val IMEMsignals     = new IMEMsetupSignals
-  val DMEMsignals     = new DMEMsetupSignals
-  val registerSignals = new RegisterSetupSignals
-}
+// class SetupSignals extends Bundle {
+//   val IMEMsignals     = new IMEMsetupSignals
+//   val DMEMsignals     = new DMEMsetupSignals
+//   val registerSignals = new RegisterSetupSignals
+// }
 
-class TestReadouts extends Bundle {
-  val registerRead = UInt(32.W)
-  val DMEMread     = UInt(32.W)
-}
+// class TestReadouts extends Bundle {
+//   val registerRead = UInt(32.W)
+//   val DMEMread     = UInt(32.W)
+// }
 
 object lookup {
   def BEQ                = BitPat("b?????????????????000?????1100011")

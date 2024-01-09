@@ -15,21 +15,21 @@ import chisel3._
 import chisel3.experimental.{ChiselAnnotation, annotate}
 import firrtl.annotations.MemorySynthInit
 import config.DMEMsetupSignals
-import config.MemUpdates
-import config.IMEMsetupSignals
+//import config.MemUpdates
+//import config.IMEMsetupSignals
 import chisel3.experimental.{ChiselAnnotation, annotate}
 import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemorySynthInit
 
 class combined(I_memoryFile: String) extends Module //default constructor
 {
-  val testHarness = IO(
-    new Bundle {
-      val setup = Input(new DMEMsetupSignals)
-      val testUpdates = Output(new MemUpdates)
-      val setupSignals     = Input(new IMEMsetupSignals)
-      val requestedAddress = Output(UInt(32.W))
-    })
+ // val testHarness = IO(
+  //  new Bundle {
+   //   val setup = Input(new DMEMsetupSignals)
+   //   val testUpdates = Output(new MemUpdates)
+    //  val setupSignals     = Input(new IMEMsetupSignals)
+     // val requestedAddress = Output(UInt(32.W))
+   // })
 
 
   val io = IO(
@@ -63,36 +63,36 @@ class combined(I_memoryFile: String) extends Module //default constructor
   val addressSource2 = Wire(UInt(32.W))
 
   // For loading data
- when(testHarness.setup.setup){
-    addressSource2 := testHarness.setupSignals.address
-    addressSource     := testHarness.setup.dataAddress
-    dataSource        := testHarness.setup.dataIn
-    writeEnableSource := testHarness.setup.writeEnable
-    readEnableSource  := testHarness.setup.readEnable
-  }.otherwise {
+//  when(testHarness.setup.setup){
+//     addressSource2 := testHarness.setupSignals.address
+//     addressSource     := testHarness.setup.dataAddress
+//     dataSource        := testHarness.setup.dataIn
+//     writeEnableSource := testHarness.setup.writeEnable
+//     readEnableSource  := testHarness.setup.readEnable
+//   }.otherwise {
     addressSource     := io.dataAddress
     dataSource        := io.dataIn
     writeEnableSource := io.writeEnable
     readEnableSource  := io.readEnable
 
     addressSource2 := io.instructionAddress
-  }
+ // }
 
  
-  testHarness.testUpdates.writeEnable  := writeEnableSource
-  testHarness.testUpdates.readEnable   := readEnableSource
-  testHarness.testUpdates.writeData    := dataSource
-  testHarness.testUpdates.writeAddress := addressSource
+  // testHarness.testUpdates.writeEnable  := writeEnableSource
+  // testHarness.testUpdates.readEnable   := readEnableSource
+  // testHarness.testUpdates.writeData    := dataSource
+  // testHarness.testUpdates.writeAddress := addressSource
 
-  testHarness.requestedAddress := io.instructionAddress
+  // testHarness.requestedAddress := io.instructionAddress
   
   when(writeEnableSource){
     d_memory(addressSource) := dataSource
   }
 
- when(testHarness.setupSignals.setup){
-    d_memory(addressSource2) := testHarness.setupSignals.instruction
-  }
+//  when(testHarness.setupSignals.setup){
+//     d_memory(addressSource2) := testHarness.setupSignals.instruction
+//   }
 
   // io.dataOut := Mux(readEnableSource, d_memory(addressSource), 0.U(32.W))
   io.dataOut := d_memory(addressSource)

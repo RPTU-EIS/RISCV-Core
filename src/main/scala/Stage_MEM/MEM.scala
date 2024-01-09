@@ -18,16 +18,16 @@ import chisel3.util._
 import chisel3.experimental.{ChiselAnnotation, annotate}
 import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemorySynthInit
-import config.{DMEMsetupSignals, MemUpdates}
+//import config.{DMEMsetupSignals, MemUpdates}
 class MEM() extends Module {
 //class MEM(DataFile: String) extends Module {
-  val testHarness = IO(
-    new Bundle {
-      val DMEMsetup      = Input(new DMEMsetupSignals)
-      val DMEMpeek       = Output(UInt(32.W))
+  // val testHarness = IO(
+  //   new Bundle {
+  //     val DMEMsetup      = Input(new DMEMsetupSignals)
+  //     val DMEMpeek       = Output(UInt(32.W))
 
-      val testUpdates    = Output(new MemUpdates)
-    }) 
+  //     val testUpdates    = Output(new MemUpdates)
+  //   }) 
 
   val io = IO(
     new Bundle {

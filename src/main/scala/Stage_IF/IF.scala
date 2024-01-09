@@ -13,7 +13,7 @@ package Stage_IF
 
 import chisel3._
 import chisel3.util._
-import config.{ControlSignals, IMEMsetupSignals, Inst, Instruction}
+import config.{ControlSignals, Inst, Instruction}
 import config.Inst._
 //import combined.combined
 

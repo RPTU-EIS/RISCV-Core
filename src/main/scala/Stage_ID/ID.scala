@@ -18,17 +18,17 @@ import GPR.ByPassReg
 import Decode.Decode
 import config.ImmFormat._
 import config.{ALUOps}
-import config.{Instruction, ControlSignals}
+import config.{Instruction, ControlSignals, RegisterSetupSignals, RegisterUpdates}
 //import config.{RegisterSetupSignals, RegisterUpdates, Instruction, ControlSignals}
 class ID extends Module
 {
-  // val testHarness = IO(
-  //   new Bundle {
-  //     val registerSetup = Input(new RegisterSetupSignals)
-  //     val registerPeek  = Output(UInt(32.W))
+  val testHarness = IO(
+    new Bundle {
+      //val registerSetup = Input(new RegisterSetupSignals)
+      val registerPeek  = Output(UInt(32.W))
 
-  //     val testUpdates   = Output(new RegisterUpdates)
-  //   })
+      val testUpdates   = Output(new RegisterUpdates)
+    })
 
 
   val io = IO(
@@ -59,8 +59,8 @@ class ID extends Module
   val immData   = Wire(SInt())
 
   // registers.testHarness.setup := testHarness.registerSetup
-  // testHarness.registerPeek    := registers.io.readData1
-  // testHarness.testUpdates     := registers.testHarness.testUpdates
+   testHarness.registerPeek    := registers.io.readData1
+   testHarness.testUpdates     := registers.testHarness.testUpdates
 
 
   //////////////////////////////////////////

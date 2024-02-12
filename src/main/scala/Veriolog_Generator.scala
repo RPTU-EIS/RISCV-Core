@@ -6,11 +6,11 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 
 import RISCV_TOP._
-
+//import top_MC._
 object VerilogGen extends App
 {
-  //emitVerilog(new RISCV_TOP("src/test/programs/beq_test"), Array("--target-dir", "generated-src"))
-    (new chisel3.stage.ChiselStage).emitVerilog(new RISCV_TOP("src/test/programs/beq_test"))
+  emitVerilog(new RISCV_TOP("src/test/programs/beq_test"), Array("--target-dir", "generated-src"))
+  // (new chisel3.stage.ChiselStage).emitVerilog(new top_MC("src/test/programs/beq_test"))
   //  (new chisel3.stage.ChiselStage).emitVerilog(new bool())
   //
   //  (new chisel3.stage.ChiselStage).emitVerilog(new Control())

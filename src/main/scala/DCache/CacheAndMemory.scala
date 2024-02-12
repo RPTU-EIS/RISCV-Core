@@ -1,6 +1,6 @@
 package DCache
 
-import combined.combined
+import combined_memory.combined_memory
 import chisel3._
 import chisel3.util._
 import chisel3.experimental._

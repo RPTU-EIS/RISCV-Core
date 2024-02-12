@@ -20,39 +20,40 @@ class RISCV_TOP(BinaryFile: String) extends Module{
   val io = IO(
     new Bundle {
 
-      val PC                     = Output(UInt())
-      val setup                  = Input(Bool())
+      //val PC                     = Output(UInt())
+      //val setup                  = Input(Bool())
 
-      val IMEMWriteData          = Input(UInt(32.W))
-      val IMEMAddr               = Input(UInt(32.W))
+      //val IMEMWriteData          = Input(UInt(32.W))
+      //val IMEMAddr               = Input(UInt(32.W))
 
-      val DMEMWriteData          = Input(UInt(32.W))
-      val DMEMAddr               = Input(UInt(32.W))
-      val DMEMWriteEnable        = Input(Bool())
-      val DMEMReadData           = Output(UInt(32.W))
-      val DMEMReadEnable         = Input(Bool())
+      //val DMEMWriteData          = Input(UInt(32.W))
+      //val DMEMAddr               = Input(UInt(32.W))
+      //val DMEMWriteEnable        = Input(Bool())
+      //val DMEMReadData           = Output(UInt(32.W))
+      //val DMEMReadEnable         = Input(Bool())
 
-      val regsWriteData          = Input(UInt(32.W))
-      val regsAddr               = Input(UInt(5.W))
-      val regsWriteEnable        = Input(Bool())
-      val regsReadData           = Output(UInt(32.W))
+      //val regsWriteData          = Input(UInt(32.W))
+      //val regsAddr               = Input(UInt(5.W))
+      //val regsWriteEnable        = Input(Bool())
+      //val regsReadData           = Output(UInt(32.W))
 
-      val regsDeviceWriteEnable  = Output(Bool())
-      val regsDeviceWriteData    = Output(UInt(32.W))
-      val regsDeviceWriteAddress    = Output(UInt(5.W))
+      //val regsDeviceWriteEnable  = Output(Bool())
+      //val regsDeviceWriteData    = Output(UInt(32.W))
+      //val regsDeviceWriteAddress    = Output(UInt(5.W))
 
-      val memDeviceWriteEnable   = Output(Bool())
-      val memDeviceWriteData     = Output(UInt(32.W))
-      val memDeviceWriteAddress     = Output(UInt(32.W))
+      //val memDeviceWriteEnable   = Output(Bool())
+      //val memDeviceWriteData     = Output(UInt(32.W))
+      //val memDeviceWriteAddress     = Output(UInt(32.W))
 
 
 
 
     })
 
-  val top_MC = Module(new top_MC(BinaryFile)).testHarness
+  //val top_MC = Module(new top_MC(BinaryFile)).testHarness
+  val top_MC = Module(new top_MC(BinaryFile))
 
-  io.PC := top_MC.currentPC
+  //io.PC := top_MC.currentPC
 
   // top_MC.setupSignals.IMEMsignals.address     := io.IMEMAddr
   // top_MC.setupSignals.IMEMsignals.instruction := io.IMEMWriteData

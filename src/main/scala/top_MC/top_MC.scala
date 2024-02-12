@@ -19,24 +19,24 @@ import Stage_IF.IF
 import Stage_EX.EX
 import Stage_MEM.MEM
 import HazardUnit.HazardUnit
-import config.{ Instruction}
-import combined.combined
+import config.{MemUpdates,Instruction, RegisterUpdates, TestReadouts}
+import combined_memory.combined_memory
 import DCache.DCache
 import DCache.CacheAndMemory
 class top_MC(BinaryFile: String) extends Module {
 
-  val testHarness = IO(
+ /* val testHarness = IO(
     new Bundle {
-     // val setupSignals = Input(new SetupSignals)
+     //val setupSignals = Input(new SetupSignals)
       //val testReadouts = Output(new TestReadouts)
-     // val regUpdates   = Output(new RegisterUpdates)
+      //val regUpdates   = Output(new RegisterUpdates)
       //val memUpdates   = Output(new MemUpdates)
-      val currentPC    = Output(UInt(32.W))
+      //val currentPC    = Output(UInt(32.W))
       //val PC        = Output(UInt())
     }
   )
-
-  val combined = Module(new combined(BinaryFile))
+*/
+  val combined = Module(new combined_memory(BinaryFile))
 
   
   // Pipeline Registers
@@ -90,16 +90,17 @@ class top_MC(BinaryFile: String) extends Module {
 
   
   //IF.testHarness.InstructionMemorySetup := testHarness.setupSignals.IMEMsignals
-//   ID.testHarness.registerSetup          := testHarness.setupSignals.registerSignals
-//   MEM.testHarness.DMEMsetup             := testHarness.setupSignals.DMEMsignals
+  //  ID.testHarness.registerSetup          := testHarness.setupSignals.registerSignals
+  //  MEM.testHarness.DMEMsetup             := testHarness.setupSignals.DMEMsignals
 
-//   testHarness.testReadouts.registerRead := ID.testHarness.registerPeek
+ //testHarness.testReadouts.registerRead := ID.testHarness.registerPeek
 //  testHarness.testReadouts.DMEMread     := MEM.testHarness.DMEMpeek
+ //testHarness.testReadouts.DMEMread     := combined.io.dataOut
 
 
-//  testHarness.regUpdates                := ID.testHarness.testUpdates
+//   testHarness.regUpdates                := ID.testHarness.testUpdates
 //  testHarness.memUpdates                := MEM.testHarness.testUpdates
-//   testHarness.currentPC                 := combined.testHarness.requestedAddress
+//   testHarness.currentPC                 := combined.io.instructionAddress
 
 
   // Fetch Stage

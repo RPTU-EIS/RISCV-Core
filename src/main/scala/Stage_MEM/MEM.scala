@@ -12,22 +12,23 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Ab
 package Stage_MEM
 
 import DCache.CacheAndMemory
-//import DataMemory.DataMemory
+import combined_memory.combined_memory
 import chisel3._
 import chisel3.util._
 import chisel3.experimental.{ChiselAnnotation, annotate}
 import chisel3.util.experimental.loadMemoryFromFileInline
 import firrtl.annotations.MemorySynthInit
 //import config.{DMEMsetupSignals, MemUpdates}
+import config.{MemUpdates}
 class MEM() extends Module {
 //class MEM(DataFile: String) extends Module {
-  // val testHarness = IO(
-  //   new Bundle {
-  //     val DMEMsetup      = Input(new DMEMsetupSignals)
-  //     val DMEMpeek       = Output(UInt(32.W))
+  val testHarness = IO(
+    new Bundle {
+      //val DMEMsetup      = Input(new DMEMsetupSignals)
+      //val DMEMpeek       = Output(UInt(32.W))
 
-  //     val testUpdates    = Output(new MemUpdates)
-  //   }) 
+      val testUpdates    = Output(new MemUpdates)
+    }) 
 
   val io = IO(
     new Bundle {
@@ -57,12 +58,12 @@ class MEM() extends Module {
     val CM_data_out = Wire(UInt(32.W))
     val CM_dataValid = Wire(Bool())
     val CM_memBusy = Wire(Bool())
-  //val DMEM = Module(new DataMemory())
+  //val DMEM = Module(new combined(BinaryFile))
   //val DMEM = Module(new CacheAndMemory())
 
-  //DMEM.testHarness.setup  := testHarness.DMEMsetup
-  //testHarness.DMEMpeek    := DMEM.io.data_out
-  //testHarness.testUpdates := 0.U.asTypeOf(new MemUpdates) //DMEM.testHarness.testUpdates
+  // DMEM.testHarness.setup  := testHarness.DMEMsetup
+  // testHarness.DMEMpeek    := DMEM.io.data_out
+   testHarness.testUpdates := 0.U.asTypeOf(new MemUpdates) //DMEM.testHarness.testUpdates
 
   //DMEM
   CM_write_data  := io.dataIn

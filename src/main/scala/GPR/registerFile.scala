@@ -13,16 +13,16 @@ package GPR
 
 import chisel3._
 import chisel3.util._
-//import config.{RegisterSetupSignals, RegisterUpdates}
+import config.{RegisterSetupSignals, RegisterUpdates}
 
 class registerFile extends Module
 {
-  // val testHarness = IO(
-  //   new Bundle {
-  //     val setup        = Input(new RegisterSetupSignals)
-  //     val testUpdates  = Output(new RegisterUpdates)
-  //   }
-  // )
+  val testHarness = IO(
+    new Bundle {
+      //val setup        = Input(new RegisterSetupSignals)
+      val testUpdates  = Output(new RegisterUpdates)
+    }
+  )
 
 
   val io = IO(
@@ -60,9 +60,9 @@ class registerFile extends Module
   //}
 
 
-  // testHarness.testUpdates.writeData := writeData
-  // testHarness.testUpdates.writeEnable := writeEnable
-  // testHarness.testUpdates.writeAddress := writeAddress
+   testHarness.testUpdates.writeData := writeData
+   testHarness.testUpdates.writeEnable := writeEnable
+   testHarness.testUpdates.writeAddress := writeAddress
 
 
   when(writeEnable){

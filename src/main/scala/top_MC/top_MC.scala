@@ -5,7 +5,7 @@ This project implements a pipelined RISC-V processor in Chisel. The pipeline inc
 The core is part of an educational project by the Chair of Electronic Design Automation (https://eit.rptu.de/fgs/eis/) at RPTU Kaiserslautern, Germany.
 
 Supervision and Organization: Tobias Jauch, Philipp Schmitz, Alex Wezel
-Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava
+Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Abdullah Shaaban Saad Allam, Guga Kupradze
 
 */
 
@@ -25,17 +25,17 @@ import DCache.DCache
 import DCache.CacheAndMemory
 class top_MC(BinaryFile: String) extends Module {
 
- /* val testHarness = IO(
+  val testHarness = IO(
     new Bundle {
      //val setupSignals = Input(new SetupSignals)
-      //val testReadouts = Output(new TestReadouts)
-      //val regUpdates   = Output(new RegisterUpdates)
-      //val memUpdates   = Output(new MemUpdates)
-      //val currentPC    = Output(UInt(32.W))
+      val testReadouts = Output(new TestReadouts)
+      val regUpdates   = Output(new RegisterUpdates)
+      val memUpdates   = Output(new MemUpdates)
+      val currentPC    = Output(UInt(32.W))
       //val PC        = Output(UInt())
     }
   )
-*/
+
   val combined = Module(new combined_memory(BinaryFile))
 
   
@@ -93,14 +93,14 @@ class top_MC(BinaryFile: String) extends Module {
   //  ID.testHarness.registerSetup          := testHarness.setupSignals.registerSignals
   //  MEM.testHarness.DMEMsetup             := testHarness.setupSignals.DMEMsignals
 
- //testHarness.testReadouts.registerRead := ID.testHarness.registerPeek
+ testHarness.testReadouts.registerRead := ID.testHarness.registerPeek
 //  testHarness.testReadouts.DMEMread     := MEM.testHarness.DMEMpeek
- //testHarness.testReadouts.DMEMread     := combined.io.dataOut
+ testHarness.testReadouts.DMEMread     := combined.io.dataOut
 
 
-//   testHarness.regUpdates                := ID.testHarness.testUpdates
-//  testHarness.memUpdates                := MEM.testHarness.testUpdates
-//   testHarness.currentPC                 := combined.io.instructionAddress
+   testHarness.regUpdates                := ID.testHarness.testUpdates
+  testHarness.memUpdates                := MEM.testHarness.testUpdates
+   testHarness.currentPC                 := combined.io.instructionAddress
 
 
   // Fetch Stage

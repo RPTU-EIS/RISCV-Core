@@ -74,6 +74,15 @@ The project is structured as follows:
 - `RISCV_TOP.scala`: The main Chisel file containing the pipelined RISC-V processor.
 - `RISC_TOP_tb.scala`: A ScalaTest spec that tests the pipelined processor.
 
+## Test Case Generation
+
+The standard RISCV benchmark programs can be found in riscv-tests and compiled with a rv32 compiler.
+The linker is configured to let the PC start at 0x00000000 and to put the stack pointer at 0x40000000.
+
+Running `make all` re-generates the .hex files.
+The .hex files are in a format that can be read into the memory of the processor.
+
+
 ## Participants and Collaborators
 
 Supervision and Organization: Tobias Jauch, Philipp Schmitz, Alex Wezel

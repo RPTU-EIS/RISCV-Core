@@ -10,3 +10,5 @@ test_run_dir
 *.fir
 *.v
 dataparser.py
+riscv-tests/benchmarks/*.dump
+riscv-tests/benchmarks/*.riscv

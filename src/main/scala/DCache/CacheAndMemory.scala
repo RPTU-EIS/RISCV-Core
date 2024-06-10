@@ -31,6 +31,7 @@ class CacheAndMemory extends Module{
       val busy = Output(Bool())
     }
   )
+
   val data_mem  = Module(new DataMemory)
   val dcache  = Module(new DCache("src/main/scala/DCache/CacheContent.bin"))
 

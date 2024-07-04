@@ -27,7 +27,7 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
   val write_en_reg = RegInit(false.B)
   val read_en_reg = RegInit(false.B)
   val data_addr_reg = Reg(UInt(32.W))
-  val data_in_reg = if (!read_only) Reg(UInt(32.W)) else null
+  val data_in_reg = if (!read_only) Some(Reg(UInt(32.W))) else None
 
   val cacheLines = 64.U // cache lines as a variable
   val idle :: compare :: writeback :: allocate :: Nil = Enum(4)
@@ -57,7 +57,7 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
         write_en_reg := io.write_en.getOrElse(false.B)
         read_en_reg := io.read_en
         data_addr_reg := io.data_addr
-        if (!read_only) data_in_reg := io.data_in.get
+        if (!read_only) data_in_reg.foreach(_ := io.data_in.get)
         statecount := false.B
       }
     }
@@ -72,23 +72,31 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
         io.valid := true.B
         when(read_en_reg) {
           io.data_out := data_element_wire(31, 0)
-        }.elsewhen(!scalaReadOnlyBool) {
+        }
+        if(!read_only) {
           when(write_en_reg) {
             val temp = Wire(Vec(58, Bool()))
             temp := 0.U(58.W).asBools
             temp(57) := true.B
             temp(56) := true.B // set dirty bit
-            for (i <- 0 until 32) { temp(i) := data_in_reg(i) } // new data is stored
+
+            for (i <- 0 until 32) { temp(i) := data_in_reg.get(i) } // new data is stored
             for (i <- 32 until 56) { temp(i) := data_element_wire(i) } // the tag remains the same
             cache_data_array(index) := temp.asUInt
           }
         }
       }.otherwise {
-        when(data_element_wire(56) && data_element_wire(57) && !scalaReadOnlyBool) {
-          stateReg := writeback
-        }.otherwise {
+        if(!read_only) {
+          when(data_element_wire(56) && data_element_wire(57)) {
+            stateReg := writeback
+          }.otherwise {
+            stateReg := allocate
+          }
+        }
+        else {
           stateReg := allocate
         }
+
       }
     }
 

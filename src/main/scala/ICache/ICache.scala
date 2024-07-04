@@ -13,6 +13,7 @@ class ICache(CacheFile: String) extends Module {
     val instr_out = Output(UInt(32.W))
     val valid = Output(Bool())
     val busy = Output(Bool())
+
     val mem_read_en = Output(Bool())
     val mem_addr = Output(UInt(32.W))
     val mem_data_in = Input(UInt(32.W))

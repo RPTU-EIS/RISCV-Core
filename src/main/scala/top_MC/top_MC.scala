@@ -138,7 +138,7 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   HzdUnit.io.wrongAddrPred      := EX.io.wrongAddrPred
   HzdUnit.io.btbPrediction      := IDBarrier.outBTBPrediction
   HzdUnit.io.branchType         := IDBarrier.outBranchType
-  HzdUnit.io.membusy            := MEM.io.memBusy
+  HzdUnit.io.membusy            := MEM.io.memBusy || IF.io.fetchBusy // TODO changed memBusy signal
 
   //Signals to EXBarrier
   EXBarrier.inALUResult       := EX.io.ALUResult

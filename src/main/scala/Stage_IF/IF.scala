@@ -11,6 +11,7 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Ab
 
 package Stage_IF
 
+import ICache.ICacheAndIMemory
 import chisel3._
 import chisel3.util._
 import config.{ControlSignals, IMEMsetupSignals, Inst, Instruction}
@@ -44,9 +45,11 @@ class IF(BinaryFile: String) extends Module
     val btbTargetPredict   = Output(UInt(32.W))
     val PC                 = Output(UInt())
     val instruction        = Output(new Instruction)
+    val fetchBusy          = Output(Bool()) // added this signal for stall
   })
 
-  val InstructionMemory = Module(new InstructionMemory(BinaryFile))
+  // TODO change name for "InstructionMemory"
+  val InstructionMemory = Module(new ICacheAndIMemory(BinaryFile)) // it should be changed with ICacheAndMemory class
   val BTB               = Module(new BTB_direct)
   val nextPC            = WireInit(UInt(), 0.U)
   val PC                = RegInit(UInt(32.W), 0.U)
@@ -54,11 +57,13 @@ class IF(BinaryFile: String) extends Module
   val instruction       = Wire(new Instruction)
   val branch            = WireInit(Bool(), false.B)
 
-
+  // i commented those two lines and I question even if they are necessary TODO
   InstructionMemory.testHarness.setupSignals := testHarness.InstructionMemorySetup
   testHarness.PC := InstructionMemory.testHarness.requestedAddress
 
-  instruction := InstructionMemory.io.instruction.asTypeOf(new Instruction)
+  instruction := InstructionMemory.io.instr_out.asTypeOf(new Instruction)
+  io.fetchBusy := InstructionMemory.io.busy //InstructionMemory.io.busy
+//  instruction := InstructionMemory.io.instruction.asTypeOf(new Instruction)
 
   // Adder to increment PC
   PCplus4 := PC + 4.U
@@ -79,11 +84,13 @@ class IF(BinaryFile: String) extends Module
   when(io.stall){
     PC := PC
     //Fetch prev instruction -- Stalling the part of IF Barrier that holds the instruction
-    InstructionMemory.io.instructionAddress := io.IFBarrierPC
+    //InstructionMemory.io.instructionAddress := io.IFBarrierPC
+    InstructionMemory.io.instr_addr := io.IFBarrierPC
 
   }.otherwise{
     //Fetch instruction
-    InstructionMemory.io.instructionAddress := PC
+//    InstructionMemory.io.instructionAddress := PC
+    InstructionMemory.io.instr_addr := PC
     // PC register gets nextPC
     PC := nextPC
   }

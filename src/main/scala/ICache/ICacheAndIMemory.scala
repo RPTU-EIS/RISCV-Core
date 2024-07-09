@@ -29,7 +29,7 @@ class ICacheAndIMemory (I_memoryFile: String) extends Module {
   io.instr_out := icache.io.data_out
   io.busy := icache.io.busy
 
-  imem.io.instructionAddress := icache.io.mem_data_addr / 4.U // input to memory
+  imem.io.instructionAddress := icache.io.mem_data_addr // input to memory /4.U
   icache.io.mem_data_out := imem.io.instruction // output from memory
 
   imem.testHarness.setupSignals := testHarness.setupSignals

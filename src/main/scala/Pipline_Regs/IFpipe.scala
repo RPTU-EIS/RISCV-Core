@@ -14,6 +14,7 @@ package Piplined_RISC_V
 import chisel3._
 import chisel3.util._
 import config.{Instruction, Inst}
+
 class IFpipe extends Module
 {
   val io = IO(
@@ -34,6 +35,9 @@ class IFpipe extends Module
   )
 
   val currentPCReg   = RegEnable(io.inCurrentPC, 0.U, !io.stall)  
+  val instructionReg = RegEnable(io.inInstruction, Inst.NOP, !io.stall)  
+
+
   val flushDelayed = RegInit(Bool(), 0.U)
 
   flushDelayed := io.flush // Note: Delay flush signal because io.outInstruction is combinational (because Read iMem is synchronous)
@@ -56,7 +60,7 @@ class IFpipe extends Module
     io.outInstruction := Inst.NOP
   }
   .otherwise{
-    io.outInstruction := io.inInstruction
+    io.outInstruction := instructionReg
   }
 
   // Propagate PC

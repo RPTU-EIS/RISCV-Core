@@ -20,43 +20,50 @@ module IFpipe(
   reg [31:0] _RAND_2;
   reg [31:0] _RAND_3;
   reg [31:0] _RAND_4;
+  reg [31:0] _RAND_5;
 `endif // RANDOMIZE_REG_INIT
-  wire  _currentPCReg_T = ~io_stall; // @[IFpipe.scala 36:55]
+  wire  _currentPCReg_T = ~io_stall; // @[IFpipe.scala 37:55]
   reg [31:0] currentPCReg; // @[Reg.scala 28:20]
-  reg  flushDelayed; // @[IFpipe.scala 37:29]
-  reg  btbHitReg; // @[IFpipe.scala 42:33]
-  reg  btbPredictionReg; // @[IFpipe.scala 43:33]
-  reg [31:0] btbTargetPredict; // @[IFpipe.scala 44:33]
-  assign io_outBTBHit = btbHitReg; // @[IFpipe.scala 50:26]
-  assign io_outBTBPrediction = btbPredictionReg; // @[IFpipe.scala 51:26]
-  assign io_outBTBTargetPredict = btbTargetPredict; // @[IFpipe.scala 52:26]
-  assign io_outCurrentPC = currentPCReg; // @[IFpipe.scala 63:19]
-  assign io_outInstruction_instruction = flushDelayed ? 32'h33 : io_inInstruction_instruction; // @[IFpipe.scala 55:29 56:23 59:23]
+  reg [31:0] instructionReg_instruction; // @[Reg.scala 28:20]
+  reg  flushDelayed; // @[IFpipe.scala 41:29]
+  reg  btbHitReg; // @[IFpipe.scala 46:33]
+  reg  btbPredictionReg; // @[IFpipe.scala 47:33]
+  reg [31:0] btbTargetPredict; // @[IFpipe.scala 48:33]
+  assign io_outBTBHit = btbHitReg; // @[IFpipe.scala 54:26]
+  assign io_outBTBPrediction = btbPredictionReg; // @[IFpipe.scala 55:26]
+  assign io_outBTBTargetPredict = btbTargetPredict; // @[IFpipe.scala 56:26]
+  assign io_outCurrentPC = currentPCReg; // @[IFpipe.scala 67:19]
+  assign io_outInstruction_instruction = flushDelayed ? 32'h33 : instructionReg_instruction; // @[IFpipe.scala 59:29 60:23 63:23]
   always @(posedge clock) begin
     if (reset) begin // @[Reg.scala 28:20]
       currentPCReg <= 32'h0; // @[Reg.scala 28:20]
     end else if (_currentPCReg_T) begin // @[Reg.scala 29:18]
       currentPCReg <= io_inCurrentPC; // @[Reg.scala 29:22]
     end
-    if (reset) begin // @[IFpipe.scala 37:29]
-      flushDelayed <= 1'h0; // @[IFpipe.scala 37:29]
-    end else begin
-      flushDelayed <= io_flush; // @[IFpipe.scala 39:16]
+    if (reset) begin // @[Reg.scala 28:20]
+      instructionReg_instruction <= 32'h33; // @[Reg.scala 28:20]
+    end else if (_currentPCReg_T) begin // @[Reg.scala 29:18]
+      instructionReg_instruction <= io_inInstruction_instruction; // @[Reg.scala 29:22]
     end
-    if (reset) begin // @[IFpipe.scala 42:33]
-      btbHitReg <= 1'h0; // @[IFpipe.scala 42:33]
+    if (reset) begin // @[IFpipe.scala 41:29]
+      flushDelayed <= 1'h0; // @[IFpipe.scala 41:29]
     end else begin
-      btbHitReg <= io_inBTBHit; // @[IFpipe.scala 46:20]
+      flushDelayed <= io_flush; // @[IFpipe.scala 43:16]
     end
-    if (reset) begin // @[IFpipe.scala 43:33]
-      btbPredictionReg <= 1'h0; // @[IFpipe.scala 43:33]
+    if (reset) begin // @[IFpipe.scala 46:33]
+      btbHitReg <= 1'h0; // @[IFpipe.scala 46:33]
     end else begin
-      btbPredictionReg <= io_inBTBPrediction; // @[IFpipe.scala 47:20]
+      btbHitReg <= io_inBTBHit; // @[IFpipe.scala 50:20]
     end
-    if (reset) begin // @[IFpipe.scala 44:33]
-      btbTargetPredict <= 32'h0; // @[IFpipe.scala 44:33]
+    if (reset) begin // @[IFpipe.scala 47:33]
+      btbPredictionReg <= 1'h0; // @[IFpipe.scala 47:33]
     end else begin
-      btbTargetPredict <= io_inBTBTargetPredict; // @[IFpipe.scala 48:20]
+      btbPredictionReg <= io_inBTBPrediction; // @[IFpipe.scala 51:20]
+    end
+    if (reset) begin // @[IFpipe.scala 48:33]
+      btbTargetPredict <= 32'h0; // @[IFpipe.scala 48:33]
+    end else begin
+      btbTargetPredict <= io_inBTBTargetPredict; // @[IFpipe.scala 52:20]
     end
   end
 // Register and memory initialization
@@ -98,13 +105,15 @@ initial begin
   _RAND_0 = {1{`RANDOM}};
   currentPCReg = _RAND_0[31:0];
   _RAND_1 = {1{`RANDOM}};
-  flushDelayed = _RAND_1[0:0];
+  instructionReg_instruction = _RAND_1[31:0];
   _RAND_2 = {1{`RANDOM}};
-  btbHitReg = _RAND_2[0:0];
+  flushDelayed = _RAND_2[0:0];
   _RAND_3 = {1{`RANDOM}};
-  btbPredictionReg = _RAND_3[0:0];
+  btbHitReg = _RAND_3[0:0];
   _RAND_4 = {1{`RANDOM}};
-  btbTargetPredict = _RAND_4[31:0];
+  btbPredictionReg = _RAND_4[0:0];
+  _RAND_5 = {1{`RANDOM}};
+  btbTargetPredict = _RAND_5[31:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial

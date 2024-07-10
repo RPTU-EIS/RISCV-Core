@@ -1,0 +1,33 @@
+module property_checker (
+	input clock, 
+	input reset
+);
+
+
+`include "tidal.sv" 
+
+`begin_tda(ops)
+
+parameter NOP = 32'h00000013;
+
+    // Property Definition
+    property test;
+
+	t ## 0 IFpipe.instructionReg_instruction == NOP and
+	t ## 0 !IFpipe.io_stall
+
+    implies
+
+	t ## 1 IDpipe.immDataReg == 32'h0;
+
+    endproperty
+
+    // Assertion Statements
+    S2QED_assertion: assert property ( @(posedge top_MC.clock) disable iff(top_MC.reset) test);
+
+`end_tda
+
+endmodule
+
+// bind statement
+bind top_MC property_checker inst_property_checker(.*);

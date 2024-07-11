@@ -80,9 +80,33 @@ class IF(BinaryFile: String) extends Module
   io.btbHit := BTB.io.btbHit
   io.btbTargetPredict := BTB.io.targetAdr
 
+  when(io.branchMispredicted){  // Case of branch mispredicted, we realize that in EX stage
+    when(io.branchTaken){  // Branch Behavior is Taken, but Predicted Not-Taken
+      nextPC := io.branchAddr
+    }
+      .otherwise{
+        nextPC := io.PCplus4ExStage
+      }
+  }
+    .elsewhen(BTB.io.btbHit){  // BTB hits -> Choose nextPC as per the prediction
+      when(BTB.io.prediction){  // Predict taken
+        nextPC := BTB.io.targetAdr
+      }
+        .otherwise{ // Predict not taken
+          nextPC := PCplus4
+        }
+    }
+    .otherwise{ // Normal instruction OR assume not taken (BTB miss)
+      nextPC := PCplus4
+    }
   // Stall PC
-  when(io.stall){
-    PC := PC
+  when(io.stall){ // TODO here maybe stall all input signals
+    when(io.branchMispredicted) {
+      PC := nextPC
+    }.otherwise{
+      PC := PC
+    }
+
     //Fetch prev instruction -- Stalling the part of IF Barrier that holds the instruction
     //InstructionMemory.io.instructionAddress := io.IFBarrierPC
     InstructionMemory.io.instr_addr := io.IFBarrierPC
@@ -95,25 +119,25 @@ class IF(BinaryFile: String) extends Module
     PC := nextPC
   }
   //Mux for controlling which address to go to next
-  when(io.branchMispredicted){  // Case of branch mispredicted, we realize that in EX stage
-    when(io.branchTaken){  // Branch Behavior is Taken, but Predicted Not-Taken
-      nextPC := io.branchAddr
-    }
-    .otherwise{
-      nextPC := io.PCplus4ExStage
-    }
-  }
-  .elsewhen(BTB.io.btbHit){  // BTB hits -> Choose nextPC as per the prediction
-    when(BTB.io.prediction){  // Predict taken
-      nextPC := BTB.io.targetAdr
-    }
-    .otherwise{ // Predict not taken
-      nextPC := PCplus4
-    }
-  }
-  .otherwise{ // Normal instruction OR assume not taken (BTB miss)
-    nextPC := PCplus4
-  }
+//  when(io.branchMispredicted){  // Case of branch mispredicted, we realize that in EX stage
+//    when(io.branchTaken){  // Branch Behavior is Taken, but Predicted Not-Taken
+//      nextPC := io.branchAddr
+//    }
+//    .otherwise{
+//      nextPC := io.PCplus4ExStage
+//    }
+//  }
+//  .elsewhen(BTB.io.btbHit){  // BTB hits -> Choose nextPC as per the prediction
+//    when(BTB.io.prediction){  // Predict taken
+//      nextPC := BTB.io.targetAdr
+//    }
+//    .otherwise{ // Predict not taken
+//      nextPC := PCplus4
+//    }
+//  }
+//  .otherwise{ // Normal instruction OR assume not taken (BTB miss)
+//    nextPC := PCplus4
+//  }
   
   // Send PC to the rest of the pipeline
   io.PC := PC

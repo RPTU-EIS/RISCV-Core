@@ -65,7 +65,7 @@ Note that testHarness variables are only for testing purposes and are not necess
 
 ## Tools
 
-GTKWave can be used for debugging or to verify the results.
+GTKWave or [Surfer](https://app.surfer-project.org/) can be used for debugging or to verify the results.
 
 ## Structure
 
@@ -87,6 +87,6 @@ The .hex files are in a format that can be read into the memory of the processor
 
 Supervision and Organization: Tobias Jauch, Philipp Schmitz, Alex Wezel
 
-Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Abdullah Shaaban Saad Allam, Kamal Baghirli.
+Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Abdullah Shaaban Saad Allam, Kamal Baghirli, Andro Mazmishvili.
 
 [product-screenshot]: images/screenshot.png

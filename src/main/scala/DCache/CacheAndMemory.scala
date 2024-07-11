@@ -31,8 +31,9 @@ class CacheAndMemory extends Module{
       val busy = Output(Bool())
     }
   )
+
   val data_mem  = Module(new DataMemory)
-  val dcache  = Module(new DCache("src/main/scala/DCache/CacheContent.bin"))
+  val dcache = Module(new Cache("src/main/scala/DCache/CacheContent.bin", read_only = false))
 
   data_mem.testHarness.setup.setup := 0.B
   data_mem.testHarness.setup.dataIn := 0.U
@@ -40,9 +41,9 @@ class CacheAndMemory extends Module{
   data_mem.testHarness.setup.readEnable := 0.B
   data_mem.testHarness.setup.writeEnable := 0.B
 
-  dcache.io.data_in := io.write_data
+  dcache.io.data_in.foreach(_ := io.write_data)
   dcache.io.data_addr := io.address
-  dcache.io.write_en := io.write_en
+  dcache.io.write_en.foreach(_ := io.write_en)
   dcache.io.read_en := io.read_en
   io.valid := dcache.io.valid
   io.data_out := dcache.io.data_out

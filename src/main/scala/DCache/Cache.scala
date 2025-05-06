@@ -21,8 +21,12 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
     val mem_data_in = Output(UInt(32.W))
     val mem_data_addr = Output(UInt(32.W))
     val mem_data_out = Input(UInt(32.W))
-  })
 
+    //!added for  prefetcher
+    val hit = Input(Bool()) //is there a hit in a buffer
+    val prefData = Input(UInt(32.W)) //output from buffer
+    val miss = Output(Bool())
+  })
   val scalaReadOnlyBool = if(read_only) true.B else false.B
   val write_en_reg = RegInit(false.B)
   val read_en_reg = RegInit(false.B)
@@ -30,7 +34,7 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
   val data_in_reg = if (!read_only) Some(Reg(UInt(32.W))) else None
 
   val cacheLines = 64.U // cache lines as a variable
-  val idle :: compare :: writeback :: allocate :: Nil = Enum(4)
+  val idle :: compare :: writeback :: allocate :: prefHit:: Nil = Enum(5) //!added prefHit
   val stateReg = RegInit(idle)
   val index = Reg(UInt(6.W)) // stores the current cache index in a register to use in later states
   val data_element = Reg(UInt(58.W)) // stores the loaded cache element in a register to use in later states
@@ -43,6 +47,7 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
   io.data_out := 0.U
   io.valid := 0.B
   io.busy := (stateReg =/= idle)
+  io.miss := false.B//!
 
   io.mem_write_en := 0.B
   io.mem_read_en := 0.B
@@ -51,8 +56,10 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
 
   switch(stateReg) {
     is(idle) {
+      //printf(p"idle state\n")
       io.data_out := data_element(31, 0)
       when(io.read_en || io.write_en.getOrElse(false.B)) {
+        io.miss := true.B //!
         stateReg := compare
         write_en_reg := io.write_en.getOrElse(false.B)
         read_en_reg := io.read_en
@@ -63,6 +70,7 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
     }
 
     is(compare) {
+      //printf(p"compare state\n")
       index := (data_addr_reg / 4.U) % cacheLines
       data_element_wire := cache_data_array((data_addr_reg / 4.U) % cacheLines).asUInt
       data_element := data_element_wire
@@ -86,21 +94,33 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
           }
         }
       }.otherwise {
-        if(!read_only) {
-          when(data_element_wire(56) && data_element_wire(57)) {
-            stateReg := writeback
-          }.otherwise {
+        when(io.hit){
+            //printf(p"cache pref hit ${io.data_addr}\n")
+            io.valid := true.B
+            io.data_out := io.prefData
+            if(!read_only) { //TODO busy signal? // stall?? // only have  output in next state?
+              stateReg := prefHit
+            }
+            else{
+              stateReg := idle
+            }
+        }.otherwise{
+          if(!read_only) {
+            when(data_element_wire(56) && data_element_wire(57)) {
+              stateReg := writeback
+            }.otherwise {
+              stateReg := allocate
+            }
+          }
+          else {
             stateReg := allocate
           }
         }
-        else {
-          stateReg := allocate
-        }
-
       }
     }
 
     is(writeback) {
+      //printf(p"writeback state\n")
       io.mem_write_en := true.B
       io.mem_read_en := false.B
       val temp = Wire(Vec(32, Bool()))
@@ -115,6 +135,7 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
     }
 
     is(allocate) {
+      //printf(p"allocate state\n")
       when(statecount) {
         statecount := false.B
         io.mem_read_en := false.B
@@ -133,5 +154,35 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
         io.mem_data_addr := data_addr_reg
       }
     }
+    is(prefHit) {
+      //printf(p"prefHit state\n")
+      // Write the prefetched data into the cache
+      val temp = Wire(Vec(58, Bool()))
+      temp := 0.U(58.W).asBools
+
+      // Store the 32-bit data portion
+      for (i <- 0 until 32) {
+        temp(i) := io.prefData(i)
+      }
+
+      // Store the tag from address register
+      for (i <- 32 until 56) {
+        temp(i) := data_addr_reg(i - 24)
+      }
+
+      // Set status bits
+      temp(56) := false.B  // not dirty (was prefetched, not written)
+      temp(57) := true.B   // valid
+
+      // Store into cache
+      cache_data_array(index) := temp.asUInt
+
+      // Transition to the idle state
+      stateReg := idle
+    }
+
   }
+  //printf(p"hit prefetcher: ${io.hit}, data prefetcher: ${io.prefData}\n")
+  //printf(p"\n")
+  //printf(p"\n")
 }

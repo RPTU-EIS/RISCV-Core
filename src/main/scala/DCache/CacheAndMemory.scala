@@ -11,7 +11,7 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Ab
 
 package DCache
 
-import DataMemory.DataMemory
+import UnifiedMemory.UnifiedMemory
 import chisel3._
 import chisel3.util._
 import chisel3.experimental._
@@ -32,14 +32,14 @@ class CacheAndMemory extends Module{
     }
   )
 
-  val data_mem  = Module(new DataMemory)
+  val data_mem  = Module(new UnifiedMemory("src/main/scala/DataMemory/dataMemVals"))
   val dcache = Module(new Cache("src/main/scala/DCache/CacheContent.bin", read_only = false))
 
-  data_mem.testHarness.setup.setup := 0.B
-  data_mem.testHarness.setup.dataIn := 0.U
-  data_mem.testHarness.setup.dataAddress := 0.U
-  data_mem.testHarness.setup.readEnable := 0.B
-  data_mem.testHarness.setup.writeEnable := 0.B
+  data_mem.testHarness.dmemSetup.setup := 0.B
+  data_mem.testHarness.dmemSetup.dataIn := 0.U
+  data_mem.testHarness.dmemSetup.dataAddress := 0.U
+  data_mem.testHarness.dmemSetup.readEnable := 0.B
+  data_mem.testHarness.dmemSetup.writeEnable := 0.B
 
   dcache.io.data_in.foreach(_ := io.write_data)
   dcache.io.data_addr := io.address
@@ -49,9 +49,26 @@ class CacheAndMemory extends Module{
   io.data_out := dcache.io.data_out
   io.busy := dcache.io.busy
 
-  data_mem.io.writeEnable := dcache.io.mem_write_en
-  data_mem.io.readEnable := dcache.io.mem_read_en
+  data_mem.io.dataWriteEnable := dcache.io.mem_write_en
+  data_mem.io.dataReadEnable := dcache.io.mem_read_en
   data_mem.io.dataIn := dcache.io.mem_data_in
-  data_mem.io.dataAddress := dcache.io.mem_data_addr / 4.U
+  data_mem.io.dataAddr := dcache.io.mem_data_addr / 4.U
   dcache.io.mem_data_out := data_mem.io.dataOut
+
+
+  //TODO Change these
+  data_mem.testHarness.imemSetup.setup      := false.B
+  data_mem.testHarness.imemSetup.address    := 0.U
+  data_mem.testHarness.imemSetup.instruction := 0.U
+
+  data_mem.io.instAddr        := 0.U
+
+  data_mem.testHarness.requestedAddressIMEM := DontCare
+
+  data_mem.io.instOut := DontCare
+
+  //!
+  dcache.io.miss := DontCare
+  dcache.io.hit := false.B
+  dcache.io.prefData := DontCare
 }

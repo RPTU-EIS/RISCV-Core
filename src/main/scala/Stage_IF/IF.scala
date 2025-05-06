@@ -16,7 +16,7 @@ import chisel3._
 import chisel3.util._
 import config.{ControlSignals, IMEMsetupSignals, Inst, Instruction}
 import config.Inst._
-import InstructionMemory.InstructionMemory
+//!import InstructionMemory.InstructionMemory
 
 class IF(BinaryFile: String) extends Module
 {

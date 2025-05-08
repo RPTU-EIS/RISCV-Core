@@ -11,8 +11,9 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Ab
 
 package Stage_MEM
 
-import DCache.CacheAndMemory
+//!import DCache.CacheAndMemory
 //!import DataMemory.DataMemory
+import Cache.DICachesAndMemory
 import chisel3._
 import chisel3.util._
 import chisel3.experimental.{ChiselAnnotation, annotate}
@@ -41,7 +42,14 @@ class MEM(DataFile: String) extends Module {
 
 
   //val DMEM = Module(new DataMemory())
-  val DMEM = Module(new CacheAndMemory())
+  val DMEM = Module(new DICachesAndMemory(DataFile))//CacheAndMemory())//TODO DataFile is Instr!!!
+
+  //! Instruction part of Memory
+    DMEM.io.instr_addr := 0.U
+    DMEM.testHarness.setupSignals.setup      := false.B
+    DMEM.testHarness.setupSignals.address    := 0.U
+    DMEM.testHarness.setupSignals.instruction := 0.U
+
 
   //DMEM.testHarness.setup  := testHarness.DMEMsetup
   testHarness.DMEMpeek    := DMEM.io.data_out
@@ -54,7 +62,7 @@ class MEM(DataFile: String) extends Module {
   DMEM.io.read_en     := io.readEnable
   //Read data from DMEM
   io.dataOut          := DMEM.io.data_out
-  io.dataValid        := DMEM.io.valid
-  io.memBusy          := DMEM.io.busy
+  io.dataValid        := DMEM.io.DCACHEvalid
+  io.memBusy          := DMEM.io.DCACHEbusy
 
 }

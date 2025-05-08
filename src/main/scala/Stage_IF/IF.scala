@@ -11,7 +11,8 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Ab
 
 package Stage_IF
 
-import ICache.ICacheAndIMemory
+//!import ICache.ICacheAndIMemory
+import Cache.DICachesAndMemory
 import chisel3._
 import chisel3.util._
 import config.{ControlSignals, IMEMsetupSignals, Inst, Instruction}
@@ -49,7 +50,7 @@ class IF(BinaryFile: String) extends Module
   })
 
   // TODO change name for "InstructionMemory"
-  val InstructionMemory = Module(new ICacheAndIMemory(BinaryFile)) // it should be changed with ICacheAndMemory class
+  val InstructionMemory = Module(new DICachesAndMemory(BinaryFile))//ICacheAndIMemory(BinaryFile)) // it should be changed with ICacheAndMemory class
   val BTB               = Module(new BTB_direct)
   val nextPC            = WireInit(UInt(), 0.U)
   val PC                = RegInit(UInt(32.W), 0.U)
@@ -62,8 +63,17 @@ class IF(BinaryFile: String) extends Module
   testHarness.PC := InstructionMemory.testHarness.requestedAddress
 
   instruction := InstructionMemory.io.instr_out.asTypeOf(new Instruction)
-  io.fetchBusy := InstructionMemory.io.busy //InstructionMemory.io.busy
+  io.fetchBusy := InstructionMemory.io.ICACHEbusy //InstructionMemory.io.busy
 //  instruction := InstructionMemory.io.instruction.asTypeOf(new Instruction)
+
+  //! Data part of Memory to DontCare
+    InstructionMemory.io.write_data := 0.U
+    InstructionMemory.io.address := 0.U
+    InstructionMemory.io.write_en := false.B
+    InstructionMemory.io.read_en := false.B
+    // io.valid = Output(Bool())
+    // io.data_out = Output(UInt(32.W))
+
 
   // Adder to increment PC
   PCplus4 := PC + 4.U

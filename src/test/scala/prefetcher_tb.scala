@@ -4,10 +4,11 @@ import chisel3._
 import ICache._
 import chisel3.util._
 import chiseltest._
-import DCache.Cache
+//import DCache.Cache
 import org.scalatest.flatspec.AnyFlatSpec
 import scala.util.control.Breaks._
 //import RISCV_TOP._
+import Cache.DICachesAndMemory
 
 class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
   behavior of "IPrefetcher"
@@ -26,7 +27,7 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
   "fir_test no prefetcher" should "work" in {
     //test(new RISCV_TOP("src/test/programs/prefetch_test")).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
     //test(new Cache("src/test/programs/prefetch_test")).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
-    test(new ICacheAndIMemory("src/test/programs/prefetch_test", true)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
+    test(new DICachesAndMemory("src/test/programs/prefetch_test", true)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
       c.clock.setTimeout(0)
       var pc = 0
       var counter = 0
@@ -37,8 +38,8 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 
       breakable {
         for(i <- 0 until 1000) {
-          if(c.io.busy.peek().litToBoolean){
-            if(c.io.valid.peek().litToBoolean) {
+          if(c.io.ICACHEbusy.peek().litToBoolean){
+            if(c.io.ICACHEvalid.peek().litToBoolean) {
               instr_out = c.io.instr_out.peek().litValue
               test = (pc % 128)/4
               assert(instr_out == expectedValues(test).litValue, f"ADR ${test} PC ${pc}  failed: Expected 0x${expectedValues(test).litValue}%08x but got 0x${instr_out}%08x")
@@ -68,7 +69,7 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 
   "fir_test with prefetcher" should "work" in {
     //test(new RISCV_TOP("src/test/programs/prefetch_test")).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
-    test(new ICacheAndIMemory("src/test/programs/prefetch_test", false)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
+    test(new DICachesAndMemory("src/test/programs/prefetch_test", false)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
       c.clock.setTimeout(0)
       var pc = 0
       var counter = 0
@@ -80,8 +81,8 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 
       breakable {
         for(i <- 0 until 1000) {
-          if(c.io.busy.peek().litToBoolean){
-            if(c.io.valid.peek().litToBoolean) {
+          if(c.io.ICACHEbusy.peek().litToBoolean){
+            if(c.io.ICACHEvalid.peek().litToBoolean) {
               instr_out = c.io.instr_out.peek().litValue
               test = (pc % 128)/4
               assert(instr_out == expectedValues(test).litValue, f"ADR ${test} PC ${pc}  failed: Expected 0x${expectedValues(test).litValue}%08x but got 0x${instr_out}%08x")
@@ -112,7 +113,7 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 
   "linear_test no prefetcher" should "work" in {
     //test(new RISCV_TOP("src/test/programs/prefetch_test")).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
-      test(new ICacheAndIMemory("src/test/programs/prefetch_test", true)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
+      test(new DICachesAndMemory("src/test/programs/prefetch_test", true)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
       c.clock.setTimeout(0)
       var pc = 0
       var counter = 0
@@ -123,8 +124,8 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 
       breakable {
         for(i <- 0 until 1000) {
-          if(c.io.busy.peek().litToBoolean){
-            if(c.io.valid.peek().litToBoolean) {
+          if(c.io.ICACHEbusy.peek().litToBoolean){
+            if(c.io.ICACHEvalid.peek().litToBoolean) {
               instr_out = c.io.instr_out.peek().litValue
               test = (pc % 128)/4
               assert(instr_out == expectedValues(test).litValue, f"ADR ${test} PC ${pc}  failed: Expected 0x${expectedValues(test).litValue}%08x but got 0x${instr_out}%08x")
@@ -148,7 +149,7 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 
   "linear_test with prefetcher" should "work" in {
     //test(new RISCV_TOP("src/test/programs/prefetch_test")).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
-    test(new ICacheAndIMemory("src/test/programs/prefetch_test", false)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
+    test(new DICachesAndMemory("src/test/programs/prefetch_test", false)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
       c.clock.setTimeout(0)
       var pc = 0
       var counter = 0
@@ -159,8 +160,8 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 
       breakable {
         for(i <- 0 until 1000) {
-          if(c.io.busy.peek().litToBoolean){
-            if(c.io.valid.peek().litToBoolean) {
+          if(c.io.ICACHEbusy.peek().litToBoolean){
+            if(c.io.ICACHEvalid.peek().litToBoolean) {
               instr_out = c.io.instr_out.peek().litValue
               test = (pc % 128)/4
               assert(instr_out == expectedValues(test).litValue, f"ADR ${test} PC ${pc}  failed: Expected 0x${expectedValues(test).litValue}%08x but got 0x${instr_out}%08x")
@@ -184,7 +185,7 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 
   "worst_case_no" should "work" in {
     //test(new RISCV_TOP("src/test/programs/prefetch_test")).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
-    test(new ICacheAndIMemory("src/test/programs/prefetch_test", true)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
+    test(new DICachesAndMemory("src/test/programs/prefetch_test", true)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
       c.clock.setTimeout(0)
       var pc = 0
       var counter = 0
@@ -196,8 +197,8 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 
       breakable {
         for (i <- 0 until 1000) {
-          if (c.io.busy.peek().litToBoolean) {
-            if (c.io.valid.peek().litToBoolean) {
+          if (c.io.ICACHEbusy.peek().litToBoolean) {
+            if (c.io.ICACHEvalid.peek().litToBoolean) {
               counter += 1
               instr_out = c.io.instr_out.peek().litValue
               test = (pc % 128) / 4
@@ -219,7 +220,7 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 
   "worst_case_pref" should "work" in {
     //test(new RISCV_TOP("src/test/programs/prefetch_test")).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
-    test(new ICacheAndIMemory("src/test/programs/prefetch_test", false)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
+    test(new DICachesAndMemory("src/test/programs/prefetch_test", false)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
       c.clock.setTimeout(0)
       var pc = 0
       var counter = 0
@@ -230,8 +231,8 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
       var instr_out = c.io.instr_out.peek().litValue
       breakable {
       for (i <- 0 until 1000) {
-        if (c.io.busy.peek().litToBoolean) {
-          if (c.io.valid.peek().litToBoolean) {
+        if (c.io.ICACHEbusy.peek().litToBoolean) {
+          if (c.io.ICACHEvalid.peek().litToBoolean) {
             counter += 1
             instr_out = c.io.instr_out.peek().litValue
             test = (pc % 128) / 4

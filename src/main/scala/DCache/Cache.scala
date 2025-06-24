@@ -23,10 +23,6 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
     val mem_data_out = Input(UInt(32.W))
 
     val mem_granted = Input(Bool())
-
-    val hit = Input(Bool()) //is there a hit in a buffer
-    val prefData = Input(UInt(32.W)) //output from buffer
-    val miss = Output(Bool())
   })
   val scalaReadOnlyBool = if(read_only) true.B else false.B
   val write_en_reg = RegInit(false.B)
@@ -35,7 +31,7 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
   val data_in_reg = if (!read_only) Some(Reg(UInt(32.W))) else None
 
   val cacheLines = 64.U // cache lines as a variable
-  val idle :: writeback :: allocate :: prefHit:: Nil = Enum(4)
+  val idle :: writeback :: allocate :: Nil = Enum(3)
   val stateReg = RegInit(idle)
   val index = Reg(UInt(6.W)) // stores the current cache index in a register to use in later states
   val data_element = Reg(UInt(58.W)) // stores the loaded cache element in a register to use in later states
@@ -48,7 +44,6 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
   io.data_out := 0.U
   io.valid := 0.B
   io.busy := (stateReg =/= idle)
-  io.miss := false.B
 
   io.mem_write_en := 0.B
   io.mem_read_en := 0.B
@@ -76,7 +71,6 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
     is(idle) {
       when(io.read_en || io.write_en.getOrElse(false.B)) {
         compareWire := true.B
-        io.miss := true.B 
         write_en_wire := io.write_en.getOrElse(false.B)
         read_en_wire := io.read_en
         data_addr_reg := io.data_addr
@@ -142,17 +136,6 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
             }
           }
         }.otherwise {
-          when(io.hit){
-              
-              io.valid := true.B
-              io.data_out := io.prefData
-              if(!read_only) { 
-                stateReg := prefHit
-              }
-              else{
-                stateReg := idle
-              }
-          }.otherwise{
             if(!read_only) {
               when(data_element_wire(56) && data_element_wire(57)) {
                 stateReg := writeback
@@ -166,7 +149,6 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
               
               stateReg := allocate
             }
-          }
         }
       }
     }
@@ -217,32 +199,6 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
         }
 
       }
-    }
-    is(prefHit) {
-    
-      // Write the prefetched data into the cache
-      val temp = Wire(Vec(58, Bool()))
-      temp := 0.U(58.W).asBools
-
-      // Store the 32-bit data portion
-      for (i <- 0 until 32) {
-        temp(i) := io.prefData(i)
-      }
-
-      // Store the tag from address register
-      for (i <- 32 until 56) {
-        temp(i) := data_addr_reg(i - 24)
-      }
-
-      // Set status bits
-      temp(56) := false.B  // not dirty (was prefetched, not written)
-      temp(57) := true.B   // valid
-
-      // Store into cache
-      cache_data_array(index) := temp.asUInt
-
-      // Transition to the idle state
-      stateReg := idle
     }
 
   }

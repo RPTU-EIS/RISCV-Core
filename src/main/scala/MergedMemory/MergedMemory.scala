@@ -72,6 +72,7 @@ class UnifiedMemory(memFile: String) extends Module {
   }.otherwise{
   // Read from memory
     io.dataRead := memory(addrSource >> 2)
+    // printf(p"MEM io.dataRead: 0x${Hexadecimal(io.dataRead)}\n")
   }
 
 
@@ -84,6 +85,8 @@ class UnifiedMemory(memFile: String) extends Module {
   testHarness.testUpdatesDMEM.writeAddress := addrSource
 
   testHarness.requestedAddressIMEM := addrSource
+
+
 }
 
 

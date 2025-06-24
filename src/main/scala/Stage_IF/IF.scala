@@ -11,13 +11,10 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava, Ab
 
 package Stage_IF
 
-//!import ICache.ICacheAndIMemory
-import Cache.DICachesAndMemory
 import chisel3._
 import chisel3.util._
 import config.{ControlSignals, IMEMsetupSignals, Inst, Instruction}
 import config.Inst._
-//!import InstructionMemory.InstructionMemory
 
 class IF(BinaryFile: String) extends Module
 {
@@ -25,7 +22,6 @@ class IF(BinaryFile: String) extends Module
   val testHarness = IO(
     new Bundle {
       val InstructionMemorySetup = Input(new IMEMsetupSignals)
-      val PC        = Output(UInt())
     }
   )
 
@@ -46,11 +42,31 @@ class IF(BinaryFile: String) extends Module
     val btbTargetPredict   = Output(UInt(32.W))
     val PC                 = Output(UInt())
     val instruction        = Output(new Instruction)
-    val fetchBusy          = Output(Bool()) // added this signal for stall
-  })
+    //!val fetchBusy          = Output(Bool()) // added this signal for stall
 
-  // TODO change name for "InstructionMemory"
-  val InstructionMemory = Module(new DICachesAndMemory(BinaryFile))//ICacheAndIMemory(BinaryFile)) // it should be changed with ICacheAndMemory class
+    //!from Memory
+    val instructionICache        = Input(new Instruction)
+    val memoryPCin                = Input(UInt(32.W))
+    val ICACHEvalid        = Input(Bool())
+
+    //! Added for Loop_Test_0
+    val branchToDo      = Output(Bool())
+    val instr_addr   = Output(UInt(32.W))
+  })
+  val oldPC = RegInit(0.U(32.W))
+  val next = RegInit(false.B)
+  val branchAddress = RegInit(0.U(32.W))
+  val branchToDo = RegInit(false.B)
+
+  when(io.branchTaken){
+    branchToDo := true.B
+    branchAddress := io.branchAddr
+  }
+
+  val bufferPC                = RegInit(UInt(32.W), 0.U)
+  val firstFetch            = RegInit(true.B)
+  
+
   val BTB               = Module(new BTB_direct)
   val nextPC            = WireInit(UInt(), 0.U)
   val PC                = RegInit(UInt(32.W), 0.U)
@@ -58,21 +74,8 @@ class IF(BinaryFile: String) extends Module
   val instruction       = Wire(new Instruction)
   val branch            = WireInit(Bool(), false.B)
 
-  // i commented those two lines and I question even if they are necessary TODO
-  InstructionMemory.testHarness.setupSignals := testHarness.InstructionMemorySetup
-  testHarness.PC := InstructionMemory.testHarness.requestedAddress
 
-  instruction := InstructionMemory.io.instr_out.asTypeOf(new Instruction)
-  io.fetchBusy := InstructionMemory.io.ICACHEbusy //InstructionMemory.io.busy
-//  instruction := InstructionMemory.io.instruction.asTypeOf(new Instruction)
-
-  //! Data part of Memory to DontCare
-    InstructionMemory.io.write_data := 0.U
-    InstructionMemory.io.address := 0.U
-    InstructionMemory.io.write_en := false.B
-    InstructionMemory.io.read_en := false.B
-    // io.valid = Output(Bool())
-    // io.data_out = Output(UInt(32.W))
+  instruction := io.instructionICache.asTypeOf(new Instruction)
 
 
   // Adder to increment PC
@@ -93,6 +96,7 @@ class IF(BinaryFile: String) extends Module
   when(io.branchMispredicted){  // Case of branch mispredicted, we realize that in EX stage
     when(io.branchTaken){  // Branch Behavior is Taken, but Predicted Not-Taken
       nextPC := io.branchAddr
+      // printf(p"IF mispredict branch taken nextPC:${io.branchAddr}\n")
     }
       .otherwise{
         nextPC := io.PCplus4ExStage
@@ -101,16 +105,20 @@ class IF(BinaryFile: String) extends Module
     .elsewhen(BTB.io.btbHit){  // BTB hits -> Choose nextPC as per the prediction
       when(BTB.io.prediction){  // Predict taken
         nextPC := BTB.io.targetAdr
+        // printf(p"IF predict branch taken nextPC:${BTB.io.targetAdr}\n")
       }
         .otherwise{ // Predict not taken
           nextPC := PCplus4
+          // printf(p"IF predict branch not taken nextPC:${PCplus4}\n")
         }
     }
     .otherwise{ // Normal instruction OR assume not taken (BTB miss)
       nextPC := PCplus4
+      // printf(p"IF normal instr nextPC:${PCplus4}\n")
     }
   // Stall PC
   when(io.stall){ // TODO here maybe stall all input signals
+    // printf(p"IF stalled\n")
     when(io.branchMispredicted) {
       PC := nextPC
     }.otherwise{
@@ -118,39 +126,47 @@ class IF(BinaryFile: String) extends Module
     }
 
     //Fetch prev instruction -- Stalling the part of IF Barrier that holds the instruction
-    //InstructionMemory.io.instructionAddress := io.IFBarrierPC
-    InstructionMemory.io.instr_addr := io.IFBarrierPC
+    io.instr_addr := io.IFBarrierPC
+
+  }.elsewhen(firstFetch){
+    io.instr_addr := PCplus4
+    PC := PCplus4
+    bufferPC := PCplus4
+    firstFetch := false.B
 
   }.otherwise{
     //Fetch instruction
-//    InstructionMemory.io.instructionAddress := PC
-    InstructionMemory.io.instr_addr := PC
+    io.instr_addr := PC
     // PC register gets nextPC
-    PC := nextPC
+    //PC := nextPC
+    //!bufferPC := nextPC
+    PC := nextPC//!bufferPC
+    // printf(p"IF nextPC after fetch\n")
   }
-  //Mux for controlling which address to go to next
-//  when(io.branchMispredicted){  // Case of branch mispredicted, we realize that in EX stage
-//    when(io.branchTaken){  // Branch Behavior is Taken, but Predicted Not-Taken
-//      nextPC := io.branchAddr
-//    }
-//    .otherwise{
-//      nextPC := io.PCplus4ExStage
-//    }
-//  }
-//  .elsewhen(BTB.io.btbHit){  // BTB hits -> Choose nextPC as per the prediction
-//    when(BTB.io.prediction){  // Predict taken
-//      nextPC := BTB.io.targetAdr
-//    }
-//    .otherwise{ // Predict not taken
-//      nextPC := PCplus4
-//    }
-//  }
-//  .otherwise{ // Normal instruction OR assume not taken (BTB miss)
-//    nextPC := PCplus4
-//  }
   
+
+  //! Added for Loop_Test_0
+  // printf(p"IF io.memoryPCin: ${io.memoryPCin}, branchAddress: ${branchAddress}, io.ICACHEvalid: ${io.ICACHEvalid}, branchToDo: ${branchToDo}\n")
+  when(io.memoryPCin === branchAddress && io.ICACHEvalid && branchToDo){
+    branchToDo := false.B
+    // printf(p"IF branchToDo to false\n")
+  }
+  io.branchToDo := branchToDo
+  // when(io.ICACHEvalid){
+  //   next := true.B
+  //   // printf(p"IF next\n")
+  // }.otherwise{
+  //   next := false.B
+  // }
+  // when(next){
+  //   oldPC := PC
+  //   // printf(p"IF next PC ${PC}\n")
+  // }
+
   // Send PC to the rest of the pipeline
+  // printf(p"IF io.PC:${io.PC}, nextPC:${nextPC}\n")
   io.PC := PC
+  // io.PC := oldPC
 
   io.instruction := instruction
 
@@ -158,4 +174,10 @@ class IF(BinaryFile: String) extends Module
     PC := 0.U
     instruction := Inst.NOP
   }
+
+    // printf(p"\n")
+  // printf(p"\n")
+  // printf(p"\n")
+  // printf(p"\n")
+  // printf(p"\n")
 }

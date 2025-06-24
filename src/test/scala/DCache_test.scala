@@ -7,7 +7,7 @@ import DCache.{Cache, DCache}
 
 class DCache_test extends AnyFlatSpec with ChiselScalatestTester {
   behavior of "DCache"
-  println("\n\n\n\n DCache_test doesnt work because only cache is tested")
+  println("\n\n\n\n DCache_test doesnt work because only cache is tested and mem was merged")
   println("->only works when connected to Arbiter etc")
   println("currently commented out\n\n\n\n")
   // "read hit" should "pass" in {

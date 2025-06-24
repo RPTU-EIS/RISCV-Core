@@ -31,6 +31,10 @@ class IFpipe extends Module
       val outBTBTargetPredict = Output(UInt(32.W))
       val outCurrentPC        = Output(UInt(32.W))
       val outInstruction      = Output(new Instruction)
+
+      //! Added for Loop_Test_0
+      val branchAddr = Input(UInt(32.W))
+      val branchTaken = Input(Bool())
     }
   )
 
@@ -55,6 +59,21 @@ class IFpipe extends Module
   io.outBTBPrediction    := btbPredictionReg
   io.outBTBTargetPredict := btbTargetPredict
 
+  //! Added for Loop_Test_0
+  when(io.flush){
+    instructionReg := Inst.NOP
+  }
+  when(io.branchTaken){
+    io.outCurrentPC := io.branchAddr
+    currentPCReg := io.branchAddr
+  }.otherwise{
+    io.outCurrentPC := currentPCReg
+  }
+
+
+
+
+
   // Flush, Stall, or Propagate Instruction
   when(flushDelayed === 1.U){
     io.outInstruction := Inst.NOP
@@ -63,7 +82,9 @@ class IFpipe extends Module
     io.outInstruction := instructionReg
   }
 
-  // Propagate PC
-  io.outCurrentPC := currentPCReg   
+
+
+  // // Propagate PC
+  // io.outCurrentPC := currentPCReg   
 
 }

@@ -11,13 +11,18 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava
 
 package top_MC
 
+import Cache.DICachesAndMemory
+import config.{ControlSignals, IMEMsetupSignals, Inst, Instruction}
+import config.Inst._
+
+
 import chisel3._
 import chisel3.util._
 import Piplined_RISC_V._
 import Stage_ID.ID
 import Stage_IF.IF
 import Stage_EX.EX
-import Stage_MEM.MEM
+// import Stage_MEM.MEM
 import HazardUnit.HazardUnit
 import config.{MemUpdates, RegisterUpdates, SetupSignals, TestReadouts}
 
@@ -43,24 +48,27 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   val IF  = Module(new IF(BinaryFile))
   val ID  = Module(new ID)
   val EX  = Module(new EX)
-  val MEM = Module(new MEM(DataFile))
+  // val MEM = Module(new MEM(DataFile)) //TODO change to same file as IF -> merged mem
   val writeBackData = Wire(UInt())
+
+  //! Instantiate memory here to avoid double instantiation in IF and MEM stages respectively
+  val Memory  = Module(new DICachesAndMemory(BinaryFile))
 
   // Hazard Unit
   val HzdUnit = Module(new HazardUnit)
 
 
-  IF.testHarness.InstructionMemorySetup := testHarness.setupSignals.IMEMsignals
+  IF.testHarness.InstructionMemorySetup := testHarness.setupSignals.IMEMsignals //! still used in IF
   ID.testHarness.registerSetup          := testHarness.setupSignals.registerSignals
-  MEM.testHarness.DMEMsetup             := testHarness.setupSignals.DMEMsignals
+  //!MEM.testHarness.DMEMsetup             := testHarness.setupSignals.DMEMsignals
 
   testHarness.testReadouts.registerRead := ID.testHarness.registerPeek
-  testHarness.testReadouts.DMEMread     := MEM.testHarness.DMEMpeek
-
+  //!testHarness.testReadouts.DMEMread     := MEM.testHarness.DMEMpeek
+  testHarness.testReadouts.DMEMread  := Memory.io.data_out
 
   testHarness.regUpdates                := ID.testHarness.testUpdates
-  testHarness.memUpdates                := MEM.testHarness.testUpdates
-  testHarness.currentPC                 := IF.testHarness.PC
+  testHarness.memUpdates                := 0.U.asTypeOf(new MemUpdates) //MEM.testHarness.testUpdates
+  //! not used in IF    testHarness.currentPC                 := IF.testHarness.PC 
 
 
   // Fetch Stage
@@ -94,7 +102,7 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   IDBarrier.inBranchType       := ID.io.branchType
   IDBarrier.inPC               := IFBarrier.outCurrentPC
   IDBarrier.flush              := HzdUnit.io.flushE
-  IDBarrier.stall              := HzdUnit.io.stall_membusy
+  IDBarrier.stall              := HzdUnit.io.stall_membusy || HzdUnit.io.stall //!
   IDBarrier.inOp1Select        := ID.io.op1Select
   IDBarrier.inOp2Select        := ID.io.op2Select
   IDBarrier.inImmData          := ID.io.immData
@@ -138,7 +146,7 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   HzdUnit.io.wrongAddrPred      := EX.io.wrongAddrPred
   HzdUnit.io.btbPrediction      := IDBarrier.outBTBPrediction
   HzdUnit.io.branchType         := IDBarrier.outBranchType
-  HzdUnit.io.membusy            := MEM.io.memBusy || IF.io.fetchBusy // TODO changed memBusy signal
+  HzdUnit.io.membusy            := Memory.io.DCACHEbusy || Memory.io.ICACHEbusy//!MEM.io.memBusy || IF.io.fetchBusy // TODO changed memBusy signal
 
   //Signals to EXBarrier
   EXBarrier.inALUResult       := EX.io.ALUResult
@@ -148,16 +156,16 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   EXBarrier.stall             := HzdUnit.io.stall_membusy
 
   //MEM stage
-  MEM.io.dataIn               := EXBarrier.outRs2
-  MEM.io.dataAddress          := EXBarrier.outALUResult
-  MEM.io.writeEnable          := EXBarrier.outControlSignals.memWrite
-  MEM.io.readEnable           := EXBarrier.outControlSignals.memRead
+  // MEM.io.dataIn               := EXBarrier.outRs2
+  // MEM.io.dataAddress          := EXBarrier.outALUResult
+  // MEM.io.writeEnable          := EXBarrier.outControlSignals.memWrite
+  // MEM.io.readEnable           := EXBarrier.outControlSignals.memRead
 
   //MEMBarrier
   MEMBarrier.inControlSignals := EXBarrier.outControlSignals
   MEMBarrier.inALUResult      := EXBarrier.outALUResult
   MEMBarrier.inRd             := EXBarrier.outRd
-  MEMBarrier.inMEMData        := MEM.io.dataOut
+  // MEMBarrier.inMEMData        := MEM.io.dataOut
   MEMBarrier.stall            := HzdUnit.io.stall_membusy
 
   // MEM stage
@@ -169,4 +177,77 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   }
 
   ID.io.registerWriteData := writeBackData
+
+
+  //! Added for Loop_Test_0
+  IFBarrier.branchAddr        := EX.io.branchTarget
+  IFBarrier.branchTaken       := EX.io.branchTaken
+  HzdUnit.io.branchToDo       := IF.io.branchToDo
+
+
+
+
+
+  //IF.io.fetchBusy  := Memory.io.ICACHEbusy //!error cant drive from child module to child module
+  // val icacheBusy = Memory.io.ICACHEbusy
+  // IF.io.fetchBusy := icacheBusy
+
+  //!Memory signals
+  IF.io.instructionICache := Memory.io.instr_out.asTypeOf(new Instruction)
+  IF.io.memoryPCin := Memory.io.pcOut
+  IF.io.ICACHEvalid := Memory.io.ICACHEvalid
+
+
+   //DMEM
+  Memory.io.write_data  := EXBarrier.outRs2
+  Memory.io.address     := EXBarrier.outALUResult
+  Memory.io.write_en    := EXBarrier.outControlSignals.memWrite
+  Memory.io.read_en     := EXBarrier.outControlSignals.memRead
+
+
+  //!
+  Memory.io.flushed := HzdUnit.io.flushD
+
+
+
+  //Read data from DMEM
+  MEMBarrier.inMEMData          := Memory.io.data_out
+
+
+
+  Memory.io.instr_addr := IF.io.PC//instr_addr
+
+  Memory.testHarness.setupSignals := testHarness.setupSignals.IMEMsignals
+  testHarness.currentPC                 := Memory.testHarness.requestedAddress
+
+
+
+
+
+  //! Added for debugging of program flow
+  printf(p"------------------------------------IF------------------------------------\n")
+  printf(p"PC: ${IF.io.PC}, instruction: 0x${Hexadecimal(IF.io.instruction.asUInt)}, branchTaken: ${IF.io.branchTaken}, branchAddr: ${IF.io.branchAddr}\n")
+
+  printf(p"------------------------------------IFBarrier------------------------------------\n")
+  printf(p"outPC: ${IFBarrier.outCurrentPC}, instruction: 0x${Hexadecimal(IFBarrier.outInstruction.asUInt)}, stall: ${IFBarrier.stall}, flush: ${IFBarrier.flush}\n")
+
+  printf(p"------------------------------------ID------------------------------------\n")
+  printf(p"instruction: 0x${Hexadecimal(ID.io.instruction.asUInt)}\n")
+
+  printf(p"------------------------------------IDBarrier------------------------------------\n")
+  printf(p"outPC: ${IDBarrier.outPC}, instruction: 0x${Hexadecimal(IDBarrier.outInstruction.asUInt)}, stall: ${IDBarrier.stall}, flush: ${IDBarrier.flush}\n")
+
+  printf(p"------------------------------------EX------------------------------------\n")
+  printf(p"PC: ${EX.io.PC}, instruction: 0x${Hexadecimal(EX.io.instruction.asUInt)}, ALUResult: ${EX.io.ALUResult}\n")
+
+  printf(p"------------------------------------EXBarrier------------------------------------\n")
+  printf(p"stall: ${EXBarrier.stall}, outALUResult: ${EXBarrier.outALUResult}\n")
+
+  printf(p"------------------------------------HzdUnit------------------------------------\n")
+  printf(p"stall: ${HzdUnit.io.stall}, stall_membusy: ${HzdUnit.io.stall_membusy}, flushD: ${HzdUnit.io.flushD}, flushE: ${HzdUnit.io.flushE}, branchTaken: ${HzdUnit.io.branchTaken}, branchToDo: ${HzdUnit.io.branchToDo},\n")
+
+  printf(p"\n")
+  printf(p"\n")
+  
+
 }

@@ -37,8 +37,15 @@ val io = IO(new Bundle {
 
   })
 
+
+
+  io.dataRead := 0.U
+  io.grantData := false.B
+  io.grantInst := false.B
+
+
   //TODO maybe also cache and prefetch connections here????
-  val mem  = Module(new UnifiedMemory("src/main/scala/DataMemory/dataMemVals"))
+  val mem  = Module(new UnifiedMemory(memFile))
 
   //default inputs for memory module
   mem.io.addr := 0.U
@@ -67,5 +74,6 @@ val io = IO(new Bundle {
   mem.testHarness.imemSetup := testHarness.setupSignals
   testHarness.requestedAddress := mem.testHarness.requestedAddressIMEM
 
-
+  // printf(p"Arbiter Instr: iAddr: ${io.iAddr}, iReq: ${io.iReq}, grantInst: ${io.grantInst}, dataRead: 0x${Hexadecimal(io.dataRead)}, memdataRead: 0x${Hexadecimal(mem.io.dataRead)}\n")
+  // printf(p"Arbiter Data:  dAddr: ${io.dAddr}, dReq: ${io.dReq}, grantData: ${io.grantData}, dataRead: 0x${Hexadecimal(io.dataRead)}, memdataRead: 0x${Hexadecimal(mem.io.dataRead)}\n")
 }

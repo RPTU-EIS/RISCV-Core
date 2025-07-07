@@ -59,8 +59,21 @@ class DICachesAndMemory (I_memoryFile: String, cacheOnly : Boolean = true) exten
   val dcache = Module(new Cache("src/main/scala/DCache/CacheContent.bin", read_only = false))
   val icache = Module(new ICache("src/main/scala/ICache/ICacheContent.bin"))
   
-  val ipref = Module(new Prefetcher(I_memoryFile, true)) //!cacheOnly))
+  val ipref = Module(new Prefetcher) //!cacheOnly))
   
+  //Prefetcher signals
+  ipref.io.missAddress :=   io.instr_addr
+  ipref.io.cacheBusy   :=   icache.io.busy
+  ipref.io.miss        :=   icache.io.miss
+  icache.io.hit        :=   ipref.io.hit
+  icache.io.prefData   :=   ipref.io.result
+
+  ipref.io.mem_instr := arbiter.io.dataRead
+  ipref.io.grantData := arbiter.io.grantData
+  arbiter.io.pref_addr := ipref.io.mem_addr
+
+
+
   //! Added for Loop_Test_0
   io.pcOut := icache.io.pcOut
 
@@ -75,12 +88,11 @@ class DICachesAndMemory (I_memoryFile: String, cacheOnly : Boolean = true) exten
   arbiter.io.dAddr := dcache.io.mem_data_addr
   arbiter.io.dData := dcache.io.mem_data_in
   arbiter.io.dWrite := dcache.io.mem_write_en
-  arbiter.io.dReq := dcache.io.mem_read_en || dcache.io.mem_write_en
+  arbiter.io.dReq := false.B//!dcache.io.mem_read_en || dcache.io.mem_write_en
   //Outputs
   dcache.io.mem_data_out := arbiter.io.dataRead
   dcache.io.mem_granted:= arbiter.io.grantData
   icache.io.mem_data_out := arbiter.io.dataRead
-  icache.io.mem_granted:= arbiter.io.grantInst
 
   //xxxxxxxxxxx
   //Data
@@ -95,14 +107,6 @@ class DICachesAndMemory (I_memoryFile: String, cacheOnly : Boolean = true) exten
 
   //xxxxxxxxxxx
   //Instruction
-          //Prefetcher signals
-  ipref.io.missAddress :=   io.instr_addr
-  ipref.io.cacheBusy   :=   icache.io.busy
-  ipref.io.miss        :=   icache.io.miss
-  icache.io.hit        :=   ipref.io.hit
-  icache.io.prefData   :=   ipref.io.result
-
-
   icache.io.read_en := true.B // Always reading for instruction cache
   icache.io.data_addr := io.instr_addr
   io.ICACHEvalid := icache.io.valid
@@ -115,5 +119,6 @@ class DICachesAndMemory (I_memoryFile: String, cacheOnly : Boolean = true) exten
 
 
    // printf(p"MEM icache.io.data_addr: ${icache.io.data_addr}, icache.io.data_out: 0x${Hexadecimal(icache.io.data_out.asUInt)}\n")
+  //  printf(p"MEM io.instr_addr: ${io.instr_addr}\n")
 
 }

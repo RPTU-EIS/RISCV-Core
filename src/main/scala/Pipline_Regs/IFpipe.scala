@@ -35,6 +35,8 @@ class IFpipe extends Module
       //! Added for Loop_Test_0
       val branchAddr = Input(UInt(32.W))
       val branchTaken = Input(Bool())
+      val branchMispredicted = Input(Bool())
+  
     }
   )
 
@@ -63,7 +65,7 @@ class IFpipe extends Module
   when(io.flush){
     instructionReg := Inst.NOP
   }
-  when(io.branchTaken){
+  when(io.branchTaken && io.branchMispredicted){
     io.outCurrentPC := io.branchAddr
     currentPCReg := io.branchAddr
   }.otherwise{
@@ -75,7 +77,7 @@ class IFpipe extends Module
 
 
   // Flush, Stall, or Propagate Instruction
-  when(flushDelayed === 1.U){
+  when(io.flush){//!flushDelayed === 1.U){
     io.outInstruction := Inst.NOP
   }
   .otherwise{
@@ -86,5 +88,6 @@ class IFpipe extends Module
 
   // // Propagate PC
   // io.outCurrentPC := currentPCReg   
+
 
 }

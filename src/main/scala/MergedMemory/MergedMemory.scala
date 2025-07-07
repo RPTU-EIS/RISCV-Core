@@ -78,6 +78,7 @@ class UnifiedMemory(memFile: String) extends Module {
 
 
 
+
   // Test harness outputs
   testHarness.testUpdatesDMEM.writeEnable  := writeEnable
   testHarness.testUpdatesDMEM.readEnable   := readEnable

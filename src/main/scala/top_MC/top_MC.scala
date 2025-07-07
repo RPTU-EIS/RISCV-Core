@@ -11,6 +11,8 @@ Student Workers: Giorgi Solomnishvili, Zahra Jenab Mahabadi, Tsotne Karchava
 
 package top_MC
 
+import Prefetcher.Prefetcher
+
 import Cache.DICachesAndMemory
 import config.{ControlSignals, IMEMsetupSignals, Inst, Instruction}
 import config.Inst._
@@ -221,10 +223,21 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   testHarness.currentPC                 := Memory.testHarness.requestedAddress
 
 
+  IFBarrier.branchMispredicted := HzdUnit.io.branchMispredicted
 
 
 
+// when(IF.io.instruction.asUInt =/= 0.U){
   //! Added for debugging of program flow
+  printf(p"\n")
+  printf(p"\n")
+  
+    printf(p"------------------------------------------------------------------------\n")
+    printf(p"PC: ${IF.io.PC}, instruction: 0x${Hexadecimal(IF.io.instruction.asUInt)}\n")
+  
+  
+
+
   printf(p"------------------------------------IF------------------------------------\n")
   printf(p"PC: ${IF.io.PC}, instruction: 0x${Hexadecimal(IF.io.instruction.asUInt)}, branchTaken: ${IF.io.branchTaken}, branchAddr: ${IF.io.branchAddr}\n")
 
@@ -246,8 +259,8 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
   printf(p"------------------------------------HzdUnit------------------------------------\n")
   printf(p"stall: ${HzdUnit.io.stall}, stall_membusy: ${HzdUnit.io.stall_membusy}, flushD: ${HzdUnit.io.flushD}, flushE: ${HzdUnit.io.flushE}, branchTaken: ${HzdUnit.io.branchTaken}, branchToDo: ${HzdUnit.io.branchToDo},\n")
 
-  printf(p"\n")
-  printf(p"\n")
-  
+  printf(p"------------------------------------BTB------------------------------------\n")
+  printf(p"IF.io.btbHit: ${IF.io.btbHit}, IDBarrier.inBTBHit: ${IDBarrier.inBTBHit}, EX.io.btbHit: ${EX.io.btbHit}\n")
+  // }
 
 }

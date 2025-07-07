@@ -32,7 +32,9 @@ val io = IO(new Bundle {
   //Outputs
   val dataRead = Output(UInt(32.W)) //data from mem to send to caches
   val grantData = Output(Bool())        //is data for D cache from mem valid
-  val grantInst = Output(Bool())        //is data for I cache from mem valid
+
+  //!Prefetcher
+  val pref_addr = Input(UInt(32.W))
 
 
   })
@@ -41,10 +43,7 @@ val io = IO(new Bundle {
 
   io.dataRead := 0.U
   io.grantData := false.B
-  io.grantInst := false.B
 
-
-  //TODO maybe also cache and prefetch connections here????
   val mem  = Module(new UnifiedMemory(memFile))
 
   //default inputs for memory module
@@ -59,10 +58,21 @@ val io = IO(new Bundle {
   mem.io.write := Mux(io.dReq, io.dWrite, false.B) // set write if data cache requests write
   mem.io.wdata := Mux(io.dReq, io.dData, 0.U) //set data to write
 
+when(io.dReq){// Data first
+  mem.io.req := io.dReq
+  mem.io.addr := io.dAddr
+  mem.io.write := io.dWrite
+  mem.io.wdata := io.dData
+}.otherwise{// IPref last
+  mem.io.req := true.B
+  mem.io.addr := io.pref_addr
+  mem.io.write := false.B
+  mem.io.wdata := 0.U
+}
+
   //set outputs to caches
   io.dataRead := mem.io.dataRead
   io.grantData := io.dReq
-  io.grantInst := !io.dReq && io.iReq
 
 
   //test harness //TODO
@@ -74,6 +84,12 @@ val io = IO(new Bundle {
   mem.testHarness.imemSetup := testHarness.setupSignals
   testHarness.requestedAddress := mem.testHarness.requestedAddressIMEM
 
-  // printf(p"Arbiter Instr: iAddr: ${io.iAddr}, iReq: ${io.iReq}, grantInst: ${io.grantInst}, dataRead: 0x${Hexadecimal(io.dataRead)}, memdataRead: 0x${Hexadecimal(mem.io.dataRead)}\n")
-  // printf(p"Arbiter Data:  dAddr: ${io.dAddr}, dReq: ${io.dReq}, grantData: ${io.grantData}, dataRead: 0x${Hexadecimal(io.dataRead)}, memdataRead: 0x${Hexadecimal(mem.io.dataRead)}\n")
+  when(io.grantData){
+    // printf(p"Arbiter Data:  dAddr: ${io.dAddr}, dReq: ${io.dReq}, grantData: ${io.grantData}, dataRead: 0x${Hexadecimal(io.dataRead)}, memdataRead: 0x${Hexadecimal(mem.io.dataRead)}\n")
+    
+  }.otherwise{
+    // printf(p"Arbiter Pref: prefAddr: ${io.pref_addr}, !grantData: ${!io.grantData}, dataRead: 0x${Hexadecimal(io.dataRead)}, memdataRead: 0x${Hexadecimal(mem.io.dataRead)}\n")
+   
+  }
+    
 }

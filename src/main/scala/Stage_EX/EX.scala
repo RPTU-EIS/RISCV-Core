@@ -119,7 +119,7 @@ class EX extends Module {
   io.branchTaken   := ResolveBranch.branchTaken // Branch taken or not in sequential program flow?
   io.wrongAddrPred := io.btbHit && (ALU.aluRes =/= io.btbTargetPredict) // hit but target addr in BTB was incorrect
   io.branchTarget  := ALU.aluRes  // calculated branch target
-  
+  // printf(p"EX io.wrongAddrPred: ${io.wrongAddrPred}, io.btbHit: ${io.btbHit}, ALU.aluRes: ${ALU.aluRes}, io.btbTargetPredict: ${io.btbTargetPredict}\n")
 
   //assert((ALU.aluRes === io.btbTargetPredict),"BTB hit, but predicted branch target doesn't match!")
 
@@ -140,6 +140,7 @@ class EX extends Module {
     }otherwise{ // In case of BTB hit (we already know this branch), tell IF to change prediction FSM
       io.newBranch        := false.B
       io.updatePrediction := true.B
+      io.branchTarget := io.btbTargetPredict//!
     }
   }.otherwise{
     io.newBranch        := false.B

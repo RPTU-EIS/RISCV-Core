@@ -46,10 +46,12 @@ class RISCV_TOP(BinaryFile: String = "src/test/programs/beq_test", DataFile: Str
       val memDeviceWriteAddress     = Output(UInt(32.W))
 
 
-
+      
+      val DMEMWriteDataOut          = Output(UInt(32.W))
+      val DMEMWriteEnableOut        = Output(Bool())
 
     })
-
+    
   val top_MC = Module(new top_MC(BinaryFile, DataFile)).testHarness
 
   io.PC := top_MC.currentPC
@@ -81,4 +83,9 @@ class RISCV_TOP(BinaryFile: String = "src/test/programs/beq_test", DataFile: Str
   io.memDeviceWriteEnable   := top_MC.memUpdates.writeEnable
   io.memDeviceWriteData     := top_MC.memUpdates.writeData
 
+
+
+  //!
+  io.DMEMWriteDataOut := io.DMEMWriteData
+  io.DMEMWriteEnableOut := io.DMEMWriteEnable
 }

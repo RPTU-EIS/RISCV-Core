@@ -52,13 +52,15 @@ class IF(BinaryFile: String) extends Module
     //! Added for Loop_Test_0
     val branchToDo      = Output(Bool())
     val instr_addr   = Output(UInt(32.W))
+
+
   })
   val oldPC = RegInit(0.U(32.W))
   val next = RegInit(false.B)
   val branchAddress = RegInit(0.U(32.W))
   val branchToDo = RegInit(false.B)
 
-  when(io.branchTaken){
+  when(io.branchTaken && io.branchMispredicted){
     branchToDo := true.B
     branchAddress := io.branchAddr
   }
@@ -102,10 +104,10 @@ class IF(BinaryFile: String) extends Module
         nextPC := io.PCplus4ExStage
       }
   }
-    .elsewhen(BTB.io.btbHit){  // BTB hits -> Choose nextPC as per the prediction
+  .elsewhen(BTB.io.btbHit){  // BTB hits -> Choose nextPC as per the prediction
       when(BTB.io.prediction){  // Predict taken
         nextPC := BTB.io.targetAdr
-        // printf(p"IF predict branch taken nextPC:${BTB.io.targetAdr}\n")
+        printf(p"IF predict branch taken nextPC:${BTB.io.targetAdr}\n")
       }
         .otherwise{ // Predict not taken
           nextPC := PCplus4
@@ -150,6 +152,10 @@ class IF(BinaryFile: String) extends Module
   when(io.memoryPCin === branchAddress && io.ICACHEvalid && branchToDo){
     branchToDo := false.B
     // printf(p"IF branchToDo to false\n")
+  }.otherwise{
+    printf(p"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxIFxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n")
+    printf(p"IF io.memoryPCin: ${io.memoryPCin}, branchAddress: ${branchAddress}, io.ICACHEvalid: ${io.ICACHEvalid}, branchToDo: ${branchToDo}\n")
+    printf(p"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n")
   }
   io.branchToDo := branchToDo
   // when(io.ICACHEvalid){

@@ -64,6 +64,8 @@ class ALU extends Module {
 
     is(INC_4){ io.aluRes := io.src1 + 4.U}      // PC increment
     is(COPY_B){ io.aluRes := io.src2}           //Pass B
+
+    is(LUI){ io.aluRes := (0.U + io.src2)}      // LUI
     is(DC){ io.aluRes := io.src1 - io.src2}
 
   }

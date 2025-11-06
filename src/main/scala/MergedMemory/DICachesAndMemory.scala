@@ -53,7 +53,6 @@ class DICachesAndMemory (I_memoryFile: String, cacheOnly : Boolean = true) exten
     }
   )
 
-
   //Modules
   val arbiter  = Module(new MemArbiter(I_memoryFile))
   val dcache = Module(new Cache("src/main/scala/DCache/CacheContent.bin", read_only = false))
@@ -117,8 +116,5 @@ class DICachesAndMemory (I_memoryFile: String, cacheOnly : Boolean = true) exten
   arbiter.testHarness.setupSignals := testHarness.setupSignals
   testHarness.requestedAddress := arbiter.testHarness.requestedAddress
 
-
-   // printf(p"MEM icache.io.data_addr: ${icache.io.data_addr}, icache.io.data_out: 0x${Hexadecimal(icache.io.data_out.asUInt)}\n")
-  //  printf(p"MEM io.instr_addr: ${io.instr_addr}\n")
 
 }

@@ -57,12 +57,12 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
   //         c.io.instr_addr.poke((pc).U)
 
   //         if (pc >155*4) {
-  //           println(f"fir_test ohne prefetcher BREAK at i: ${i}, counter: ${counter},--------------------------\n\n\n\n")
+  //           //println(f"fir_test ohne prefetcher BREAK at i: ${i}, counter: ${counter},--------------------------\n\n\n\n")
   //           break()  // Exit the loop early
   //         }
   //         c.clock.step(1)
   //       }
-  //       println(f"fir_test ohne prefetcher ENDE at i: 1000, counter: ${counter},--------------------------\n\n\n\n")
+  //       //println(f"fir_test ohne prefetcher ENDE at i: 1000, counter: ${counter},--------------------------\n\n\n\n")
   //     }
   //   }
   // }
@@ -82,44 +82,44 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 
       breakable {
         for(i <- 0 until 1000) {
-          // println(s"\n")
-          // println(s"\n")
-          // println(s"\n")
+          // //println(s"\n")
+          // //println(s"\n")
+          // //println(s"\n")
           //if(c.io.ICACHEbusy.peek().litToBoolean){
-            //println(s"tb ICACHEbusy\n")
+            ////println(s"tb ICACHEbusy\n")
             if(c.io.ICACHEvalid.peek().litToBoolean) {
-              // println(s"tb ICACHEvalid")
+              // //println(s"tb ICACHEvalid")
               instr_out = c.io.instr_out.peek().litValue
               test = (pc % 128)/4
 
-              // println(f"tb instr: 0x$instr_out%08x")
+              // //println(f"tb instr: 0x$instr_out%08x")
 
               assert(instr_out == expectedValues(test).litValue, f"ADR ${test} PC ${pc}  failed: Expected 0x${expectedValues(test).litValue}%08x but got 0x${instr_out}%08x")
               if(pc == 24 || pc == 68 || pc == 112 || pc == 156 || pc == 200 || pc == 244 ||
                 pc == 288 || pc == 332 || pc == 376 || pc == 420 || pc == 464 ||
                 pc == 508 || pc == 552 || pc == 596){
                 pc += 20
-                // println(s"pc tb + 20: ${pc}")
+                // //println(s"pc tb + 20: ${pc}")
               }
               else{
                 pc += 4
-                // println(s"pc new tb: ${pc}")
+                // //println(s"pc new tb: ${pc}")
               }
               counter += 1
             }
           //}
           c.io.instr_addr.poke((pc).U)
-          // println(s"tb next cycle ${pc}-------------------------")
+          // //println(s"tb next cycle ${pc}-------------------------")
 
-          ////println(s"pc tb: ${pc},-------------------------\n")
+          //////println(s"pc tb: ${pc},-------------------------\n")
 
           if (pc >155*4) {
-            println(f"fir_test mit prefetcher BREAK at i: ${i}, counter: ${counter},--------------------------\n\n\n\n")
+            //println(f"fir_test mit prefetcher BREAK at i: ${i}, counter: ${counter},--------------------------\n\n\n\n")
             break()  // Exit the loop early
           }
           c.clock.step(1)
         }
-        println(s"fir_test mit prefetcher ENDE at i: 1000, counter: ${counter},-------------------------\n\n\n\n")
+        //println(s"fir_test mit prefetcher ENDE at i: 1000, counter: ${counter},-------------------------\n\n\n\n")
       }
     }
   }
@@ -150,12 +150,12 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 //   //         c.io.instr_addr.poke((pc).U)
 
 //   //         if (pc > 180*4) {
-//   //           println(s"linear_test_no BREAK at i: $i, counter: ${counter},--------------------------------\n\n\n\n")
+//   //           //println(s"linear_test_no BREAK at i: $i, counter: ${counter},--------------------------------\n\n\n\n")
 //   //           break()  // Exit the loop early
 //   //         }
 //   //         c.clock.step(1)
 //   //       }
-//   //       println(s"linear_test_no ENDE at i: 1000, counter: ${counter},-----------------------------\n\n\n\n")
+//   //       //println(s"linear_test_no ENDE at i: 1000, counter: ${counter},-----------------------------\n\n\n\n")
 //   //     }
 //   //   }
 //   // }
@@ -186,12 +186,12 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 
 
           if (pc > 180*4) {
-            println(s"linear_test_pref BREAK at i: $i, counter: ${counter},--------------------------------\n\n\n\n")
+            //println(s"linear_test_pref BREAK at i: $i, counter: ${counter},--------------------------------\n\n\n\n")
             break()  // Exit the loop early
           }
           c.clock.step(1)
         }
-        println(s"linear_test_pref ENDE at i: 1000, counter: ${counter},-----------------------------\n\n\n\n")
+        //println(s"linear_test_pref ENDE at i: 1000, counter: ${counter},-----------------------------\n\n\n\n")
       }
     }
   }
@@ -220,13 +220,13 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
 //   //           }
 //   //         }
 //   //         if (pc > 720) {
-//   //           println(s"worst_case_no BREAK i=${i}, counter: ${counter}-----------------------------------------\n")
+//   //           //println(s"worst_case_no BREAK i=${i}, counter: ${counter}-----------------------------------------\n")
 //   //           break() // Exit the loop early
 //   //         }
 //   //         c.io.instr_addr.poke((pc).U)
 //   //         c.clock.step(1)
 //   //       }
-//   //       println(s"worst_case_no ENDE i=1000, counter: ${counter}-----------------------------------------\n")
+//   //       //println(s"worst_case_no ENDE i=1000, counter: ${counter}-----------------------------------------\n")
 //   //     }
 //   //   }
 //   // }
@@ -253,13 +253,13 @@ class IPrefetcher_test extends AnyFlatSpec with ChiselScalatestTester {
             pc = pc + 8 //next in prefetcher would be +4
           }
         if(pc > 720){
-          println(s"worst_case_pref BREAK i=${i}, counter: ${counter}-----------------------------------------\n")
+          //println(s"worst_case_pref BREAK i=${i}, counter: ${counter}-----------------------------------------\n")
           break()  // Exit the loop early
         }
         c.io.instr_addr.poke((pc).U)
         c.clock.step(1)
       }
-      println(s"worst_case_pref ENDE i=1000, counter: ${counter}-----------------------------------------\n")
+      //println(s"worst_case_pref ENDE i=1000, counter: ${counter}-----------------------------------------\n")
       }
     }
    }

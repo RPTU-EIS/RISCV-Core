@@ -48,6 +48,7 @@ class ID extends Module
 
       val readData1            = Output(UInt())
       val readData2            = Output(UInt())
+
     }
   )
 
@@ -125,11 +126,13 @@ class ID extends Module
   //Set immData
   immData := MuxLookup(io.immType, 0.S(32.W), ImmOpMap)
 
+
   //Sign extend immdata
   when(decoder.ALUop === ALUOps.LUI){
       io.readData1 := 0.U(32.W)
       io.immData := immData.asUInt
-      io.ALUop   := ALUOps.ADD
+      //io.ALUop   := ALUOps.ADD
+  //printf(p"ID instruction: 0x${Hexadecimal(io.instruction.asUInt)}, LUI readData1: 0x${Hexadecimal(io.readData1.asUInt)}, immData: 0x${Hexadecimal(immData.asUInt)}\n")
   }.otherwise{
       io.immData := Cat(Fill(16, immData(15)), immData(15,0)).asUInt
   }

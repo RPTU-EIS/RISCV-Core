@@ -69,14 +69,11 @@ class UnifiedMemory(memFile: String) extends Module {
   // Write to memory
   when(writeEnable) {
     memory(addrSource >> 2) := wdataSource
+    
   }.otherwise{
   // Read from memory
     io.dataRead := memory(addrSource >> 2)
-    // printf(p"MEM io.dataRead: 0x${Hexadecimal(io.dataRead)}\n")
   }
-
-
-
 
 
   // Test harness outputs

@@ -61,8 +61,12 @@ class IDpipe extends Module
       //Output from register - registers signals
       val outReadData1      = Output(UInt(32.W))
       val outReadData2      = Output(UInt(32.W))
+
+
     }
   )
+
+
 
   //Decoder signal registers
   val instructionReg        = RegEnable(io.inInstruction, !io.stall) //**

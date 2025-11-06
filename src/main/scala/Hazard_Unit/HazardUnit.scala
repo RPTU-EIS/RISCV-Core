@@ -44,18 +44,20 @@ class HazardUnit extends Module
         val branchToDo           = Input(Bool())
 
 
+
+
     }
   )
 
   val stall       = Wire(Bool())
-  //val stall_membusy = Wire(Bool())
+
 
 // Forwarding Unit
   // Handling source register 1
   when((io.rs1AddrIDB =/= 0.U) && (io.rs1AddrIDB === io.rdAddrEXB) && io.controlSignalsEXB.regWrite){
     // Normal forward 
     io.rs1Select  := 1.asUInt(2.W)  // Forward from EX/MEM pipeline register (EX Barrier)
-  }
+  }  
   .elsewhen((io.rs1AddrIDB =/= 0.U) && (io.rs1AddrIDB === io.rdAddrMEMB) && io.controlSignalsMEMB.regWrite){
     io.rs1Select  := 2.asUInt(2.W)  // Forward from MEM/WB pipeline register (MEM Barrier)
   }
@@ -84,9 +86,6 @@ class HazardUnit extends Module
          && io.controlSignalsEXB.regWrite 
          && io.controlSignalsEXB.memToReg) {  
     stall := true.B
-  // }.elsewhen( io.branchToDo){//!branchToDo || io.branchToDo){
-  //   stall := true.B
-    // // printf(p"HzdUnit branchToDo: ${branchToDo}, io.branchToDo: ${io.branchToDo}\n")
   }.otherwise{
     stall := false.B
   }
@@ -98,18 +97,16 @@ class HazardUnit extends Module
   // *NOTE*: If io.branchType = DC, this means the branch/jump instruction currently in EX is invalid (flushed!) --> correcting misprediction is invalid too!
 
   io.stall    := stall || io.membusy
+  
 
   when((io.branchTaken =/= io.btbPrediction &&  io.branchType =/= branch_types.DC) || io.wrongAddrPred){
     io.branchMispredicted := 1.B
-    // printf(p"HZD io.branchTaken: ${io.branchTaken}, io.btbPrediction: ${io.btbPrediction}, io.wrongAddrPred: ${io.wrongAddrPred}\n")
+   
   }
   .otherwise{
     io.branchMispredicted := 0.B
   }
   io.flushD   := io.branchMispredicted
   io.flushE   := io.branchMispredicted//!io.stall | io.branchMispredicted
-  //io.flushE   := io.stall | io.branchMispredicted | io.stall_membusy
-  // printf(p"----------------------------------------------\n")
-  // printf(p"Hazard Unit io.stall: ${io.stall}, stall: ${stall}, io.membusy: ${io.membusy}\n")
 
 }

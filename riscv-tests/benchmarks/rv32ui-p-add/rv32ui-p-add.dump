@@ -1,5 +1,5 @@
 
-rv32ui-p-add:     file format elf32-littleriscv
+/import/lab/users/neukirch/Desktop/RISCV-Core/riscv-tests/benchmarks/rv32ui-p-add/rv32ui-p-add:     file format elf32-littleriscv
 
 
 Disassembly of section .text.init:
@@ -474,4 +474,4 @@ Disassembly of section .text.init:
 800005f0:	00000073          	ecall
 800005f4:	c0001073          	unimp
 800005f8:	0000                	.2byte	0x0
-800005fa:	0000                	.2byte	0x0
+	...

@@ -10,9 +10,10 @@ import java.sql.Driver
 class main_tb extends AnyFlatSpec with ChiselScalatestTester {
 
   "main_tb" should "pass" in {
-    test(new RISCV_TOP("src/test/programs/test0")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-
-      for(i <- 0 until 200){
+    //test(new RISCV_TOP("src/test/programs/test0")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+    test(new RISCV_TOP("src/main/resources/mem.hex")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      dut.clock.setTimeout(0)
+      for(i <- 0 until 1130){
         dut.clock.step()
       }
 

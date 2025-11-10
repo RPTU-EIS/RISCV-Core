@@ -73,17 +73,14 @@ class EX extends Module {
   when(io.rs1Select === 1.asUInt(2.W)){
     alu_operand1         := io.ALUresultEXB
     ResolveBranch.src1   := io.ALUresultEXB
-//printf(p"EX alu_operand1 is io.ALUresultEXB 0x${Hexadecimal(io.ALUresultEXB)}\n")
   }
   .elsewhen(io.rs1Select === 2.asUInt(2.W)){
     alu_operand1         := io.ALUresultMEMB
     ResolveBranch.src1   := io.ALUresultMEMB
-//printf(p"EX alu_operand1 is io.ALUresultMEMB 0x${Hexadecimal(io.ALUresultMEMB)}\n")
   }
   .otherwise{
     alu_operand1         := io.rs1
     ResolveBranch.src1   := io.rs1
-//printf(p"EX alu_operand1 is io.rs1 0x${Hexadecimal(io.rs1)}\n")
   }
 
 
@@ -102,18 +99,14 @@ class EX extends Module {
     //Operand 1, 2nd Mux
   when(io.op1Select === op1sel.PC){
   ALU.src1    := io.PC
-  //printf(p"EX Operand 1 is io.PC 0x${Hexadecimal(io.PC)}\n")
   }.otherwise{
     ALU.src1    := alu_operand1
-  //printf(p"EX Operand 1 is alu_operand1 0x${Hexadecimal(alu_operand1)}\n")
   }
     //Operand 2, 2nd Mux
   when(io.op2Select === op2sel.rs2){
     ALU.src2    := alu_operand2
-//printf(p"EX Operand 2 is alu_operand2 0x${Hexadecimal(alu_operand2)}\n")
   }.otherwise{
     ALU.src2    := io.immData
-//printf(p"EX Operand 2 is io.immData 0x${Hexadecimal(io.immData)}\n")
   }
 
 
@@ -129,8 +122,7 @@ class EX extends Module {
   io.branchTaken   := ResolveBranch.branchTaken // Branch taken or not in sequential program flow?
   io.wrongAddrPred := io.btbHit && (ALU.aluRes =/= io.btbTargetPredict) // hit but target addr in BTB was incorrect
   io.branchTarget  := ALU.aluRes  // calculated branch target
-  // printf(p"EX io.wrongAddrPred: ${io.wrongAddrPred}, io.btbHit: ${io.btbHit}, ALU.aluRes: ${ALU.aluRes}, io.btbTargetPredict: ${io.btbTargetPredict}\n")
-
+  
   //assert((ALU.aluRes === io.btbTargetPredict),"BTB hit, but predicted branch target doesn't match!")
 
   io.Rs2Forwarded := alu_operand2

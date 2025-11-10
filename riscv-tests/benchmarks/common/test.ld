@@ -12,8 +12,8 @@
    specifically one of the entires in bfd/cpu-mips.c */
 
 OUTPUT_ARCH( "riscv" )
-//ENTRY(_start)
-ENTRY(test_2)
+ENTRY(_start)
+//ENTRY(test_2)
 
 /*----------------------------------------------------------------------*/
 /* Sections                                                             */

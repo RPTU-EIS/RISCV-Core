@@ -78,8 +78,6 @@ class HazardUnit extends Module
   }
 
 
-  //! Added for Loop_Test_0
-  //!val branchToDo = RegInit(false.B)
 // Stalling for Load
   when(  (io.rs1AddrIFB =/= 0.U || io.rs2AddrIFB =/= 0.U) 
          && (io.rs1AddrIFB === io.rdAddrIDB || io.rs2AddrIFB === io.rdAddrIDB) 
@@ -96,7 +94,7 @@ class HazardUnit extends Module
   // Outputs: Data Hazard -> stall ID & IF stages, and Flush EX stage (Load) ___ Control Hazard -> flush ID & EX stages (Branch Taken)
   // *NOTE*: If io.branchType = DC, this means the branch/jump instruction currently in EX is invalid (flushed!) --> correcting misprediction is invalid too!
 
-  io.stall    := stall || io.membusy
+  io.stall    := stall //!|| io.membusy
   
 
   when((io.branchTaken =/= io.btbPrediction &&  io.branchType =/= branch_types.DC) || io.wrongAddrPred){
@@ -107,6 +105,6 @@ class HazardUnit extends Module
     io.branchMispredicted := 0.B
   }
   io.flushD   := io.branchMispredicted
-  io.flushE   := io.branchMispredicted//!io.stall | io.branchMispredicted
+  io.flushE   := io.stall | io.branchMispredicted //!io.branchMispredicted
 
 }

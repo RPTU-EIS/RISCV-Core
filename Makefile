@@ -42,6 +42,7 @@ clean:
 
 
 run-binary-debug:
+	@echo "--------------------Change mem entry in IF.scala line 76--------------------"
 	@echo "Convert ELF to binary"
 	$(RISCV)objcopy -O binary $(BINARY) $(BINARY_NOEXT).bin
 

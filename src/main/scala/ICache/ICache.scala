@@ -28,7 +28,11 @@ import firrtl.annotations.MemoryLoadFileType
     val pcOut = Output(UInt(32.W))
     val flushed = Input(Bool())
 
+    val prefAddr = Input(UInt(32.W))
+
   })
+
+  
   io.pcOut := io.data_addr
   val flushed = RegInit(false.B)
   when(io.flushed){
@@ -70,93 +74,78 @@ import firrtl.annotations.MemoryLoadFileType
 
   val prefValue = RegInit(0.U(32.W))
 
-
+val prefAddr = RegInit(0.U(32.W))
 switch(stateReg) {
   
   is(idle) {
-      
-
-      //set to busy
+      //printf(p"CACHE IDLE address: ${(io.data_addr / 4.U) + 1.U}\n")
+      io.miss := true.B 
       io.busy := true.B
-      
-      // set to compare in this state
-      compareWire := true.B
 
       data_addr_reg := io.data_addr
-      data_addr_wire := io.data_addr
 
-      io.miss := true.B 
-
-      when(compareReg){
-        data_addr_wire := data_addr_reg
-        data_element_wire := cache_data_array(index).asUInt
-      }.otherwise{
-        data_element_wire := cache_data_array((data_addr_wire / 4.U) % cacheLines).asUInt
-      }
-      
-      compareReg := false.B
       index := (io.data_addr / 4.U) % cacheLines
+      data_element_wire := cache_data_array((io.data_addr / 4.U) % cacheLines).asUInt
       
       data_element := data_element_wire
 
-      when(data_element_wire(57) && (data_element_wire(55, 32).asUInt === data_addr_wire(31, 8).asUInt)) {
-          
+      when(data_element_wire(55, 32).asUInt === io.data_addr(31, 8).asUInt) {
+        //printf(p"CACHE IDLE HIT instruction: 0x${Hexadecimal(data_element_wire(31, 0))}\n")
         stateReg := idle
         io.valid := true.B
+        io.busy := false.B
           
         io.data_out := data_element_wire(31, 0)
 
-        io.busy := false.B
-
       }.otherwise {
         when(io.hit){
+          //printf(p"CACHE IDLE PREF HIT instruction: 0x${Hexadecimal(io.prefData)}\n")
             prefValue := io.prefData
+            prefAddr  := io.prefAddr
             stateReg := prefHit
-        }.otherwise{  
-               
+        }.otherwise{ 
+          //printf(p"CACHE IDLE TO ALLOCATE for pref address: ${(io.prefAddr / 4.U) + 1.U} and data_address: ${(io.data_addr / 4.U) + 1.U}\n") 
           stateReg := allocate
         }
       }
   }
 
     is(allocate) {
+        //printf(p"CACHE ALLOCATE\n")
       io.busy := true.B
       io.miss := true.B 
       when(io.hit) {
+          //printf(p"CACHE ALLOCATE HIT instruction: 0x${Hexadecimal(io.prefData)} at ${(io.prefAddr / 4.U) + 1.U}\n")
+
+          val temp = Wire(Vec(58, Bool()))
+          temp := 0.U(58.W).asBools
+
+          // Store the 32-bit data portion
+          for (i <- 0 until 32) {
+            temp(i) := io.prefData(i)
+          }
+
+          // Store the tag from address register
+          for (i <- 32 until 56) {
+            temp(i) := io.prefAddr(i-24)
+          }
+
+          // Store into cache
+          cache_data_array((io.prefAddr / 4.U) % cacheLines) := temp.asUInt
           
-      val temp = Wire(Vec(58, Bool()))
-      temp := 0.U(58.W).asBools
 
-      // Store the 32-bit data portion
-      for (i <- 0 until 32) {
-        temp(i) := io.prefData(i)
+          // Transition to the idle state
+          stateReg := idle
+          
+            when(flushed){
+                data_addr_reg := io.prefAddr//!io.data_addr
+                flushed := false.B
+                data_element := cache_data_array((io.prefAddr / 4.U) % cacheLines).asUInt
+              }
       }
-
-      // Store the tag from address register
-      for (i <- 32 until 56) {
-        temp(i) := data_addr_reg(i - 24)
-      }
-
-      // Set status bits
-      temp(56) := false.B  // not dirty (was prefetched, not written)
-      temp(57) := true.B   // valid
-
-      // Store into cache
-      cache_data_array(index) := temp.asUInt
-        
-      // Transition to the idle state
-      stateReg := idle
-      
-        when(flushed){
-          data_addr_reg := io.data_addr
-          flushed := false.B
-          data_element := cache_data_array((io.data_addr / 4.U) % cacheLines).asUInt
-             }
-      }
-      compareReg := true.B
     }
     is(prefHit) {
-      compareReg := true.B
+        //printf(p"CACHE PREFHIT\n")
       io.busy := true.B
     
       // Write the prefetched data into the cache
@@ -170,25 +159,23 @@ switch(stateReg) {
 
       // Store the tag from address register
       for (i <- 32 until 56) {
-        temp(i) := data_addr_reg(i - 24)
+        temp(i) := prefAddr(i-24)
       }
 
-      // Set status bits
-      temp(56) := false.B  // not dirty (was prefetched, not written)
-      temp(57) := true.B   // valid
-
       // Store into cache
-      cache_data_array((data_addr_reg / 4.U) % cacheLines) := temp.asUInt
-      index := (io.data_addr / 4.U) % cacheLines
+      cache_data_array((prefAddr / 4.U) % cacheLines) := temp.asUInt
+      index := cache_data_array((prefAddr / 4.U) % cacheLines) 
+
         // Transition to the idle state
       stateReg := idle
 
       when(flushed){
-          data_addr_reg := io.data_addr
+          data_addr_reg := prefAddr
           flushed := false.B
-          data_element := cache_data_array((io.data_addr / 4.U) % cacheLines).asUInt
-            }
+          data_element := cache_data_array((prefAddr / 4.U) % cacheLines).asUInt
+          }
     }
 
   }
+
 }

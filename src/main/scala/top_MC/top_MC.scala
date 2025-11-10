@@ -230,8 +230,8 @@ class top_MC(BinaryFile: String, DataFile: String) extends Module {
 
 
     //! Added for debugging
-  printf(p"\n")
   //printf(p"\n")
+  printf(p"\n")
   
   //printf(p"------------------------------------------------------------------------\n")
   //printf(p"PC: ${IF.io.PC}, instruction: 0x${Hexadecimal(IF.io.instruction.asUInt)}\n")

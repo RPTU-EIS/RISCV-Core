@@ -1,5 +1,5 @@
 
-/import/lab/users/neukirch/Desktop/RISCV-Core/riscv-tests/benchmarks/rv32ui-p-add/rv32ui-p-add:     file format elf32-littleriscv
+/import/lab/users/neukirch/Desktop/RISCV-Core/riscv-tests/benchmarks/standard/rv32ui-p-add/rv32ui-p-add:     file format elf32-littleriscv
 
 
 Disassembly of section .text.init:

@@ -72,7 +72,8 @@ class IF(BinaryFile: String) extends Module
   val BTB               = Module(new BTB_direct)
   val nextPC            = WireInit(UInt(), 0.U)
   //!val PC                = RegInit(UInt(32.W), 0.U)
-  val PC                = RegInit(UInt(32.W), 244.U)
+  //TODO Change here to skip priviledged instructions
+  val PC                = RegInit(UInt(32.W), 252.U) //add -> 244, beq -> 252, bge -> 252, bgeu -> 252, blt -> 252, bltu -> 252, bne -> 252
   val PCplus4           = Wire(UInt(32.W))
   val instruction       = Wire(new Instruction)
   val branch            = WireInit(Bool(), false.B)
@@ -99,7 +100,7 @@ class IF(BinaryFile: String) extends Module
   when(io.branchMispredicted){  // Case of branch mispredicted, we realize that in EX stage
     when(io.branchTaken){  // Branch Behavior is Taken, but Predicted Not-Taken
       nextPC := io.branchAddr
-     //  printf(p"IF mispredict branch taken nextPC:${io.branchAddr}\n")
+    //printf(p"IF mispredict branch taken nextPC: ${(io.branchAddr / 4.U) + 1.U}, instruction: 0x${Hexadecimal(io.instructionICache.asUInt)}\n")
     }
       .otherwise{
         nextPC := io.PCplus4ExStage
@@ -108,23 +109,24 @@ class IF(BinaryFile: String) extends Module
   .elsewhen(BTB.io.btbHit){  // BTB hits -> Choose nextPC as per the prediction
       when(BTB.io.prediction){  // Predict taken
         nextPC := BTB.io.targetAdr
-    //  printf(p"IF predict branch taken nextPC:${BTB.io.targetAdr}\n")
+      //printf(p"IF predict branch taken nextPC:${(BTB.io.targetAdr/ 4.U) + 1.U}\n")
       }
         .otherwise{ // Predict not taken
           nextPC := PCplus4
-         //  printf(p"IF predict branch not taken nextPC:${PCplus4}\n")
+         //printf(p"IF predict branch not taken nextPC:${(PCplus4/ 4.U) + 1.U}\n")
         }
     }
     .otherwise{ // Normal instruction OR assume not taken (BTB miss)
       nextPC := PCplus4
-     //  printf(p"IF normal instr nextPC:${PCplus4}\n")
+     //printf(p"IF normal instr nextPC:${(PCplus4/ 4.U) + 1.U}\n")
     }
   // Stall PC
   when(io.stall){ // TODO here maybe stall all input signals
-   //  printf(p"IF stalled\n")
     when(io.branchMispredicted) {
+      //printf(p"IF stalled mispredict: ${(nextPC / 4.U) + 1.U}\n")
       PC := nextPC
     }.otherwise{
+      //printf(p"IF stalled PC=PC: ${(PC / 4.U) + 1.U}\n")
       PC := PC
     }
 
@@ -144,7 +146,7 @@ class IF(BinaryFile: String) extends Module
     //PC := nextPC
     //!bufferPC := nextPC
     PC := nextPC//!bufferPC
-   //  printf(p"IF nextPC after fetch\n")
+   //printf(p"IF nextPC after fetch\n")
   }
   
 
@@ -159,17 +161,7 @@ class IF(BinaryFile: String) extends Module
   //printf(p"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n")
   }
   io.branchToDo := branchToDo
-  // when(io.ICACHEvalid){
-  //   next := true.B
-  //   // printf(p"IF next\n")
-  // }.otherwise{
-  //   next := false.B
-  // }
-  // when(next){
-  //   oldPC := PC
-  //   // printf(p"IF next PC ${PC}\n")
-  // }
-
+  
   // Send PC to the rest of the pipeline
   // printf(p"IF io.PC:${io.PC}, nextPC:${nextPC}\n")
   io.PC := PC
@@ -181,10 +173,8 @@ class IF(BinaryFile: String) extends Module
     PC := 0.U
     instruction := Inst.NOP
   }
-  //  printf(p"IF io.PC: ${io.PC}, io.instruction: 0x${Hexadecimal(io.instruction.asUInt)}\n")
-    // printf(p"\n")
-  // printf(p"\n")
-  // printf(p"\n")
-  // printf(p"\n")
-  // printf(p"\n")
+
+  //printf(p"IF io.instr_addr: ${(io.instr_addr / 4.U) + 1.U}, instruction: 0x${Hexadecimal(io.instruction.asUInt)}\n")
+  //printf(p"IF io.PC: ${io.PC}, io.instruction: 0x${Hexadecimal(io.instruction.asUInt)}\n")
+
 }

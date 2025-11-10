@@ -12,6 +12,7 @@ class Prefetcher extends Module {
     val cacheBusy = Input(Bool()) //is cache working on something
     val hit = Output(Bool()) //show that there was a hit in a buffer
     val result = Output(UInt(32.W)) //output of instruction at the requested address
+    val outputAddress = Output(UInt(32.W)) //output of instruction at the requested address
     val miss = Input(Bool()) 
 
 
@@ -24,6 +25,7 @@ class Prefetcher extends Module {
 
   //! Memory Connections standard values
   io.mem_addr := io.missAddress - 4.U
+  io.outputAddress := io.missAddress
 
   //amount and depth of buffers, adjusted according to needs or tests
   val depth = 6
@@ -54,7 +56,7 @@ class Prefetcher extends Module {
   io.result := 0.U
 
   //setup finite state machine
-  val waitMiss :: compare :: fetch :: flush :: Nil = Enum(4)
+  val waitMiss :: compare :: empty :: fetch :: flush :: Nil = Enum(5)
   val state = RegInit(waitMiss)
 
   //register to save the next adress to fetch
@@ -78,39 +80,31 @@ class Prefetcher extends Module {
 
   val missFetch = RegInit(false.B)
 
-  val currentEnqueue = Wire(UInt(32.W))
+  val currentEnqueue = Wire(UInt(32.W)) //TODO Maybe unnecessary
   currentEnqueue := 0.U
 
 
   val missPrev = RegNext(io.miss, false.B)
-  val missEdge = io.miss// && !missPrev
+  val missEdge = io.miss// && !missPrev //TODO
 
-  //printf(p"buffer0: ${(buffer(0).head / 4.U) + 1.U}, buffer1: ${(buffer(1).head/ 4.U) + 1.U}, buffer2: ${(buffer(2).head/ 4.U) + 1.U}, buffer3: ${(buffer(3).head/ 4.U) + 1.U}\n")
-  //printf(p"nextAddr(0): ${(nextAddress(0) / 4.U) + 1.U}, nextAddr(1): ${(nextAddress(1) / 4.U) + 1.U}, nextAddr(2): ${(nextAddress(2) / 4.U) + 1.U}, nextAddr(3): ${(nextAddress(3) / 4.U) + 1.U}\n")
+  val fetchedAddress = RegInit(0.U(32.W))
+  val flushCycle = RegInit(false.B)
+  //!
+  //TODO
+  //! change the addresses where to save into from missAddress/nextAddress to fetchedAddress
+  //TODO
+  //!
 
+    //printf(p"buffer0: ${(buffer(0).head / 4.U) + 1.U}, buffer1: ${(buffer(1).head/ 4.U) + 1.U}, buffer2: ${(buffer(2).head/ 4.U) + 1.U}, buffer3: ${(buffer(3).head/ 4.U) + 1.U}\n")
+    //printf(p"nextAddr(0): ${(nextAddress(0) / 4.U) + 1.U}, nextAddr(1): ${(nextAddress(1) / 4.U) + 1.U}, nextAddr(2): ${(nextAddress(2) / 4.U) + 1.U}, nextAddr(3): ${(nextAddress(3) / 4.U) + 1.U}\n")
+    //printf(p"missEdge: ${io.miss}, missAddress: ${(io.missAddress / 4.U) + 1.U}\n")
 switch(state) {
 
     is(waitMiss) {
+      flushCycle := false.B
+      //printf(p"STATE WAITMISS, fetchedAddress: ${(fetchedAddress / 4.U) + 1.U}\n")
       when(missEdge === true.B) {//TODO io.miss === true.B) {//wait until miss
-
-
-        //check if a buffer is empty
-        for (i <- 0 until amount) {
-          when(buffer(i).count === 0.U) {//if empty
-            fetchBuf := i.U //save which one is empty
-            emptyCheck := 1.U //variable to show a buffer is empty
-          }
-        }
-
-        //check if missAddress is at top of a buffer
-        for (i <- 0 until amount) {
-          when(buffer(i).head === io.missAddress && buffer(i).count =/= 0.U) {//when hit and buffer not empty
-            fetchBuf := i.U //save which one is a hit, can overwrite the empty one because hit is more important
-            hitCheck := 1.U //condition to show a buffer is hit
-          }
-        }
-
-        io.mem_addr := io.missAddress // mem request
+        //printf(p"WAITMISS TO COMPARE, io.mem_addr: ${(io.missAddress / 4.U) + 1.U}\n")
 
         //next state
         state := compare
@@ -120,7 +114,8 @@ switch(state) {
 
 
     is(compare) {//state to wait for hit and compare missAdress to top of buffer
-
+    flushCycle := false.B
+    //printf(p"STATE COMPARE, fetchedAddress: ${(fetchedAddress / 4.U) + 1.U}\n")
           //analog to waitMiss state
           for (i <- 0 until amount) {
             when(buffer(i).count === 0.U) {//if empty
@@ -139,6 +134,8 @@ switch(state) {
             }
           }
 
+          //printf(p"fetchBufWire: ${fetchBufWire}, emptyCheckWire: ${emptyCheckWire}, hitCheckWire: ${hitCheckWire}\n")
+          
       
       when(hitCheckWire === true.B){//hit in a buffer
         buffer(fetchBufWire).deq.ready := true.B //start dequeue
@@ -147,27 +144,22 @@ switch(state) {
         io.mem_addr := nextAddress(fetchBufWire)//set next adress to fetch 
         // can be nextAddress because if hit we have entries in the buffer and fetch at the bottom
         io.hit := true.B//set hit to true to show there was a hit in a buffer
-          
+        fetchedAddress := nextAddress(fetchBufWire)
         state := fetch //go to fetch state
         
-        nextAddress(fetchBufWire) := nextAddress(fetchBufWire) + 4.U
 
-        //printf(p"------------------------------------------------------------------------------\n")
-        //printf(p"Prefetcher compare hitCheck result output: 0x${Hexadecimal(buffer(fetchBufWire).deq.bits(31, 0))} at: ${(io.missAddress / 4.U) + 1.U} at buffer: ${fetchBufWire}\n")
-        //printf(p"------------------------------------------------------------------------------\n")
+          //printf(p"------------------------------------------------------------------------------\n")
+          //printf(p"Prefetcher compare hitCheck result output: 0x${Hexadecimal(buffer(fetchBufWire).deq.bits(31, 0))} at: ${(io.missAddress / 4.U) + 1.U} at buffer: ${fetchBufWire}\n")
+          //printf(p"------------------------------------------------------------------------------\n")
 
       }.elsewhen(emptyCheckWire === true.B ){//no hit, but a buffer is empty, enqueue and start fetching at address after miss
-        io.result := io.mem_instr// directly give fetched instruction to output 
-        //printf(p"------------------------------------------------------------------------------\n")
-        //printf(p"Prefetcher compare emptyCheck result output: 0x${Hexadecimal(io.mem_instr)} at: ${(io.missAddress / 4.U) + 1.U} at buffer: ${fetchBufWire}, io.result: 0x${Hexadecimal(io.result)}\n")
-        //printf(p"------------------------------------------------------------------------------\n")
-        io.hit := true.B//set hit to true to show there was a hit in a buffer
 
-        io.mem_addr := io.missAddress + 4.U //set address to fetch
+        io.mem_addr := io.missAddress//io.missAddress + 4.U //set address to fetch
+        fetchedAddress := io.missAddress
 
-        state := fetch //go to fetch state
+        state := empty //go to fetch state
 
-        nextAddress(fetchBufWire) := io.missAddress + 8.U//update register to next address after this fetch
+        nextAddress(fetchBufWire) := io.missAddress + 4.U//io.missAddress + 8.U//update register to next address after this fetch
 
 
       }.otherwise { //no hit, no buffer empty, need to flush a buffer
@@ -183,23 +175,40 @@ switch(state) {
     }
 
 
+    is(empty){
+      flushCycle := false.B
+      //printf(p"STATE EMPTY, fetchedAddress: ${(fetchedAddress / 4.U) + 1.U}\n")
 
+        io.result := io.mem_instr// directly give fetched instruction to output 
+        //printf(p"------------------------------------------------------------------------------\n")
+        //printf(p"Prefetcher empty result output: 0x${Hexadecimal(io.mem_instr)} at: ${(io.missAddress / 4.U) + 1.U} at buffer: ${fetchBufWire}, fetchedAddress: ${(fetchedAddress / 4.U) + 1.U}\n")
+        //printf(p"------------------------------------------------------------------------------\n")
+        io.hit := true.B//set hit to true to show there was a hit in a buffer
+
+        io.mem_addr := fetchedAddress + 4.U//io.missAddress + 4.U //set address to fetch
+        state := fetch //go to fetch state
+
+        nextAddress(fetchBuf) := fetchedAddress + 4.U///TODO Wire) := fetchedAddress + 8.U//io.missAddress + 8.U//update register to next address after this fetch
+
+    }
 
     is(fetch) { //prefetch state
-      
+      flushCycle := false.B
+      //printf(p"STATE FETCH, fetchedAddress: ${(fetchedAddress / 4.U) + 1.U}\n")
       when(missFetch){ // fetch on miss
 
         io.result := io.mem_instr
         io.hit := true.B//set hit to true to show there was a hit in a buffer
 
         io.mem_addr := nextAddress(fetchBuf)//set next address to fetch
+        fetchedAddress := nextAddress(fetchBuf)
         nextAddress(fetchBuf) := nextAddress(fetchBuf) + 4.U
 
         missFetch := false.B
 
-    //printf(p"------------------------------------------------------------------------------\n")
-    //printf(p"Prefetcher fetch result output: 0x${Hexadecimal(io.mem_instr)} at: ${((nextAddress(fetchBuf) - 4.U) / 4.U) + 1.U} at buffer: ${fetchBuf}\n")
-    //printf(p"------------------------------------------------------------------------------\n")
+      //printf(p"------------------------------------------------------------------------------\n")
+      //printf(p"Prefetcher fetch result output: 0x${Hexadecimal(io.mem_instr)} at: ${((nextAddress(fetchBuf)) / 4.U) + 1.U} at buffer: ${fetchBuf}\n")
+      //printf(p"------------------------------------------------------------------------------\n")
 
 
         //stay in state to fetch next instructions
@@ -216,16 +225,16 @@ switch(state) {
 
             //enqueue
             buffer(fetchBuf).enq.valid := true.B
-            buffer(fetchBuf).enq.bits := Cat(nextAddress(fetchBuf) - 4.U, io.mem_instr)
+            buffer(fetchBuf).enq.bits := Cat(nextAddress(fetchBuf), io.mem_instr)
 
 
-            io.mem_addr := nextAddress(fetchBuf)//next address to fetch
+            io.mem_addr := nextAddress(fetchBuf)+ 4.U//next address to fetch //TODO +4.U weg, unten - 4.U dazu
             nextAddress(fetchBuf) := nextAddress(fetchBuf) + 4.U //update register
-
+            fetchedAddress := nextAddress(fetchBuf) + 4.U
             
-        //printf(p"------------------------------------------------------------------------------\n")
-        //printf(p"Prefetcher enqueued 1 instr: 0x${Hexadecimal(io.mem_instr)} at: ${((nextAddress(fetchBuf) - 4.U) / 4.U) + 1.U}, normal nextAddr: : ${nextAddress(fetchBuf) + 4.U} at buffer: ${fetchBuf}\n")
-        //printf(p"------------------------------------------------------------------------------\n")
+          //printf(p"------------------------------------------------------------------------------\n")
+          //printf(p"Prefetcher enqueued 1 instr: 0x${Hexadecimal(io.mem_instr)} at: ${((nextAddress(fetchBuf)) / 4.U) + 1.U}, normal nextAddr: : ${nextAddress(fetchBuf) + 4.U} at buffer: ${fetchBuf}\n")
+          //printf(p"------------------------------------------------------------------------------\n")
 
           }
           state := fetch
@@ -239,14 +248,15 @@ switch(state) {
 
             //enqueue
             buffer(fetchBuf).enq.valid := true.B
-          //printf(p"------------------------------------------------------------------------------\n")
-          //printf(p"Prefetcher enqueued 2 instr: 0x${Hexadecimal(io.mem_instr)} at: ${((nextAddress(fetchBuf) - 4.U) / 4.U) + 1.U}, normal nextAddr: : ${nextAddress(fetchBuf) + 4.U} at buffer: ${fetchBuf}\n")
-          //printf(p"------------------------------------------------------------------------------\n")
+            //printf(p"------------------------------------------------------------------------------\n")
+            //printf(p"Prefetcher enqueued 2 instr: 0x${Hexadecimal(io.mem_instr)} at: ${((nextAddress(fetchBuf)) / 4.U) + 1.U} at buffer: ${fetchBuf}\n")
+            //printf(p"------------------------------------------------------------------------------\n")
 
-            buffer(fetchBuf).enq.bits := Cat(nextAddress(fetchBuf) - 4.U, io.mem_instr)
+            buffer(fetchBuf).enq.bits := Cat(nextAddress(fetchBuf), io.mem_instr) //TODO - 4.U
 
             //check if current enqueue is the new miss
-            currentEnqueue := nextAddress(fetchBuf) - 4.U
+            currentEnqueue := nextAddress(fetchBuf)
+            nextAddress(fetchBuf) := nextAddress(fetchBuf) + 4.U
           }
 
           //next state
@@ -260,11 +270,14 @@ switch(state) {
 
             //enqueue
             buffer(fetchBuf).enq.valid := true.B
-            //printf(p"------------------------------------------------------------------------------\n")
-            //printf(p"Prefetcher enqueued 3 instr: 0x${Hexadecimal(io.mem_instr)} at: ${((nextAddress(fetchBuf) - 4.U) / 4.U) + 1.U}, normal nextAddr: : ${nextAddress(fetchBuf) + 4.U} at buffer: ${fetchBuf}\n")
-            //printf(p"------------------------------------------------------------------------------\n")
+              //printf(p"------------------------------------------------------------------------------\n")
+              //printf(p"Prefetcher enqueued 3 instr: 0x${Hexadecimal(io.mem_instr)} at: ${((nextAddress(fetchBuf)) / 4.U) + 1.U}, normal nextAddr: : ${nextAddress(fetchBuf) + 4.U} at buffer: ${fetchBuf}\n")
+              //printf(p"------------------------------------------------------------------------------\n")
 
-            buffer(fetchBuf).enq.bits := Cat(nextAddress(fetchBuf) - 4.U, io.mem_instr)
+            buffer(fetchBuf).enq.bits := Cat(nextAddress(fetchBuf), io.mem_instr)
+
+            nextAddress(fetchBuf) := nextAddress(fetchBuf) + 4.U
+            fetchedAddress := nextAddress(fetchBuf)
 
           }
           state := waitMiss //idle state
@@ -273,16 +286,51 @@ switch(state) {
     }
 
     is(flush) { //flush state
+      when(flushCycle){
+       
+        state := fetch //!empty//go to fetch state
+        io.result := io.mem_instr
+        io.outputAddress := fetchedAddress
+        io.hit := true.B//set hit to true to show there was a hit in a buffer
+
+        io.mem_addr := nextAddress(fetchBuf)//set next address to fetch
+        fetchedAddress := nextAddress(fetchBuf)
+        nextAddress(fetchBuf) := nextAddress(fetchBuf)// + 4.U
+
+        missFetch := false.B
+
+      //printf(p"------------------------------------------------------------------------------\n")
+      //printf(p"Prefetcher flush result output: 0x${Hexadecimal(io.mem_instr)} at: ${((nextAddress(fetchBuf) - 4.U) / 4.U) + 1.U} at buffer: ${fetchBuf}\n")
+      //printf(p"------------------------------------------------------------------------------\n")
+      state := fetch
+      }.otherwise{
+        //printf(p"\n")
+        //printf(p"\n")
+        //printf(p"\n")
+        //printf(p"\n")
+        //printf(p"\n")
+        //printf(p"\n")
+        //printf(p"\n")
+        //printf(p"\n")
+        //printf(p"\n")
+         //printf(p"STATE FLUSH, fetched address: ${(fetchedAddress / 4.U) + 1.U} at  buffer: ${leastU.io.out}\n")
+        
+
+        flushCycle := true.B
 
       buffer(leastU.io.out).flush := true.B //update lru
       fetchBuf := leastU.io.out //save which buffer was flushed to fetch into it
 
 
-      nextAddress(leastU.io.out) := io.missAddress + 4.U //update register
+      nextAddress(leastU.io.out) := io.missAddress + 4.U//update register
       io.mem_addr := io.missAddress //set adress to fetch
-
-      state := fetch //go to fetch state
+      fetchedAddress := io.missAddress
+      }       
     }
   }
+  //printf(p"------------------------------------------------------------------------------\n")
+  //printf(p"PREFETCHER hit: ${io.hit}, result: 0x${Hexadecimal(io.result)} at address: ${(io.missAddress / 4.U) + 1.U}\n")
+  //printf(p"------------------------------------------------------------------------------\n")
 
+   
 }

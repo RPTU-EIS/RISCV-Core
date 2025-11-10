@@ -66,6 +66,7 @@ class DICachesAndMemory (I_memoryFile: String, cacheOnly : Boolean = true) exten
   ipref.io.miss        :=   icache.io.miss
   icache.io.hit        :=   ipref.io.hit
   icache.io.prefData   :=   ipref.io.result
+  icache.io.prefAddr   :=   ipref.io.outputAddress
 
   ipref.io.mem_instr := arbiter.io.dataRead
   ipref.io.grantData := arbiter.io.grantData

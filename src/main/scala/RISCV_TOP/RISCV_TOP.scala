@@ -15,7 +15,8 @@ import chisel3.util._
 import top_MC.top_MC
 
 
-class RISCV_TOP(BinaryFile: String = "src/test/programs/beq_test", DataFile: String = "src/main/scala/DataMemory/dataMemVals") extends Module{
+//class RISCV_TOP(BinaryFile: String = "src/test/programs/beq_test", DataFile: String = "src/main/scala/DataMemory/dataMemVals") extends Module{
+class RISCV_TOP(BinaryFile: String = "beq_test", DataFile: String = "dataMemVals") extends Module{
 
   val io = IO(
     new Bundle {
@@ -46,12 +47,14 @@ class RISCV_TOP(BinaryFile: String = "src/test/programs/beq_test", DataFile: Str
       val memDeviceWriteAddress     = Output(UInt(32.W))
 
 
-
+      
+      val DMEMWriteDataOut          = Output(UInt(32.W))
+      val DMEMWriteEnableOut        = Output(Bool())
 
     })
-
+    
   val top_MC = Module(new top_MC(BinaryFile, DataFile)).testHarness
-
+  println(s"[Elaboration] BinaryFile: $BinaryFile")
   io.PC := top_MC.currentPC
 
   top_MC.setupSignals.IMEMsignals.address     := io.IMEMAddr
@@ -81,4 +84,9 @@ class RISCV_TOP(BinaryFile: String = "src/test/programs/beq_test", DataFile: Str
   io.memDeviceWriteEnable   := top_MC.memUpdates.writeEnable
   io.memDeviceWriteData     := top_MC.memUpdates.writeData
 
+
+
+  //!
+  io.DMEMWriteDataOut := io.DMEMWriteData
+  io.DMEMWriteEnableOut := io.DMEMWriteEnable
 }

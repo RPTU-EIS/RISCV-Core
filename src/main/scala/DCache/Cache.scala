@@ -21,8 +21,9 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
     val mem_data_in = Output(UInt(32.W))
     val mem_data_addr = Output(UInt(32.W))
     val mem_data_out = Input(UInt(32.W))
-  })
 
+    val mem_granted = Input(Bool())
+  })
   val scalaReadOnlyBool = if(read_only) true.B else false.B
   val write_en_reg = RegInit(false.B)
   val read_en_reg = RegInit(false.B)
@@ -30,7 +31,7 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
   val data_in_reg = if (!read_only) Some(Reg(UInt(32.W))) else None
 
   val cacheLines = 64.U // cache lines as a variable
-  val idle :: compare :: writeback :: allocate :: Nil = Enum(4)
+  val idle :: writeback :: allocate :: Nil = Enum(3)
   val stateReg = RegInit(idle)
   val index = Reg(UInt(6.W)) // stores the current cache index in a register to use in later states
   val data_element = Reg(UInt(58.W)) // stores the loaded cache element in a register to use in later states
@@ -49,89 +50,157 @@ class Cache (CacheFile: String, read_only: Boolean = false) extends Module{
   io.mem_data_in := 0.U
   io.mem_data_addr := 0.U
 
+  val compareWire = Wire(Bool())
+  compareWire := false.B
+  val write_en_wire = Wire(Bool())
+  write_en_wire := false.B
+  val read_en_wire = Wire(Bool())
+  read_en_wire := false.B
+  val data_addr_wire = Wire(UInt(32.W))
+  data_addr_wire := 0.U
+  val data_in_wire = if (!read_only) Some(Wire(UInt(32.W))) else None
+  if (!read_only) data_in_wire.foreach(_ := io.data_in.get)
+
+
+  val compareReg = RegInit(false.B)
+
+
   switch(stateReg) {
+    
+    
     is(idle) {
-      io.data_out := data_element(31, 0)
       when(io.read_en || io.write_en.getOrElse(false.B)) {
-        stateReg := compare
-        write_en_reg := io.write_en.getOrElse(false.B)
-        read_en_reg := io.read_en
+        compareWire := true.B
+        write_en_wire := io.write_en.getOrElse(false.B)
+        read_en_wire := io.read_en
         data_addr_reg := io.data_addr
-        if (!read_only) data_in_reg.foreach(_ := io.data_in.get)
+        data_addr_wire := io.data_addr
+
+
+        write_en_reg := write_en_wire
+        read_en_reg := read_en_wire
+        if (!read_only) {
+          data_in_reg.foreach { reg =>
+            data_in_wire.foreach { wire =>
+              reg := wire
+            }
+          }
+        }
+        
         statecount := false.B
       }
-    }
+      when(compareReg){
+        data_addr_wire := data_addr_reg
+        read_en_wire := read_en_reg
+        if (!read_only) data_in_reg.foreach(_ := io.data_in.get)
+      }
 
-    is(compare) {
-      index := (data_addr_reg / 4.U) % cacheLines
-      data_element_wire := cache_data_array((data_addr_reg / 4.U) % cacheLines).asUInt
-      data_element := data_element_wire
-
-      when(data_element_wire(57) && (data_element_wire(55, 32).asUInt === data_addr_reg(31, 8).asUInt)) {
-        stateReg := idle
-        io.valid := true.B
-        when(read_en_reg) {
-          io.data_out := data_element_wire(31, 0)
-        }
-        if(!read_only) {
-          when(write_en_reg) {
-            val temp = Wire(Vec(58, Bool()))
-            temp := 0.U(58.W).asBools
-            temp(57) := true.B
-            temp(56) := true.B // set dirty bit
-
-            for (i <- 0 until 32) { temp(i) := data_in_reg.get(i) } // new data is stored
-            for (i <- 32 until 56) { temp(i) := data_element_wire(i) } // the tag remains the same
-            cache_data_array(index) := temp.asUInt
+      when(compareWire || compareReg){
+      
+        compareReg := false.B
+        index := (data_addr_wire / 4.U) % cacheLines
+        data_element_wire := cache_data_array((data_addr_wire / 4.U) % cacheLines).asUInt
+        data_element := data_element_wire
+       
+        when(data_element_wire(57) && (data_element_wire(55, 32).asUInt === data_addr_wire(31, 8).asUInt)) {
+          stateReg := idle
+          
+          io.valid := true.B
+          when(read_en_wire && compareReg) {
+            io.data_out := data_element(31, 0)
+            
+          }.elsewhen{read_en_wire}{
+            io.data_out := data_element_wire(31, 0)
+            
           }
-        }
-      }.otherwise {
-        if(!read_only) {
-          when(data_element_wire(56) && data_element_wire(57)) {
-            stateReg := writeback
-          }.otherwise {
-            stateReg := allocate
+          if(!read_only) {
+            when(write_en_wire || write_en_reg) {
+              val temp = Wire(Vec(58, Bool()))
+              temp := 0.U(58.W).asBools
+              temp(57) := true.B
+              temp(56) := true.B // set dirty bit
+              when(write_en_wire){
+                for (i <- 0 until 32) { temp(i) := data_in_wire.get(i) } // new data is stored
+                for (i <- 32 until 56) { temp(i) := data_element_wire(i) } // the tag remains the same
+                
+              }.otherwise{
+                for (i <- 0 until 32) { temp(i) := data_in_reg.get(i) } // new data is stored
+                //for (i <- 32 until 56) { temp(i) := data_element(i) } // the tag remains the same
+                for (i <- 32 until 56) { temp(i) := data_element_wire(i) }
+                
+              }//if wire write from there, otherwise has to be from reg
+              
+              //for (i <- 0 until 32) { temp(i) := data_in_reg.get(i) } // new data is stored
+              
+              cache_data_array(index) := temp.asUInt
+            }
           }
+        }.otherwise {
+            if(!read_only) {
+              when(data_element_wire(56) && data_element_wire(57)) {
+                stateReg := writeback
+                
+              }.otherwise {
+                stateReg := allocate
+                
+              }
+            }
+            else {
+              
+              stateReg := allocate
+            }
         }
-        else {
-          stateReg := allocate
-        }
-
       }
     }
 
     is(writeback) {
       io.mem_write_en := true.B
       io.mem_read_en := false.B
-      val temp = Wire(Vec(32, Bool()))
-      temp := 0.U(32.W).asBools // the address where the dirty cache element should be stored in memory
-      temp(1) := false.B
-      temp(0) := false.B // first two bits 0 as byte offset
-      for (i <- 2 until 8) { temp(i) := index.asBools(i - 2) } // next 6 bits from index
-      for (i <- 8 until 32) { temp(i) := data_element(i + 24) } // the rest 24 bits from the tag
-      io.mem_data_addr := temp.asUInt
-      io.mem_data_in := data_element(31, 0) // write the data in the dirty element to the memory
-      stateReg := allocate
+      when(io.mem_granted)
+      {
+        val temp = Wire(Vec(32, Bool()))
+        temp := 0.U(32.W).asBools // the address where the dirty cache element should be stored in memory
+        temp(1) := false.B
+        temp(0) := false.B // first two bits 0 as byte offset
+        for (i <- 2 until 8) { temp(i) := index.asBools(i - 2) } // next 6 bits from index
+        for (i <- 8 until 32) { temp(i) := data_element(i + 24) } // the rest 24 bits from the tag
+        io.mem_data_addr := temp.asUInt
+        io.mem_data_in := data_element(31, 0) // write the data in the dirty element to the memory
+        stateReg := allocate
+      }
     }
 
     is(allocate) {
+      
       when(statecount) {
         statecount := false.B
         io.mem_read_en := false.B
         val temp = Wire(Vec(58, Bool()))
         temp := 0.U(58.W).asBools
         for (i <- 0 until 32) { temp(i) := io.mem_data_out(i) }
+        
         temp(56) := false.B
         temp(57) := true.B
-        for (i <- 32 until 56) { temp(i) := data_addr_reg(i - 24) }
+        
+        for (i <- 32 until 56) { temp(i) := data_addr_reg(i - 24) }//data_addr_wire(i - 24) }
         cache_data_array(index) := temp.asUInt
-        stateReg := compare
+        
+        data_element := temp.asUInt
+
+        compareReg := true.B
+        stateReg := idle
       }.otherwise {
-        statecount := true.B
+        
         io.mem_read_en := true.B
         io.mem_write_en := false.B
         io.mem_data_addr := data_addr_reg
+        when(io.mem_granted){
+          statecount := true.B
+        }
+
       }
     }
+
   }
+
 }

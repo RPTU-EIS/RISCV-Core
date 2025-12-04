@@ -1,36 +1,181 @@
 package ICache
 
-import DCache.Cache
 import chisel3._
 import chisel3.util._
 import chisel3.experimental._
 import chisel3.util.experimental._
 import firrtl.annotations.MemoryLoadFileType
 
-class ICache(CacheFile: String) extends Module {
+  class ICache (CacheFile: String) extends Module{
   val io = IO(new Bundle {
-    val instr_addr = Input(UInt(32.W))
-    val instr_out = Output(UInt(32.W))
+    val read_en = Input(Bool())
+    val data_addr = Input(UInt(32.W))
+    val data_out = Output(UInt(32.W))
     val valid = Output(Bool())
     val busy = Output(Bool())
 
     val mem_read_en = Output(Bool())
-    val mem_addr = Output(UInt(32.W))
-    val mem_data_in = Input(UInt(32.W))
+    val mem_data_addr = Output(UInt(32.W))
+    val mem_data_out = Input(UInt(32.W))
+
+    //val mem_granted = Input(Bool())
+
+    val hit = Input(Bool()) //is there a hit in a buffer
+    val prefData = Input(UInt(32.W)) //output from buffer
+    val miss = Output(Bool())
+
+    //! Added for Loop_Test_0
+    val pcOut = Output(UInt(32.W))
+    val flushed = Input(Bool())
+
+    val prefAddr = Input(UInt(32.W))
+
   })
 
-  val cache = Module(new Cache(CacheFile, read_only = true))
+  
+  io.pcOut := io.data_addr
+  val flushed = RegInit(false.B)
+  when(io.flushed){
+    flushed := true.B
+  }
 
-  cache.io.read_en := true.B // Always reading for instruction cache
- // cache.io.write_en.foreach(_ := false.B) // Not applicable for ICache
-  cache.io.data_addr := io.instr_addr
- // cache.io.data_in.foreach(_ := 0.U) // Not applicable for ICache
-  io.valid := cache.io.valid
-  io.instr_out := cache.io.data_out
-  io.busy := cache.io.busy
+  val read_en_reg = RegInit(false.B)
+  val data_addr_reg = Reg(UInt(32.W))
 
-  // Memory interface connections
-  io.mem_read_en := cache.io.mem_read_en
-  io.mem_addr := cache.io.mem_data_addr
-  cache.io.mem_data_out := io.mem_data_in
+  val cacheLines = 64.U // cache lines as a variable
+  val idle :: allocate :: prefHit:: Nil = Enum(3)
+  val stateReg = RegInit(idle)
+  val index = Reg(UInt(6.W)) // stores the current cache index in a register to use in later states
+  val data_element = Reg(UInt(58.W)) // stores the loaded cache element in a register to use in later states
+  val data_element_wire = WireInit(0.asUInt(58.W)) // stores the loaded cache element in a wire to use in the same state
+  val statecount = RegInit(true.B)// waiting for 1 cycle in allocate state
+
+  val cache_data_array = Mem(64, UInt(58.W))  // give here 64 as a variable
+  loadMemoryFromFileInline(cache_data_array, CacheFile, MemoryLoadFileType.Binary)
+
+  io.data_out := 0.U
+  io.valid := 0.B
+  io.busy := false.B//(stateReg =/= idle)
+  io.miss := false.B
+
+  io.mem_read_en := 0.B
+  io.mem_data_addr := 0.U
+
+  val compareWire = Wire(Bool())
+  compareWire := false.B
+  val read_en_wire = Wire(Bool())
+  read_en_wire := false.B
+  val data_addr_wire = Wire(UInt(32.W))
+  data_addr_wire := 0.U
+
+
+  val compareReg = RegInit(false.B)
+
+
+  val prefValue = RegInit(0.U(32.W))
+
+val prefAddr = RegInit(0.U(32.W))
+switch(stateReg) {
+  
+  is(idle) {
+      //printf(p"CACHE IDLE address: ${(io.data_addr / 4.U) + 1.U}\n")
+      io.miss := true.B 
+      io.busy := true.B
+
+      data_addr_reg := io.data_addr
+
+      index := (io.data_addr / 4.U) % cacheLines
+      data_element_wire := cache_data_array((io.data_addr / 4.U) % cacheLines).asUInt
+      
+      data_element := data_element_wire
+
+      when(data_element_wire(55, 32).asUInt === io.data_addr(31, 8).asUInt) {
+        //printf(p"CACHE IDLE HIT instruction: 0x${Hexadecimal(data_element_wire(31, 0))}\n")
+        stateReg := idle
+        io.valid := true.B
+        io.busy := false.B
+          
+        io.data_out := data_element_wire(31, 0)
+
+      }.otherwise {
+        when(io.hit){
+          //printf(p"CACHE IDLE PREF HIT instruction: 0x${Hexadecimal(io.prefData)}\n")
+            prefValue := io.prefData
+            prefAddr  := io.prefAddr
+            stateReg := prefHit
+        }.otherwise{ 
+          //printf(p"CACHE IDLE TO ALLOCATE for pref address: ${(io.prefAddr / 4.U) + 1.U} and data_address: ${(io.data_addr / 4.U) + 1.U}\n") 
+          stateReg := allocate
+        }
+      }
+  }
+
+    is(allocate) {
+        //printf(p"CACHE ALLOCATE\n")
+      io.busy := true.B
+      io.miss := true.B 
+      when(io.hit) {
+          //printf(p"CACHE ALLOCATE HIT instruction: 0x${Hexadecimal(io.prefData)} at ${(io.prefAddr / 4.U) + 1.U}\n")
+
+          val temp = Wire(Vec(58, Bool()))
+          temp := 0.U(58.W).asBools
+
+          // Store the 32-bit data portion
+          for (i <- 0 until 32) {
+            temp(i) := io.prefData(i)
+          }
+
+          // Store the tag from address register
+          for (i <- 32 until 56) {
+            temp(i) := io.prefAddr(i-24)
+          }
+
+          // Store into cache
+          cache_data_array((io.prefAddr / 4.U) % cacheLines) := temp.asUInt
+          
+
+          // Transition to the idle state
+          stateReg := idle
+          
+            when(flushed){
+                data_addr_reg := io.prefAddr//!io.data_addr
+                flushed := false.B
+                data_element := cache_data_array((io.prefAddr / 4.U) % cacheLines).asUInt
+              }
+      }
+    }
+    is(prefHit) {
+        //printf(p"CACHE PREFHIT\n")
+      io.busy := true.B
+    
+      // Write the prefetched data into the cache
+      val temp = Wire(Vec(58, Bool()))
+      temp := 0.U(58.W).asBools
+
+      // Store the 32-bit data portion
+      for (i <- 0 until 32) {
+        temp(i) := prefValue(i)
+      }
+
+      // Store the tag from address register
+      for (i <- 32 until 56) {
+        temp(i) := prefAddr(i-24)
+      }
+
+      // Store into cache
+      cache_data_array((prefAddr / 4.U) % cacheLines) := temp.asUInt
+      index := cache_data_array((prefAddr / 4.U) % cacheLines) 
+
+        // Transition to the idle state
+      stateReg := idle
+
+      when(flushed){
+          data_addr_reg := prefAddr
+          flushed := false.B
+          data_element := cache_data_array((prefAddr / 4.U) % cacheLines).asUInt
+          }
+    }
+
+  }
+
 }

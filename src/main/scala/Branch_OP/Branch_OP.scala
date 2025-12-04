@@ -31,27 +31,59 @@ class Branch_OP extends Module {
   switch(io.branchType) {
     is(beq) {
       io.branchTaken := (lhs === rhs)
+      when(lhs === rhs){
+          printf(p"BEQ TAKEN lhs=rhs, lhs: ${lhs}, rhs: ${rhs}\n")
+      }.otherwise{
+          printf(p"BEQ NOT TAKEN lhs!=rhs, lhs: ${lhs}, rhs: ${rhs}\n")
+      }
     }
     is(neq) {
       io.branchTaken := (lhs =/= rhs)
+      when(lhs =/= rhs){
+          printf(p"NEQ/BNE TAKEN lhs!=rhs, lhs: ${lhs}, rhs: ${rhs}\n")
+      }.otherwise{
+          printf(p"NEQ/BNE NOT TAKEN lhs=rhs, lhs: ${lhs}, rhs: ${rhs}\n")
+      }
     }
     is(gte) {
       io.branchTaken := (lhs >= rhs)
+      when(lhs >= rhs){
+          printf(p"GTE TAKEN lhs>=rhs, lhs: ${lhs}, rhs: ${rhs}\n")
+      }.otherwise{
+          printf(p"GTE NOT TAKEN lhs<rhs, lhs: ${lhs}, rhs: ${rhs}\n")
+      }
     }
     is(lt) {
       io.branchTaken := (lhs < rhs)
+      when(lhs < rhs){
+          printf(p"LT TAKEN lhs<rhs, lhs: ${lhs}, rhs: ${rhs}\n")
+      }.otherwise{
+          printf(p"LT NOT TAKEN lhs>=rhs, lhs: ${lhs}, rhs: ${rhs}\n")
+      }
     }
     is(gteu) {
-      io.branchTaken := (lhs >= rhs)
+      io.branchTaken := (lhs.asUInt >= rhs.asUInt)
+      when(lhs.asUInt >= rhs.asUInt){
+          printf(p"GTEU TAKEN lhs>=rhs, lhs: ${lhs.asUInt}, rhs: ${rhs.asUInt}\n")
+      }.otherwise{
+          printf(p"GTEU NOT TAKEN lhs<hs, lhs: ${lhs.asUInt}, rhs: ${rhs.asUInt}\n")
+      }
     }
     is(ltu) {
-      io.branchTaken := (lhs < rhs)
+      io.branchTaken := (lhs.asUInt < rhs.asUInt)
+      when(lhs.asUInt < rhs.asUInt){
+          printf(p"LTU TAKEN lhs<rhs, lhs: ${lhs.asUInt}, rhs: ${rhs.asUInt}\n")
+      }.otherwise{
+          printf(p"LTU NOT TAKEN lhs>=rhs, lhs: ${lhs.asUInt}, rhs: ${rhs.asUInt}\n")
+      }
     }
     is(jump) {
       io.branchTaken := (1.U)
+        printf(p"JUMP\n")
     }
     is(DC) {
       io.branchTaken := (0.U)
+        printf(p"DC\n")
     }
   }
 

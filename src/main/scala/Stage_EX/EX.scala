@@ -21,6 +21,7 @@ import config.op1sel._
 import config.op2sel._
 import config.{ControlSignals, Instruction, branch_types, op1sel, op2sel}
 
+
 class EX extends Module {
 
   val io = IO(
@@ -81,6 +82,8 @@ class EX extends Module {
     alu_operand1         := io.rs1
     ResolveBranch.src1   := io.rs1
   }
+
+
   when(io.rs2Select === 1.asUInt(2.W)){
     alu_operand2         := io.ALUresultEXB
     ResolveBranch.src2   := io.ALUresultEXB
@@ -95,7 +98,7 @@ class EX extends Module {
   }
     //Operand 1, 2nd Mux
   when(io.op1Select === op1sel.PC){
-    ALU.src1    := io.PC
+  ALU.src1    := io.PC
   }.otherwise{
     ALU.src1    := alu_operand1
   }
@@ -120,7 +123,6 @@ class EX extends Module {
   io.wrongAddrPred := io.btbHit && (ALU.aluRes =/= io.btbTargetPredict) // hit but target addr in BTB was incorrect
   io.branchTarget  := ALU.aluRes  // calculated branch target
   
-
   //assert((ALU.aluRes === io.btbTargetPredict),"BTB hit, but predicted branch target doesn't match!")
 
   io.Rs2Forwarded := alu_operand2
@@ -140,6 +142,7 @@ class EX extends Module {
     }otherwise{ // In case of BTB hit (we already know this branch), tell IF to change prediction FSM
       io.newBranch        := false.B
       io.updatePrediction := true.B
+      io.branchTarget := io.btbTargetPredict//!
     }
   }.otherwise{
     io.newBranch        := false.B

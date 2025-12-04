@@ -120,4 +120,12 @@ class Decode extends Module {
   io.op2Select  := decodedControlSignals(8)
   io.immType    := decodedControlSignals(9)
   io.ALUop      := decodedControlSignals(10)
+
+  when(decodedControlSignals(10) === ALUOps.LUI){
+  //printf(p"DECODE LUI\n")
+  }
+  
+
+
+//printf(p"Decode op1Select: 0x${Hexadecimal(decodedControlSignals(7))}, op2Select: 0x${Hexadecimal(decodedControlSignals(8))}, ALUop: 0x${Hexadecimal(decodedControlSignals(10))}\n")
 }

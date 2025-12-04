@@ -39,18 +39,25 @@ class HazardUnit extends Module
         val flushD              = Output(Bool())
         val rs1Select           = Output(UInt(2.W))     //Used to select input to ALU in case of forwarding -- output from FwdUint
         val rs2Select           = Output(UInt(2.W))
+
+        //! Added for Loop_Test_0
+        val branchToDo           = Input(Bool())
+
+
+
+
     }
   )
 
   val stall       = Wire(Bool())
-  //val stall_membusy = Wire(Bool())
+
 
 // Forwarding Unit
   // Handling source register 1
   when((io.rs1AddrIDB =/= 0.U) && (io.rs1AddrIDB === io.rdAddrEXB) && io.controlSignalsEXB.regWrite){
     // Normal forward 
     io.rs1Select  := 1.asUInt(2.W)  // Forward from EX/MEM pipeline register (EX Barrier)
-  }
+  }  
   .elsewhen((io.rs1AddrIDB =/= 0.U) && (io.rs1AddrIDB === io.rdAddrMEMB) && io.controlSignalsMEMB.regWrite){
     io.rs1Select  := 2.asUInt(2.W)  // Forward from MEM/WB pipeline register (MEM Barrier)
   }
@@ -70,6 +77,7 @@ class HazardUnit extends Module
     io.rs2Select  := 0.asUInt(2.W)
   }
 
+
 // Stalling for Load
   when(  (io.rs1AddrIFB =/= 0.U || io.rs2AddrIFB =/= 0.U) 
          && (io.rs1AddrIFB === io.rdAddrIDB || io.rs2AddrIFB === io.rdAddrIDB) 
@@ -86,16 +94,17 @@ class HazardUnit extends Module
   // Outputs: Data Hazard -> stall ID & IF stages, and Flush EX stage (Load) ___ Control Hazard -> flush ID & EX stages (Branch Taken)
   // *NOTE*: If io.branchType = DC, this means the branch/jump instruction currently in EX is invalid (flushed!) --> correcting misprediction is invalid too!
 
-  io.stall    := stall
+  io.stall    := stall //!|| io.membusy
+  
 
   when((io.branchTaken =/= io.btbPrediction &&  io.branchType =/= branch_types.DC) || io.wrongAddrPred){
     io.branchMispredicted := 1.B
+   
   }
   .otherwise{
     io.branchMispredicted := 0.B
   }
   io.flushD   := io.branchMispredicted
-  io.flushE   := io.stall | io.branchMispredicted
-  //io.flushE   := io.stall | io.branchMispredicted | io.stall_membusy
+  io.flushE   := io.stall | io.branchMispredicted //!io.branchMispredicted
 
 }
